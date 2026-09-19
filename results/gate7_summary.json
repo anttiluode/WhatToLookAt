@@ -1,0 +1,75 @@
+{
+  "training_worlds": 150,
+  "test_worlds_per_cell": 120,
+  "signal_dimension": 192,
+  "innovation_supports": [1, 2, 4, 8, 16, 32, 64],
+  "innovation_patch_levels": [0, 2, 4, 6, 8],
+  "total_innovation_energy_reference_amplitude": 0.65,
+  "frozen_sensor_summary": [
+    {
+      "strategy": "coverage_designed",
+      "guide_rows": 3,
+      "row_support": 64,
+      "coordinate_coverage": 192,
+      "guide_coordinate_touches_total": 3072,
+      "min_success_by_innovation_support": {
+        "1": 1.0,
+        "2": 0.44166666666666665,
+        "4": 0.6333333333333333,
+        "8": 0.8,
+        "16": 0.9083333333333333,
+        "32": 0.9666666666666667,
+        "64": 0.9333333333333333
+      }
+    },
+    {
+      "strategy": "posthoc_pruned",
+      "guide_rows": 12,
+      "row_support": 64,
+      "coordinate_coverage": 192,
+      "guide_coordinate_touches_total": 12288,
+      "min_success_by_innovation_support": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": 1.0,
+        "8": 1.0,
+        "16": 1.0,
+        "32": 1.0,
+        "64": 1.0
+      }
+    },
+    {
+      "strategy": "random_sparse",
+      "guide_rows": 12,
+      "row_support": 64,
+      "coordinate_coverage": 190,
+      "guide_coordinate_touches_total": 12288,
+      "min_success_by_innovation_support": {
+        "1": 0.9416666666666667,
+        "2": 0.9916666666666667,
+        "4": 1.0,
+        "8": 1.0,
+        "16": 1.0,
+        "32": 1.0,
+        "64": 1.0
+      }
+    },
+    {
+      "strategy": "dense",
+      "guide_rows": 2,
+      "row_support": 192,
+      "coordinate_coverage": 192,
+      "guide_coordinate_touches_total": 6144,
+      "min_success_by_innovation_support": {
+        "1": 0.9583333333333334,
+        "2": 0.9,
+        "4": 0.825,
+        "8": 0.8583333333333333,
+        "16": 0.9166666666666666,
+        "32": 0.8916666666666667,
+        "64": 0.8583333333333333
+      }
+    }
+  ],
+  "note": "The full executable keeps per-patch-count success/read curves. Innovation amplitude scales as 0.65/sqrt(K), so total innovation energy is approximately controlled while support size changes."
+}
