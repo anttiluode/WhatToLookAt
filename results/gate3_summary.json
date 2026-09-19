@@ -1,0 +1,220 @@
+{
+  "training_worlds": 80,
+  "validation_worlds": 40,
+  "test_worlds_per_level": 80,
+  "selected_cue": "margin",
+  "selected_threshold": 0.42853050101405965,
+  "guide_cost_scalars": 128,
+  "expensive_patch_cost_scalars": 192,
+  "full_scan_cost_scalars": 3072,
+  "candidate_cues": [
+    {
+      "name": "margin",
+      "threshold": 0.42853050101405965,
+      "training_balanced_accuracy": 0.971391882109379,
+      "validation_balanced_accuracy": 0.9759259259259259
+    },
+    {
+      "name": "neg_error",
+      "threshold": -0.25925773766672294,
+      "training_balanced_accuracy": 0.9702944960092954,
+      "validation_balanced_accuracy": 0.9631481481481481
+    },
+    {
+      "name": "cycle",
+      "threshold": 0.01,
+      "training_balanced_accuracy": 0.9260071283987845,
+      "validation_balanced_accuracy": 0.9072222222222222
+    }
+  ],
+  "always_trust": [
+    {
+      "ambiguous_guides": 0,
+      "mean_wrong_matches": 0.0,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 4.0,
+      "mean_total_scalar_cost": 896.0,
+      "mean_total_cost_fraction_of_full_scan": 0.2916666666666667,
+      "median_psnr_db": 120.0
+    },
+    {
+      "ambiguous_guides": 2,
+      "mean_wrong_matches": 1.6875,
+      "success_fraction": 0.0125,
+      "mean_expensive_patch_reads": 4.0,
+      "mean_total_scalar_cost": 896.0,
+      "mean_total_cost_fraction_of_full_scan": 0.2916666666666667,
+      "median_psnr_db": 17.74517194311037
+    },
+    {
+      "ambiguous_guides": 4,
+      "mean_wrong_matches": 3.35,
+      "success_fraction": 0.0,
+      "mean_expensive_patch_reads": 4.0,
+      "mean_total_scalar_cost": 896.0,
+      "mean_total_cost_fraction_of_full_scan": 0.2916666666666667,
+      "median_psnr_db": 14.655996175584356
+    },
+    {
+      "ambiguous_guides": 6,
+      "mean_wrong_matches": 5.0125,
+      "success_fraction": 0.0,
+      "mean_expensive_patch_reads": 4.0,
+      "mean_total_scalar_cost": 896.0,
+      "mean_total_cost_fraction_of_full_scan": 0.2916666666666667,
+      "median_psnr_db": 12.352191411623714
+    }
+  ],
+  "image_confidence_adaptive": [
+    {
+      "ambiguous_guides": 0,
+      "mean_wrong_matches": 0.0,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 4.0875,
+      "mean_total_scalar_cost": 912.8,
+      "mean_total_cost_fraction_of_full_scan": 0.29713541666666665,
+      "median_psnr_db": 120.0
+    },
+    {
+      "ambiguous_guides": 2,
+      "mean_wrong_matches": 1.6875,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 6.0375,
+      "mean_total_scalar_cost": 1287.2,
+      "mean_total_cost_fraction_of_full_scan": 0.41901041666666666,
+      "median_psnr_db": 120.0
+    },
+    {
+      "ambiguous_guides": 4,
+      "mean_wrong_matches": 3.35,
+      "success_fraction": 0.9625,
+      "mean_expensive_patch_reads": 8.1625,
+      "mean_total_scalar_cost": 1695.2,
+      "mean_total_cost_fraction_of_full_scan": 0.5518229166666667,
+      "median_psnr_db": 120.0
+    },
+    {
+      "ambiguous_guides": 6,
+      "mean_wrong_matches": 5.0125,
+      "success_fraction": 0.9625,
+      "mean_expensive_patch_reads": 10.1125,
+      "mean_total_scalar_cost": 2069.6,
+      "mean_total_cost_fraction_of_full_scan": 0.6736979166666667,
+      "median_psnr_db": 120.0
+    }
+  ],
+  "shuffled_confidence": [
+    {
+      "ambiguous_guides": 0,
+      "mean_wrong_matches": 0.0,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 4.0875,
+      "mean_total_scalar_cost": 912.8,
+      "mean_total_cost_fraction_of_full_scan": 0.29713541666666665,
+      "median_psnr_db": 120.0
+    },
+    {
+      "ambiguous_guides": 2,
+      "mean_wrong_matches": 1.6875,
+      "success_fraction": 0.0625,
+      "mean_expensive_patch_reads": 6.0375,
+      "mean_total_scalar_cost": 1287.2,
+      "mean_total_cost_fraction_of_full_scan": 0.41901041666666666,
+      "median_psnr_db": 17.85363780474945
+    },
+    {
+      "ambiguous_guides": 4,
+      "mean_wrong_matches": 3.35,
+      "success_fraction": 0.05,
+      "mean_expensive_patch_reads": 8.1,
+      "mean_total_scalar_cost": 1683.2,
+      "mean_total_cost_fraction_of_full_scan": 0.5479166666666667,
+      "median_psnr_db": 15.983832578659044
+    },
+    {
+      "ambiguous_guides": 6,
+      "mean_wrong_matches": 5.0125,
+      "success_fraction": 0.0,
+      "mean_expensive_patch_reads": 10.0125,
+      "mean_total_scalar_cost": 2050.4,
+      "mean_total_cost_fraction_of_full_scan": 0.6674479166666667,
+      "median_psnr_db": 15.879639346797227
+    }
+  ],
+  "oracle_uncertainty": [
+    {
+      "ambiguous_guides": 0,
+      "mean_wrong_matches": 0.0,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 4.0,
+      "mean_total_scalar_cost": 896.0,
+      "mean_total_cost_fraction_of_full_scan": 0.2916666666666667,
+      "median_psnr_db": 120.0
+    },
+    {
+      "ambiguous_guides": 2,
+      "mean_wrong_matches": 1.6875,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 5.6875,
+      "mean_total_scalar_cost": 1220.0,
+      "mean_total_cost_fraction_of_full_scan": 0.3971354166666667,
+      "median_psnr_db": 120.0
+    },
+    {
+      "ambiguous_guides": 4,
+      "mean_wrong_matches": 3.35,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 7.35,
+      "mean_total_scalar_cost": 1539.2,
+      "mean_total_cost_fraction_of_full_scan": 0.5010416666666667,
+      "median_psnr_db": 120.0
+    },
+    {
+      "ambiguous_guides": 6,
+      "mean_wrong_matches": 5.0125,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 9.0125,
+      "mean_total_scalar_cost": 1858.4,
+      "mean_total_cost_fraction_of_full_scan": 0.6049479166666667,
+      "median_psnr_db": 120.0
+    }
+  ],
+  "full_scan": [
+    {
+      "ambiguous_guides": 0,
+      "mean_wrong_matches": 0.0,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 16.0,
+      "mean_total_scalar_cost": 3072.0,
+      "mean_total_cost_fraction_of_full_scan": 1.0,
+      "median_psnr_db": 120.0
+    },
+    {
+      "ambiguous_guides": 2,
+      "mean_wrong_matches": 1.6875,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 16.0,
+      "mean_total_scalar_cost": 3072.0,
+      "mean_total_cost_fraction_of_full_scan": 1.0,
+      "median_psnr_db": 120.0
+    },
+    {
+      "ambiguous_guides": 4,
+      "mean_wrong_matches": 3.35,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 16.0,
+      "mean_total_scalar_cost": 3072.0,
+      "mean_total_cost_fraction_of_full_scan": 1.0,
+      "median_psnr_db": 120.0
+    },
+    {
+      "ambiguous_guides": 6,
+      "mean_wrong_matches": 5.0125,
+      "success_fraction": 1.0,
+      "mean_expensive_patch_reads": 16.0,
+      "mean_total_scalar_cost": 3072.0,
+      "mean_total_cost_fraction_of_full_scan": 1.0,
+      "median_psnr_db": 120.0
+    }
+  ]
+}
