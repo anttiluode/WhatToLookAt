@@ -39,7 +39,13 @@ from PIL import Image, ImageDraw
 import torch
 from diffusers import AutoPipelineForText2Image, AutoPipelineForImage2Image
 
-from diffusion_router_utils import edge_scores, random_tiles, top_tiles
+from diffusion_router_utils import (
+    correction_capture,
+    edge_scores,
+    make_tile_mask,
+    random_tiles,
+    top_tiles,
+)
 from masked_sdxl_img2img import MaskedStableDiffusionXLImg2ImgPipeline
 
 MODEL_ID = "stabilityai/sdxl-turbo"
@@ -94,22 +100,6 @@ def tile_energy(base, teacher):
     h, w = err.shape
     th, tw = h // GRID, w // GRID
     return err.reshape(GRID, th, GRID, tw).mean(axis=(1, 3)).ravel()
-
-
-def capture(energy, selected):
-    total = float(np.sum(energy))
-    if total <= 1e-20:
-        return SELECTED_TILES / (GRID * GRID)
-    return float(np.sum(energy[selected]) / total)
-
-
-def tile_mask(selected, size=512):
-    tile = size // GRID
-    m = np.zeros((size, size), dtype=np.uint8)
-    for idx in selected:
-        row, col = divmod(int(idx), GRID)
-        m[row*tile:(row+1)*tile, col*tile:(col+1)*tile] = 255
-    return Image.fromarray(m, mode="L")
 
 
 def sheet(items, path):
@@ -232,9 +222,9 @@ def main():
             oracle_tiles = [int(i) for i in np.argsort(energy)[-SELECTED_TILES:][::-1]]
 
             masks = {
-                "edge": tile_mask(edge_tiles),
-                "random": tile_mask(random_sel),
-                "oracle": tile_mask(oracle_tiles),
+                "edge": make_tile_mask(edge_tiles),
+                "random": make_tile_mask(random_sel),
+                "oracle": make_tile_mask(oracle_tiles),
                 "full": Image.new("L", (512, 512), 255),
             }
             selections = {
@@ -273,7 +263,7 @@ def main():
                     "recovery": recovery(base, out, teacher),
                     "psnr_to_teacher_db": psnr(out, teacher),
                     "correction_energy_capture": (
-                        1.0 if name == "full" else capture(energy, selections[name])
+                        1.0 if name == "full" else correction_capture(energy, selections[name])
                     ),
                 }
                 items.append((name, out))
