@@ -1,0 +1,978 @@
+{
+  "model": "stabilityai/sdxl-turbo",
+  "gpu": "NVIDIA GeForce RTX 3060",
+  "grid": 4,
+  "selected_tiles": 4,
+  "candidate_halos_latent": [
+    0,
+    4,
+    8
+  ],
+  "validation_seeds": [
+    100,
+    101
+  ],
+  "held_out_seeds": [
+    102
+  ],
+  "thresholds": {
+    "min_recovery": 0.2,
+    "min_edge_margin": 0.08,
+    "min_recovery_retention": 0.7,
+    "min_stage_speedup": 1.1,
+    "case_win_fraction": "ceil(2N/3)"
+  },
+  "validation": {
+    "0": {
+      "cases": 6,
+      "halo_latent": 0,
+      "naive_spatial_work_fraction": 0.25,
+      "edge_mean_recovery": -0.2754113024888301,
+      "random_mean_recovery": -0.12439021198624207,
+      "edge_minus_random_mean_recovery": -0.15102109050258805,
+      "edge_case_wins": 1,
+      "full_edge_mean_recovery": 0.2961836396881709,
+      "edge_recovery_retention": -0.9298666961442894,
+      "edge_mean_stage_seconds": 0.9578568166616606,
+      "teacher_mean_stage_seconds": 0.7470572166639613,
+      "mean_stage_speedup_vs_teacher": 0.7799257714400554,
+      "faster_case_count": 0,
+      "mean_psnr_to_full_edge_db": 23.85330987535328,
+      "pass": false
+    },
+    "4": {
+      "cases": 6,
+      "halo_latent": 4,
+      "naive_spatial_work_fraction": 0.5625,
+      "edge_mean_recovery": -0.14360023319665546,
+      "random_mean_recovery": -0.22703666241464981,
+      "edge_minus_random_mean_recovery": 0.08343642921799435,
+      "edge_case_wins": 5,
+      "full_edge_mean_recovery": 0.2961836396881709,
+      "edge_recovery_retention": -0.48483512913758897,
+      "edge_mean_stage_seconds": 0.9557333666695437,
+      "teacher_mean_stage_seconds": 0.7470572166639613,
+      "mean_stage_speedup_vs_teacher": 0.7816586118231292,
+      "faster_case_count": 0,
+      "mean_psnr_to_full_edge_db": 24.99214380035214,
+      "pass": false
+    },
+    "8": {
+      "cases": 6,
+      "halo_latent": 8,
+      "naive_spatial_work_fraction": 1.0,
+      "edge_mean_recovery": -0.07815889274211711,
+      "random_mean_recovery": -0.24798686593753125,
+      "edge_minus_random_mean_recovery": 0.16982797319541415,
+      "edge_case_wins": 6,
+      "full_edge_mean_recovery": 0.2961836396881709,
+      "edge_recovery_retention": -0.2638865969248154,
+      "edge_mean_stage_seconds": 0.9693090333409297,
+      "teacher_mean_stage_seconds": 0.7470572166639613,
+      "mean_stage_speedup_vs_teacher": 0.7707110848735926,
+      "faster_case_count": 0,
+      "mean_psnr_to_full_edge_db": 25.7560452535264,
+      "pass": false
+    }
+  },
+  "selected_halo_latent": null,
+  "held_out": null,
+  "claim_receipt": {
+    "pass": false,
+    "selected_halo_latent": null,
+    "interpretation": "no sparse halo earned both fidelity/routing and wall-clock speed"
+  },
+  "cases": [
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "seed": 100,
+      "draft_seconds": 0.23645359999500215,
+      "base_seconds": 0.6966542000009213,
+      "teacher_stage_seconds": 0.7498466999968514,
+      "full_edge": {
+        "stage_seconds": 0.958152200008044,
+        "recovery": 0.3279123451565057,
+        "psnr_to_teacher_db": 23.188039101528425
+      },
+      "sparse": {
+        "0": {
+          "edge": {
+            "tiles": [
+              10,
+              7,
+              6,
+              11
+            ],
+            "stage_seconds": 1.034727499994915,
+            "recovery": -0.03119012564113799,
+            "psnr_to_teacher_db": 21.328910826488624,
+            "psnr_to_full_edge_db": 24.734338769141807,
+            "speedup_vs_teacher_stage": 0.7246803627047086
+          },
+          "random": {
+            "tiles": [
+              0,
+              6,
+              7,
+              1
+            ],
+            "stage_seconds": 0.9421958000166342,
+            "recovery": -0.09441937639470299,
+            "psnr_to_teacher_db": 21.070460548352763,
+            "psnr_to_full_edge_db": 23.32332308930223,
+            "speedup_vs_teacher_stage": 0.7958501831398666
+          }
+        },
+        "4": {
+          "edge": {
+            "tiles": [
+              10,
+              7,
+              6,
+              11
+            ],
+            "stage_seconds": 1.0389847999904305,
+            "recovery": 0.02042656729625958,
+            "psnr_to_teacher_db": 21.551928303586813,
+            "psnr_to_full_edge_db": 25.39537795173451,
+            "speedup_vs_teacher_stage": 0.7217109432243454
+          },
+          "random": {
+            "tiles": [
+              0,
+              6,
+              7,
+              1
+            ],
+            "stage_seconds": 0.9569263999874238,
+            "recovery": -0.14846644159819133,
+            "psnr_to_teacher_db": 20.861115187926266,
+            "psnr_to_full_edge_db": 23.18064619323767,
+            "speedup_vs_teacher_stage": 0.7835991357399128
+          }
+        },
+        "8": {
+          "edge": {
+            "tiles": [
+              10,
+              7,
+              6,
+              11
+            ],
+            "stage_seconds": 1.0204936000227463,
+            "recovery": 0.11139339622661915,
+            "psnr_to_teacher_db": 21.9752029192206,
+            "psnr_to_full_edge_db": 27.119553484637834,
+            "speedup_vs_teacher_stage": 0.7347882436304722
+          },
+          "random": {
+            "tiles": [
+              0,
+              6,
+              7,
+              1
+            ],
+            "stage_seconds": 0.9553223000257276,
+            "recovery": -0.15509398874961033,
+            "psnr_to_teacher_db": 20.836125046053745,
+            "psnr_to_full_edge_db": 23.260018466439888,
+            "speedup_vs_teacher_stage": 0.7849148920491623
+          }
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p3\\p01_s100_contact.png"
+    },
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "seed": 101,
+      "draft_seconds": 0.23488180001731962,
+      "base_seconds": 0.6281584000098519,
+      "teacher_stage_seconds": 0.7362269000150263,
+      "full_edge": {
+        "stage_seconds": 0.954132099985145,
+        "recovery": 0.17740983860082948,
+        "psnr_to_teacher_db": 24.182435429574443
+      },
+      "sparse": {
+        "0": {
+          "edge": {
+            "tiles": [
+              11,
+              6,
+              15,
+              14
+            ],
+            "stage_seconds": 0.9497191999980714,
+            "recovery": -0.47871478196268447,
+            "psnr_to_teacher_db": 21.63542639458553,
+            "psnr_to_full_edge_db": 24.113511154664444,
+            "speedup_vs_teacher_stage": 0.7752048184521503
+          },
+          "random": {
+            "tiles": [
+              12,
+              4,
+              7,
+              0
+            ],
+            "stage_seconds": 0.9393144000205211,
+            "recovery": -0.26746978782739705,
+            "psnr_to_teacher_db": 22.30489437752468,
+            "psnr_to_full_edge_db": 25.389653000966437,
+            "speedup_vs_teacher_stage": 0.783791774084313
+          }
+        },
+        "4": {
+          "edge": {
+            "tiles": [
+              11,
+              6,
+              15,
+              14
+            ],
+            "stage_seconds": 0.9356589000090025,
+            "recovery": -0.3797126701604212,
+            "psnr_to_teacher_db": 21.936384012568414,
+            "psnr_to_full_edge_db": 24.764487737424645,
+            "speedup_vs_teacher_stage": 0.7868539486002245
+          },
+          "random": {
+            "tiles": [
+              12,
+              4,
+              7,
+              0
+            ],
+            "stage_seconds": 0.9401680000009947,
+            "recovery": -0.4895852519803807,
+            "psnr_to_teacher_db": 21.603616899615965,
+            "psnr_to_full_edge_db": 24.302438617151466,
+            "speedup_vs_teacher_stage": 0.7830801516476283
+          }
+        },
+        "8": {
+          "edge": {
+            "tiles": [
+              11,
+              6,
+              15,
+              14
+            ],
+            "stage_seconds": 0.9851511000015307,
+            "recovery": -0.3488439910555492,
+            "psnr_to_teacher_db": 22.034653322305623,
+            "psnr_to_full_edge_db": 24.802337042513898,
+            "speedup_vs_teacher_stage": 0.7473238369361638
+          },
+          "random": {
+            "tiles": [
+              12,
+              4,
+              7,
+              0
+            ],
+            "stage_seconds": 0.9991810999927111,
+            "recovery": -0.5640751062485367,
+            "psnr_to_teacher_db": 21.391694499081865,
+            "psnr_to_full_edge_db": 23.84159131584266,
+            "speedup_vs_teacher_stage": 0.7368302903451607
+          }
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p3\\p01_s101_contact.png"
+    },
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "seed": 102,
+      "draft_seconds": 0.2548510000051465,
+      "base_seconds": 0.6617444999865256,
+      "teacher_stage_seconds": 0.806056700006593,
+      "full_edge": {
+        "stage_seconds": 0.9584857000154443,
+        "recovery": 0.3142340783796035,
+        "psnr_to_teacher_db": 25.839951176162558
+      },
+      "sparse": {
+        "0": {
+          "edge": {
+            "tiles": [
+              14,
+              5,
+              9,
+              15
+            ],
+            "stage_seconds": 0.9523755999980494,
+            "recovery": -0.26447216273369323,
+            "psnr_to_teacher_db": 23.18261744324094,
+            "psnr_to_full_edge_db": 26.25200642715304,
+            "speedup_vs_teacher_stage": 0.8463642915759747
+          },
+          "random": {
+            "tiles": [
+              2,
+              6,
+              14,
+              13
+            ],
+            "stage_seconds": 0.928640500002075,
+            "recovery": -0.4827168692105539,
+            "psnr_to_teacher_db": 22.491127884914786,
+            "psnr_to_full_edge_db": 24.082648966171618,
+            "speedup_vs_teacher_stage": 0.867996495958115
+          }
+        },
+        "4": {
+          "edge": {
+            "tiles": [
+              14,
+              5,
+              9,
+              15
+            ],
+            "stage_seconds": 0.9415441999735776,
+            "recovery": -0.4659951200688115,
+            "psnr_to_teacher_db": 22.54038492497307,
+            "psnr_to_full_edge_db": 25.205409732055042,
+            "speedup_vs_teacher_stage": 0.8561007545149906
+          },
+          "random": {
+            "tiles": [
+              2,
+              6,
+              14,
+              13
+            ],
+            "stage_seconds": 0.9305220999813173,
+            "recovery": -0.4255582084039926,
+            "psnr_to_teacher_db": 22.66186062023852,
+            "psnr_to_full_edge_db": 24.488798928417093,
+            "speedup_vs_teacher_stage": 0.8662413284142061
+          }
+        },
+        "8": {
+          "edge": {
+            "tiles": [
+              14,
+              5,
+              9,
+              15
+            ],
+            "stage_seconds": 0.9528835999954026,
+            "recovery": -0.48991568670362606,
+            "psnr_to_teacher_db": 22.47009324463272,
+            "psnr_to_full_edge_db": 25.344328424872828,
+            "speedup_vs_teacher_stage": 0.8459130790061682
+          },
+          "random": {
+            "tiles": [
+              2,
+              6,
+              14,
+              13
+            ],
+            "stage_seconds": 0.980639199988218,
+            "recovery": -0.3898730581081178,
+            "psnr_to_teacher_db": 22.771958806920583,
+            "psnr_to_full_edge_db": 24.404888115898853,
+            "speedup_vs_teacher_stage": 0.821970710549076
+          }
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p3\\p01_s102_contact.png"
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "seed": 100,
+      "draft_seconds": 0.23257459999877028,
+      "base_seconds": 0.6328952000185382,
+      "teacher_stage_seconds": 0.7369261999847367,
+      "full_edge": {
+        "stage_seconds": 0.9528172000136692,
+        "recovery": 0.3211666830448864,
+        "psnr_to_teacher_db": 23.928255305467406
+      },
+      "sparse": {
+        "0": {
+          "edge": {
+            "tiles": [
+              10,
+              9,
+              0,
+              13
+            ],
+            "stage_seconds": 0.9449352000083309,
+            "recovery": -0.6341465433710003,
+            "psnr_to_teacher_db": 20.112976801303553,
+            "psnr_to_full_edge_db": 22.3332494072462,
+            "speedup_vs_teacher_stage": 0.7798695614029827
+          },
+          "random": {
+            "tiles": [
+              0,
+              6,
+              7,
+              1
+            ],
+            "stage_seconds": 0.933052599983057,
+            "recovery": -0.11891173575278735,
+            "psnr_to_teacher_db": 21.757928507826342,
+            "psnr_to_full_edge_db": 23.41555839251544,
+            "speedup_vs_teacher_stage": 0.789801346674473
+          }
+        },
+        "4": {
+          "edge": {
+            "tiles": [
+              10,
+              9,
+              0,
+              13
+            ],
+            "stage_seconds": 0.9300340999907348,
+            "recovery": -0.4465037143027484,
+            "psnr_to_teacher_db": 20.642691266129162,
+            "psnr_to_full_edge_db": 23.37676855793201,
+            "speedup_vs_teacher_stage": 0.7923647100596399
+          },
+          "random": {
+            "tiles": [
+              0,
+              6,
+              7,
+              1
+            ],
+            "stage_seconds": 0.9437853000126779,
+            "recovery": -0.22466091263655574,
+            "psnr_to_teacher_db": 21.365728230346726,
+            "psnr_to_full_edge_db": 22.737481393469388,
+            "speedup_vs_teacher_stage": 0.7808197478545571
+          }
+        },
+        "8": {
+          "edge": {
+            "tiles": [
+              10,
+              9,
+              0,
+              13
+            ],
+            "stage_seconds": 0.9444267000071704,
+            "recovery": -0.23686648210541672,
+            "psnr_to_teacher_db": 21.322658590540303,
+            "psnr_to_full_edge_db": 24.76730907133193,
+            "speedup_vs_teacher_stage": 0.7802894602398913
+          },
+          "random": {
+            "tiles": [
+              0,
+              6,
+              7,
+              1
+            ],
+            "stage_seconds": 0.9516476000135299,
+            "recovery": -0.27115519620714656,
+            "psnr_to_teacher_db": 21.203901026694936,
+            "psnr_to_full_edge_db": 22.30772476299635,
+            "speedup_vs_teacher_stage": 0.7743687894282081
+          }
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p3\\p02_s100_contact.png"
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "seed": 101,
+      "draft_seconds": 0.2472909000061918,
+      "base_seconds": 0.6499334000109229,
+      "teacher_stage_seconds": 0.7564505999907851,
+      "full_edge": {
+        "stage_seconds": 0.9617122000199743,
+        "recovery": 0.3408678415556916,
+        "psnr_to_teacher_db": 24.191873344042385
+      },
+      "sparse": {
+        "0": {
+          "edge": {
+            "tiles": [
+              9,
+              10,
+              5,
+              11
+            ],
+            "stage_seconds": 0.935507799993502,
+            "recovery": -0.06251046684442407,
+            "psnr_to_teacher_db": 22.118266183843712,
+            "psnr_to_full_edge_db": 25.686114857187174,
+            "speedup_vs_teacher_stage": 0.8085989234895096
+          },
+          "random": {
+            "tiles": [
+              12,
+              4,
+              7,
+              0
+            ],
+            "stage_seconds": 0.955689100024756,
+            "recovery": 0.03100228813636563,
+            "psnr_to_teacher_db": 22.518370838511693,
+            "psnr_to_full_edge_db": 24.683494898753622,
+            "speedup_vs_teacher_stage": 0.7915237287640825
+          }
+        },
+        "4": {
+          "edge": {
+            "tiles": [
+              9,
+              10,
+              5,
+              11
+            ],
+            "stage_seconds": 0.9366814999957569,
+            "recovery": 0.04832529507880767,
+            "psnr_to_teacher_db": 22.596713092687523,
+            "psnr_to_full_edge_db": 27.098855719397676,
+            "speedup_vs_teacher_stage": 0.807585716163084
+          },
+          "random": {
+            "tiles": [
+              12,
+              4,
+              7,
+              0
+            ],
+            "stage_seconds": 0.9352051000169013,
+            "recovery": -0.1753221253537003,
+            "psnr_to_teacher_db": 21.68002923593373,
+            "psnr_to_full_edge_db": 23.92053074911711,
+            "speedup_vs_teacher_stage": 0.8088606445549905
+          }
+        },
+        "8": {
+          "edge": {
+            "tiles": [
+              9,
+              10,
+              5,
+              11
+            ],
+            "stage_seconds": 0.9541554999887012,
+            "recovery": 0.09116647972503256,
+            "psnr_to_teacher_db": 22.796754987497593,
+            "psnr_to_full_edge_db": 27.52137325821074,
+            "speedup_vs_teacher_stage": 0.7927959331573761
+          },
+          "random": {
+            "tiles": [
+              12,
+              4,
+              7,
+              0
+            ],
+            "stage_seconds": 0.9503343000251334,
+            "recovery": -0.24642872537212623,
+            "psnr_to_teacher_db": 21.42492386129051,
+            "psnr_to_full_edge_db": 23.77423476273958,
+            "speedup_vs_teacher_stage": 0.7959836869728677
+          }
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p3\\p02_s101_contact.png"
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "seed": 102,
+      "draft_seconds": 0.23394209999241866,
+      "base_seconds": 0.6383981000108179,
+      "teacher_stage_seconds": 0.7521860999986529,
+      "full_edge": {
+        "stage_seconds": 0.9523451999993995,
+        "recovery": 0.4118145155313012,
+        "psnr_to_teacher_db": 25.53761679493029
+      },
+      "sparse": {
+        "0": {
+          "edge": {
+            "tiles": [
+              10,
+              11,
+              9,
+              6
+            ],
+            "stage_seconds": 0.9903028999979142,
+            "recovery": -0.1687073092407625,
+            "psnr_to_teacher_db": 22.555702218828145,
+            "psnr_to_full_edge_db": 25.108170439905457,
+            "speedup_vs_teacher_stage": 0.7595515473096537
+          },
+          "random": {
+            "tiles": [
+              2,
+              6,
+              14,
+              13
+            ],
+            "stage_seconds": 0.9423807999992277,
+            "recovery": -0.12560108104486867,
+            "psnr_to_teacher_db": 22.718914805329415,
+            "psnr_to_full_edge_db": 23.48586882622133,
+            "speedup_vs_teacher_stage": 0.798176384747301
+          }
+        },
+        "4": {
+          "edge": {
+            "tiles": [
+              10,
+              11,
+              9,
+              6
+            ],
+            "stage_seconds": 0.9413538000080734,
+            "recovery": 0.03613881463335156,
+            "psnr_to_teacher_db": 23.392614904530177,
+            "psnr_to_full_edge_db": 27.074120494046717,
+            "speedup_vs_teacher_stage": 0.7990471807647687
+          },
+          "random": {
+            "tiles": [
+              2,
+              6,
+              14,
+              13
+            ],
+            "stage_seconds": 0.9475516999955289,
+            "recovery": -0.08957287014426463,
+            "psnr_to_teacher_db": 22.86019701089526,
+            "psnr_to_full_edge_db": 22.98067548653162,
+            "speedup_vs_teacher_stage": 0.793820643245326
+          }
+        },
+        "8": {
+          "edge": {
+            "tiles": [
+              10,
+              11,
+              9,
+              6
+            ],
+            "stage_seconds": 0.9557972000038717,
+            "recovery": 0.20367175988458197,
+            "psnr_to_teacher_db": 24.221838647182686,
+            "psnr_to_full_edge_db": 29.085862442732584,
+            "speedup_vs_teacher_stage": 0.7869724874645019
+          },
+          "random": {
+            "tiles": [
+              2,
+              6,
+              14,
+              13
+            ],
+            "stage_seconds": 0.9558143000176642,
+            "recovery": -0.06810460658001549,
+            "psnr_to_teacher_db": 22.946621939437545,
+            "psnr_to_full_edge_db": 23.175826640153446,
+            "speedup_vs_teacher_stage": 0.7869584081183467
+          }
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p3\\p02_s102_contact.png"
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "seed": 100,
+      "draft_seconds": 0.23159549999400042,
+      "base_seconds": 0.65473780001048,
+      "teacher_stage_seconds": 0.7403308000066318,
+      "full_edge": {
+        "stage_seconds": 0.9505751999968197,
+        "recovery": 0.26594398985849055,
+        "psnr_to_teacher_db": 21.3019360317354
+      },
+      "sparse": {
+        "0": {
+          "edge": {
+            "tiles": [
+              10,
+              9,
+              6,
+              15
+            ],
+            "stage_seconds": 0.9424565999943297,
+            "recovery": -0.24860386230186826,
+            "psnr_to_teacher_db": 18.99498128010777,
+            "psnr_to_full_edge_db": 22.51060090505625,
+            "speedup_vs_teacher_stage": 0.7855330420637788
+          },
+          "random": {
+            "tiles": [
+              0,
+              6,
+              7,
+              1
+            ],
+            "stage_seconds": 0.927427999995416,
+            "recovery": -0.14932898002028572,
+            "psnr_to_teacher_db": 19.354784445506517,
+            "psnr_to_full_edge_db": 21.449207982164648,
+            "speedup_vs_teacher_stage": 0.798262290992175
+          }
+        },
+        "4": {
+          "edge": {
+            "tiles": [
+              10,
+              9,
+              6,
+              15
+            ],
+            "stage_seconds": 0.9485188000253402,
+            "recovery": 0.024058467595698074,
+            "psnr_to_teacher_db": 20.064990016737152,
+            "psnr_to_full_edge_db": 25.05433553883873,
+            "speedup_vs_teacher_stage": 0.7805125211928888
+          },
+          "random": {
+            "tiles": [
+              0,
+              6,
+              7,
+              1
+            ],
+            "stage_seconds": 0.9311658999940846,
+            "recovery": -0.10998438952662437,
+            "psnr_to_teacher_db": 19.50605930961884,
+            "psnr_to_full_edge_db": 21.711299740292706,
+            "speedup_vs_teacher_stage": 0.7950578946365356
+          }
+        },
+        "8": {
+          "edge": {
+            "tiles": [
+              10,
+              9,
+              6,
+              15
+            ],
+            "stage_seconds": 0.9612272000231314,
+            "recovery": 0.04499011173700562,
+            "psnr_to_teacher_db": 20.159149336763974,
+            "psnr_to_full_edge_db": 26.162617334656115,
+            "speedup_vs_teacher_stage": 0.7701933528189965
+          },
+          "random": {
+            "tiles": [
+              0,
+              6,
+              7,
+              1
+            ],
+            "stage_seconds": 0.9597032000019681,
+            "recovery": -0.0854597545683351,
+            "psnr_to_teacher_db": 19.6030907619338,
+            "psnr_to_full_edge_db": 21.815751021144987,
+            "speedup_vs_teacher_stage": 0.7714164129129856
+          }
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p3\\p03_s100_contact.png"
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "seed": 101,
+      "draft_seconds": 0.2413560000131838,
+      "base_seconds": 0.652593299979344,
+      "teacher_stage_seconds": 0.7625620999897365,
+      "full_edge": {
+        "stage_seconds": 0.9445807999873068,
+        "recovery": 0.34380113991262184,
+        "psnr_to_teacher_db": 23.012468941225002
+      },
+      "sparse": {
+        "0": {
+          "edge": {
+            "tiles": [
+              5,
+              0,
+              1,
+              2
+            ],
+            "stage_seconds": 0.9397945999808144,
+            "recovery": -0.19730203481186548,
+            "psnr_to_teacher_db": 20.400786451539442,
+            "psnr_to_full_edge_db": 23.742044158823795,
+            "speedup_vs_teacher_stage": 0.81141357910048
+          },
+          "random": {
+            "tiles": [
+              12,
+              4,
+              7,
+              0
+            ],
+            "stage_seconds": 0.9648168999992777,
+            "recovery": -0.147213680058645,
+            "psnr_to_teacher_db": 20.586380486002017,
+            "psnr_to_full_edge_db": 22.780458426143632,
+            "speedup_vs_teacher_stage": 0.790369758231129
+          }
+        },
+        "4": {
+          "edge": {
+            "tiles": [
+              5,
+              0,
+              1,
+              2
+            ],
+            "stage_seconds": 0.9445221000059973,
+            "recovery": -0.12819534468752858,
+            "psnr_to_teacher_db": 20.658980623923163,
+            "psnr_to_full_edge_db": 24.26303729678525,
+            "speedup_vs_teacher_stage": 0.8073523107451848
+          },
+          "random": {
+            "tiles": [
+              12,
+              4,
+              7,
+              0
+            ],
+            "stage_seconds": 0.943645400024252,
+            "recovery": -0.21420085339244643,
+            "psnr_to_teacher_db": 20.339918319628325,
+            "psnr_to_full_edge_db": 22.097177178804554,
+            "speedup_vs_teacher_stage": 0.8081023867335531
+          }
+        },
+        "8": {
+          "edge": {
+            "tiles": [
+              5,
+              0,
+              1,
+              2
+            ],
+            "stage_seconds": 0.9504001000022981,
+            "recovery": -0.13079287098039405,
+            "psnr_to_teacher_db": 20.648993038995116,
+            "psnr_to_full_edge_db": 24.163081329807873,
+            "speedup_vs_teacher_stage": 0.8023590275168243
+          },
+          "random": {
+            "tiles": [
+              12,
+              4,
+              7,
+              0
+            ],
+            "stage_seconds": 0.9673584999982268,
+            "recovery": -0.16570842447943246,
+            "psnr_to_teacher_db": 20.516924306479293,
+            "psnr_to_full_edge_db": 22.43961563006319,
+            "speedup_vs_teacher_stage": 0.7882931715502932
+          }
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p3\\p03_s101_contact.png"
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "seed": 102,
+      "draft_seconds": 0.24343830000725575,
+      "base_seconds": 0.64872270001797,
+      "teacher_stage_seconds": 0.7883764999860432,
+      "full_edge": {
+        "stage_seconds": 0.9978358999942429,
+        "recovery": 0.2748690881853917,
+        "psnr_to_teacher_db": 22.95189669109915
+      },
+      "sparse": {
+        "0": {
+          "edge": {
+            "tiles": [
+              2,
+              5,
+              1,
+              4
+            ],
+            "stage_seconds": 0.9875562000088394,
+            "recovery": -0.3098765398141472,
+            "psnr_to_teacher_db": 20.383757243996513,
+            "psnr_to_full_edge_db": 23.031499769514507,
+            "speedup_vs_teacher_stage": 0.7983105163827503
+          },
+          "random": {
+            "tiles": [
+              2,
+              6,
+              14,
+              13
+            ],
+            "stage_seconds": 0.9697793000086676,
+            "recovery": -0.2216035952537958,
+            "psnr_to_teacher_db": 20.686757860911143,
+            "psnr_to_full_edge_db": 23.15298811657967,
+            "speedup_vs_teacher_stage": 0.812944244096566
+          }
+        },
+        "4": {
+          "edge": {
+            "tiles": [
+              2,
+              5,
+              1,
+              4
+            ],
+            "stage_seconds": 1.0053913999872748,
+            "recovery": -0.06862029520195767,
+            "psnr_to_teacher_db": 21.267826702645607,
+            "psnr_to_full_edge_db": 25.461035610721016,
+            "speedup_vs_teacher_stage": 0.7841488399403672
+          },
+          "random": {
+            "tiles": [
+              2,
+              6,
+              14,
+              13
+            ],
+            "stage_seconds": 0.97635270000319,
+            "recovery": -0.11997956272744092,
+            "psnr_to_teacher_db": 21.063959905152934,
+            "psnr_to_full_edge_db": 23.825721949097648,
+            "speedup_vs_teacher_stage": 0.8074710091788218
+          }
+        },
+        "8": {
+          "edge": {
+            "tiles": [
+              2,
+              5,
+              1,
+              4
+            ],
+            "stage_seconds": 0.9555013999924995,
+            "recovery": -0.14776033393723687,
+            "psnr_to_teacher_db": 20.957548766412838,
+            "psnr_to_full_edge_db": 24.75588583733737,
+            "speedup_vs_teacher_stage": 0.8250919360162442
+          },
+          "random": {
+            "tiles": [
+              2,
+              6,
+              14,
+              13
+            ],
+            "stage_seconds": 0.9459580999973696,
+            "recovery": -0.07199250841145699,
+            "psnr_to_teacher_db": 21.254143379835053,
+            "psnr_to_full_edge_db": 24.36917491253883,
+            "speedup_vs_teacher_stage": 0.8334158774984172
+          }
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p3\\p03_s102_contact.png"
+    }
+  ]
+}
