@@ -1,87 +1,106 @@
-# High-resolution Gate H0 — skip whole diffusion tiles at 2048px
+# High-resolution Gate H0b — overlap-blended whole-tile omission at 2048px
 
-Status: **pre-registered; ready for CUDA.**
+Status: **pre-registered; ready for CUDA. H0 hard-paste result is invalidated.**
 
-The 512×512 SDXL-Turbo branch is closed.
+The first H0 implementation used sixteen non-overlapping 512×512 img2img tiles
+and pasted them edge-to-edge. The contact sheet exposed the flaw immediately:
+the **all-tile teacher itself had visible rectangular seams**. A selective image
+was therefore being scored against a broken reference.
 
-Its final engineering result is useful but conventional:
-`madebyollin/sdxl-vae-fp16-fix` passes the fixed validation and held-out
-quality/speed frontier, giving roughly **1.36–1.38×** full-stage speedup with
-~**99.5–99.7%** recovery of the ordinary-VAE output. TAESDXL is much faster
-(~2.34× on validation) but far outside the fidelity frontier.
+That H0 run is not evidence, even if its JSON metrics appear favorable.
 
-That speedup belongs to the VAE, not WhatToLookAt.
+H0b fixes the geometry before any result is scored.
 
-H0 moves the original mechanism to a scale where *not looking* means deleting
-an entire expensive operation.
+## Smooth tiled teacher
 
-## Workload
-
-For each prompt/seed:
+Use:
 
 ```text
-512×512 SDXL-Turbo source
-        ↓ Lanczos 4×
-2048×2048 base
-        ↓ split 4×4
-16 independent 512×512 img2img refinement calls
-        ↓
-all-tile 2048×2048 teacher
+output        2048×2048
+tile          512×512
+overlap       128 px
+stride        384 px
+grid          5×5
+tile calls    25
 ```
 
-The tile refinements use the now-earned fp16-fix VAE.
-
-This is intentionally a standard independent-tile workload. Unlike P0/P3,
-there is **no global full-frame U-Net state that a selective route must somehow
-approximate**. The all-tile teacher itself is sixteen independent calls.
-
-Therefore skipping one tile literally removes one full diffusion call.
-
-## Selector
-
-Before refinement, compute cheap edge energy in each of the sixteen 512px
-regions of the 2048px base.
-
-Test three budgets:
-
-| refined | skipped | main-claim eligible? |
-|---:|---:|---|
-| 4/16 | 75% | yes |
-| 8/16 | 50% | yes |
-| 12/16 | 25% | diagnostic only |
-
-For each budget:
-
-- **edge**: top-k edge-energy tiles;
-- **random**: 64 matched-budget random selections, summarized by median and
-  10th/90th percentiles;
-- **oracle**: top-k tiles ranked by actual all-tile correction energy, ceiling
-  only.
-
-Because teacher tiles are already computed independently, selective outputs are
-assembled exactly by keeping teacher-refined selected tiles and leaving the
-2048px base elsewhere.
-
-## Timing
-
-Every one of the sixteen tile calls is individually wall-timed on CUDA.
-
-Selective-route time is:
+Five 512px tiles with 128px overlap cover one axis exactly:
 
 ```text
-cheap selector CPU time
-+ sum(actual measured diffusion-call times of selected tiles)
+512 + 4×384 = 2048
 ```
 
-This is not a FLOP estimate. It is call-level measured accounting: an omitted
-tile corresponds to an actual measured call that is absent from the selective
-route.
+Each tile has a cosine feather window. Neighboring windows are complementary in
+their overlap and the full set forms a **partition of unity**.
+
+The all-tile teacher is therefore a weighted blend of all 25 independently
+refined tiles rather than a hard paste.
+
+A selective output begins with the smooth Lanczos 2048px base and adds only the
+selected weighted tile corrections. Missing tile weight belongs to the base.
+
+So a transition between “refined” and “not refined” is gradual.
+
+## Why whole-call omission is still real
+
+Every teacher tile is still a complete independent 512px SDXL-Turbo img2img
+call using the earned fp16-fix VAE.
+
+Skipping one tile deletes exactly one:
+
+```text
+VAE encode → U-Net denoising → VAE decode
+```
+
+call.
+
+Overlap makes the image coherent; it does not hide a global full-frame
+diffusion pass.
+
+## Budgets
+
+| refined | fraction | skipped | claim eligible? |
+|---:|---:|---:|---|
+| 6/25 | 24% | 76% | yes |
+| 12/25 | 48% | 52% | yes |
+| 18/25 | 72% | 28% | diagnostic only |
+
+Edge energy is computed on each overlapping 512px base crop.
+
+Matched controls:
+
+- **edge** — top-k cheap edge-energy tiles;
+- **random** — 64 matched-budget subsets;
+- **teacher-aware greedy oracle** — greedily maximizes exact recovery using the
+  already-known teacher corrections; ceiling/reference only.
+
+Because overlapping corrections interact, H0b no longer estimates recovery by
+summing per-tile energies. It builds the exact Gram matrix of feathered tile
+corrections. Random and oracle recovery are then computed from the exact
+quadratic correction energy.
+
+The edge-selected output is also assembled as an image and its recovery is
+measured directly against the smooth teacher.
+
+## Seam validity control
+
+H0b explicitly measures gradient jumps at the four tile-stride boundaries on
+each axis and compares each jump with nearby ordinary gradients.
+
+The gate is invalid if the validation teacher has:
+
+```text
+max teacher seam ratio > 2.0
+```
+
+This is deliberately a validity condition, not a performance score. The first
+H0 would have failed the visual spirit of this check immediately.
 
 ## Selection protocol
 
 Seeds **100/101** across three photographic prompts are validation.
 
-The *smallest* eligible budget must satisfy:
+The smallest eligible budget must satisfy:
 
 ```text
 mean correction recovery               >= 80%
@@ -89,27 +108,20 @@ minimum 512px-layout PSNR               >= 30 dB
 mean edge correlation                   >= 0.90
 edge - random-median recovery margin    >= 10 percentage points
 edge beats random median                >= ceil(2N/3)
-measured tile-call speedup              >= 1.75×
+measured whole-call speedup             >= 1.75×
 refined fraction                        <= 50%
+max teacher seam ratio                  <= 2.0
 ```
 
 Seed **102** is held out and must satisfy the same frontier.
 
-The three source prompts deliberately contain the kinds of structure where
-tile omission might make economic sense—large sky/water regions, broad
-architectural surfaces, and bokeh around a detailed subject.
-
-That is also a limitation: H0 is a reproducible generated-photo gate, not yet a
-natural-image claim.
-
 ## Kill rule
 
-If neither 4/16 nor 8/16 passes, stop the high-resolution image branch. Refining
-12/16 may be visually fine but skipping only 25% is below the practical target
-for this node.
+If neither 6/25 nor 12/25 passes, stop the high-resolution image branch. A
+visually acceptable 18/25 result is not enough: saving only ~28% of tile calls
+is below the practical target for this node.
 
-If H0 passes, H1 must replace the generated source panel with **real natural
-photographs** and keep the same frozen budget/thresholds.
+If H0b passes, H1 repeats the selected budget on **real natural photographs**.
 
 ## Run
 
@@ -118,10 +130,21 @@ git pull
 python highres_tile_gate.py --local-only
 ```
 
-If the models are not cached, omit `--local-only` once.
-
-Upload:
+Output:
 
 ```text
-results/highres_tile_h0/
+results/highres_tile_h0b/
 ```
+
+The contact sheets now include:
+
+```text
+smooth 2048 base
+smooth overlap-blended all-25 teacher
+edge 6/25
+edge 12/25
+edge 18/25
+```
+
+Inspect those images before trusting the JSON. That visual validity check is now
+part of the experiment rather than an afterthought.
