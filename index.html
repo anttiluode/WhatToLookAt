@@ -60,6 +60,11 @@
   <div class="note"><strong>Gate 5 — sparse measurements have a measurable price.</strong> Relation failures now alter only 8/192 coordinates. Rows touching 1 coordinate never reach the 95% end-to-end validation target even with 64 guide rows; support 2 reaches only 92.5%. The missing coordinates are genuinely unobserved.</div>
   <div class="note"><strong>A useful middle regime appears.</strong> The selected support-64 guide needs 4 rows: 64 guide scalars and 4096 total coordinate touches. The selected dense support-192 guide also needs 4 rows and 64 guide scalars, but 12288 touches. On held-out worlds the support-64 guide stays at 98.75–100% success across 0–8 sparse innovations. Same observation count, about one-third the mixing work.</div>
 </div>
+
+<div class="receipt" style="margin-top:26px">
+  <div class="note"><strong>Gate 6 — the response remembers its sensing operator.</strong> An 8-sparse residual is observed through 96 rows. At row support 64, a designed sparse sensor recovers 99.69% of the true support on average and gets the exact support in 97.92% of 240 trials.</div>
+  <div class="note"><strong>Post-hoc is not the same experiment.</strong> Use the same support-64 operator only after the response was generated densely and recall falls to 36.46%; exact support recovery is 0%. The sparse operator works when it made the measurement. Naively substituting it afterward changes the inverse problem.</div>
+</div>
 </main>
 <script>
 const N=16,B=4,C=[[.10,.20,.90],[.90,.20,.10],[.20,.85,.25],[.90,.80,.10]];

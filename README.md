@@ -434,6 +434,85 @@ world, delete most of its measurement interactions afterward, and ask whether
 the same relation-failure decision can be preserved. That separates "build a
 cheap sparse sensor" from "compress an already dense sensor/computation."
 
+
+## Gate 6 — designed sparse sensing is not post-hoc sparsification
+
+Gate 5 made the physical guide operator sparse **before** observation. Gate 6
+tests whether that can be replaced by a cheaper downstream trick: observe with
+a dense operator, discard most of its interactions afterward, and decode as if
+the sparse operator had generated the response.
+
+One relation residual is an 8-sparse vector in `R^192`. A fixed 96-row dense
+Gaussian operator `A` produces the noisy observation. For each support
+`d = 16, 32, 64, 96, 192`, `A_s` keeps only `d` entries per row.
+
+The same OMP decoder, with the true sparsity `k=8`, is evaluated in three
+conditions:
+
+```text
+dense
+    y = A x + z
+    decode with A
+
+designed sparse
+    y_s = A_s x + z
+    decode with A_s
+
+post-hoc sparse
+    y = A x + z
+    discard operator interactions to A_s
+    decode density-scaled y with A_s
+```
+
+Reference: 240 untouched sparse signals.
+
+| row support d | designed sparse support recall | designed exact support | post-hoc recall | post-hoc exact support |
+|---:|---:|---:|---:|---:|
+| 16 | 80.89% | 16.67% | 11.77% | 0% |
+| 32 | **98.13%** | **87.50%** | 18.33% | 0% |
+| 64 | **99.69%** | **97.92%** | 36.46% | 0% |
+| 96 | **99.69%** | **97.50%** | 58.33% | 2.92% |
+| 192 | 99.84% | 98.75% | 99.84% | 98.75% |
+
+At `d=64`, the sparse operator is perfectly useful when it actually produced
+the observation: mean support recall is **99.69%** and exact support recovery is
+**97.92%**. Substitute that same sparse operator *after* a dense observation and
+exact recovery falls to **0%**.
+
+So in this finite OMP regime, the sparse physical sensor and the sparsified
+downstream computation are not interchangeable:
+
+```text
+the response remembers the operator that generated it
+```
+
+A scalar density correction cannot repair that mismatch. For OMP specifically,
+multiplying the whole response by a positive scalar rescales all correlations
+and residuals together and therefore does not change the support-selection
+path.
+
+This is a useful negative result, not a contradiction of a general
+post-sparsification theorem: the signal is extremely sparse, finite-dimensional,
+the decoder is OMP, and the gate does not use the maximum-likelihood estimator
+or asymptotic regime of the theory that motivated the attack.
+
+### Gate 6 scope fence
+
+Gate 6 says that **naively** replacing the measurement operator after the
+observation is dangerous in this regime. The next useful direction is not more
+sparsification. It is to ask whether the system can choose *which* sparse rows
+to use from its learned relation/uncertainty state, instead of drawing every
+measurement pattern independently of what it already knows.
+
+That would finally close the loop promised by the repo name:
+
+```text
+what I know
+    -> what I choose to look at
+    -> what I learn
+    -> what I look at next
+```
+
 ## Boundary inherited from SighImageFactorization
 
 > **Structure may eliminate ambiguity; it may not manufacture an observable
@@ -450,16 +529,21 @@ sparsity saves mixing work but needs many more measurements and can still miss
 sparse innovations; moderate sparsity preserves the sensing budget while
 cutting coordinate-touch cost.
 
-The next attacker separates two ideas that Gate 5 still conflates:
+Gate 6 now separates designed sparse sensing from naive post-hoc operator
+sparsification and finds that they are not interchangeable in the finite sparse
+OMP regime.
 
-- **designed sparse sensing:** build the sparse measurement operator before the
-  observation;
-- **post-hoc sparsification:** observe with a dense operator, then zero most of
-  its interactions and try to preserve the downstream relation-failure
-  decision.
+The next gate should become genuinely **active** rather than only sparse:
 
-That is the second setting in the recent "price of sparsity" paper and a useful
-bridge to pruning / sparse computation as well as sensing.
+- maintain several legal sparse measurement rows;
+- use the learned relation graph and current uncertainty to choose the next row;
+- compare adaptive row selection with random sparse rows at the same total
+  coordinate-touch budget;
+- include a world where all candidate rows are equally informative so the
+  active policy must fall back to no advantage.
+
+That turns the repo from "how little can I sense?" into its literal question:
+**what should I look at next?**
 
 After that, the Gate-19/20 lesson from SighImageFactorization can enter directly:
 when the meaning of a predictor changes, sensing budget should rise, stale

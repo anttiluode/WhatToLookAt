@@ -1,63 +1,52 @@
-# Latest result — Gate 5
+# Latest result — Gate 6
 
-Gate 5 makes the cheap sensing operator itself sparse.
+Gate 6 attacks a shortcut suggested by Gate 5.
 
-A relation failure changes only **8 of 192** high-resolution coordinates. A
-guide measurement touches only (d) coordinates, so very sparse rows can
-literally miss the changed support.
+Gate 5's sparse operator generated its own observations. Gate 6 asks whether we
+can instead observe densely, delete most of the operator interactions afterward,
+and decode with the sparsified operator.
 
-For every row support (d), guide-row count (m) is swept over
-`1,2,4,8,16,32,64`. Thresholds are trained on 100 worlds. A separate detector
-validation set is followed by a second end-to-end policy validation panel.
-The smallest (m) whose *worst* validation innovation level reaches 95%
-reconstruction success is frozen before the 80-world-per-level test.
+One local relation residual is an 8-sparse vector in 192 dimensions. A fixed
+96-row dense Gaussian operator is sparsified to row supports
+`16,32,64,96,192`. OMP receives the correct sparsity `k=8`.
 
-Selected frontier:
+Reference: 240 untouched sparse signals.
 
 ```text
-row support d      selected m     guide samples     coordinate touches
-1                  none <=64      1024 @ m=64       1024
-2                  none <=64      1024 @ m=64       2048
-4                  32             512               2048
-8                  32             512               4096
-16                  8             128               2048
-32                  8             128               4096
-64                  4              64               4096
-96                  4              64               6144
-192                 4              64              12288
+row support          16       32       64       96      192
+
+designed sparse
+  mean recall       80.89%    98.13%    99.69%    99.69%    99.84%
+  exact support     16.67%    87.50%    97.92%    97.50%    98.75%
+
+post-hoc sparse
+  mean recall       11.77%    18.33%    36.46%    58.33%    99.84%
+  exact support      0%        0%        0%        2.92%    98.75%
+
+dense baseline
+  mean recall       99.84%
+  exact support     98.75%
 ```
 
-The extreme sparse cases expose the price directly:
+At row support 64, the same sparse operator gives **97.92% exact support
+recovery** when it generated the response, and **0%** when substituted after the
+dense response was generated.
+
+The receipt is therefore a boundary:
 
 ```text
-d=1, m=64   best minimum validation success   60.0%
-d=2, m=64   best minimum validation success   92.5%
+designed sparse sensing
+    !=
+naive post-hoc sparsification of the measurement operator
 ```
 
-They save per-row work, but too many sparse innovations fall outside the
-measurement support.
+The response carries the geometry of the operator that produced it. A global
+density rescaling cannot fix the mismatch for OMP because positive response
+scaling leaves its support-selection path unchanged.
 
-A useful middle regime appears at **d=64, m=4**. It uses the same 64 guide
-scalar measurements as the selected dense **d=192, m=4** guide, but only
-4096 coordinate touches across the scene instead of 12288.
+This result is finite and decoder-specific. It does not claim a contradiction
+with asymptotic post-sparsification theory.
 
-Held-out d=64,m=4:
-
-```text
-innovation patches        0       2       4       6       8
-success                 100%    100%    100%    98.75%  100%
-total sensing cost      27.08%  39.58%  52.08%  64.51%  77.08%
-```
-
-So the gate earns a real cost curve rather than a slogan:
-
-```text
-measurement sparsity
-    saves fan-in / mixing work
-    but increases the chance that sparse signal support is never touched
-    and therefore increases required sample count.
-```
-
-The next gate should compare **designed sparse sensing** with **post-hoc
-sparsification of a dense measurement operator** at matched downstream quality
-and compute cost.
+The next gate should stop choosing measurement rows blindly. Give the system a
+bank of legal sparse probes and let current relation uncertainty choose which
+one to spend next, at a matched coordinate-touch budget.
