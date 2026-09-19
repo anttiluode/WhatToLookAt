@@ -1,6 +1,6 @@
 # Practical router P2 — preserve global diffusion state, mask the update
 
-Status: **pre-registered; ready for CUDA. No speed claim is allowed in this gate.**
+Status: **run on RTX 3060 across 3 prompts × 3 seeds; P2 PASS. No speed claim is attached to P2.**
 
 P1 gave us a useful separation:
 
@@ -87,3 +87,51 @@ Upload:
 ```text
 results/practical_diffusion_router_p2/
 ```
+
+
+## P2 result
+
+The mechanism gate passed every predeclared criterion.
+
+| route | mean recovery | mean correction capture | mean stage time |
+|---|---:|---:|---:|
+| **edge 4/16** | **30.87%** | **39.70%** | 0.950 s |
+| random 4/16 | 17.30% | 23.32% | 0.947 s |
+| oracle 4/16 | 40.33% | 49.90% | 0.941 s |
+| full mask | 100% | 100% | 0.941 s |
+
+The full-mask parity control is exact:
+
+```text
+mean PSNR to ordinary full-frame teacher = 120 dB
+minimum PSNR                           = 120 dB
+```
+
+The edge route also clears the routing criteria cleanly:
+
+```text
+edge mean recovery              30.87%   >= 20%
+edge - random margin           +13.57 pp >= 8 pp
+edge beats random                9 / 9   >= 6 / 9
+```
+
+The result is stronger than the earlier P1 correlation result. Once the actuator
+preserves one global denoising trajectory, the cheap edge selector converts its
+spatial prediction into a real causal improvement.
+
+A useful efficiency number falls out as well:
+
+```text
+edge recovery / oracle recovery ≈ 0.765
+```
+
+So edge selection gets roughly three quarters of the recovery available to a
+teacher-informed oracle at the same 4/16 spatial budget.
+
+But P2 still evaluates the full UNet. Its stage time is essentially unchanged,
+and the vendored masked route is actually slower than the ordinary full-frame
+teacher stage. Therefore P2 earns **actuation semantics**, not acceleration.
+
+[PRACTICAL_ROUTER_P3.md](PRACTICAL_ROUTER_P3.md) now attacks the remaining
+problem directly by evaluating the UNet only on selected latent tiles plus a
+controlled halo while keeping the same global scheduler/noise/timestep state.
