@@ -1,54 +1,73 @@
-# Latest result — Gate 2
+# Latest result — Gate 3
 
-Gate 2 turns relation confidence into a **physical sensing budget**.
+Gate 3 removes Gate 2's synthetic confidence oracle.
 
-Gate 1 had learned a useful relation graph from common-fate history, but still
-assumed patch correspondence was trustworthy. Gate 2 injects 0, 2, 4, or 6
-cross-object correspondence errors and gives the tracker a noisy local
-confidence value.
+Each tracked patch now has a cheap 2×4 grayscale guide image and an expensive
+8×8 RGB content patch.
 
-A threshold learned on 80 training worlds is frozen at **0.525**, with training
-balanced accuracy **0.99375**.
+```text
+guide per patch          8 scalar samples
+expensive content      192 scalar samples
+all guides             128 scalar samples
+full high-res scan    3072 scalar samples
+```
+
+Ambiguous guide images are blended toward a real cross-object look-alike.
+Nearest-template matching therefore produces genuine wrong correspondences.
+
+Three image-derived confidence diagnostics are calibrated on 80 training worlds
+and selected on 40 separate validation worlds:
+
+```text
+best-vs-second-best margin       0.97593 validation balanced accuracy
+negative best-match error        0.96315
+forward/backward cycle           0.90722
+
+selected cue: margin
+threshold:    0.4285305
+```
 
 On 80 untouched worlds per ambiguity level:
 
 ```text
-wrong correspondences       0        2        4        6
+ambiguous guide patches          0        2        4        6
+mean wrong correspondences     0.00     1.69     3.35     5.01
 
 always trust
-  success                 100%       0%       0%       0%
-  measurements             4.00     4.00     4.00     4.00
+  success                      100%      1.25%     0%       0%
+  total sensing cost            29.17%   29.17%   29.17%   29.17%
 
-confidence-adaptive
-  success                 100%      96.25%   95.0%    95.0%
-  measurements             4.00     5.99     7.95     9.95
-
-global caution
-  success                 100%     100%     100%     100%
-  measurements            16.00    16.00    16.00    16.00
+image-confidence adaptive
+  success                      100%    100%       96.25%   96.25%
+  total sensing cost            29.71%   41.90%   55.18%   67.37%
 
 shuffled confidence
-  success                 100%       1.25%    0%       1.25%
-  measurements             4.00     5.99     7.95     9.91
+  success                      100%      6.25%     5.0%     0%
+  total sensing cost            29.71%   41.90%   54.79%   66.74%
 
 oracle uncertainty
-  success                 100%     100%     100%     100%
-  measurements             4.00     6.00     8.00    10.00
+  success                      100%    100%      100%     100%
+  total sensing cost            29.17%   39.71%   50.10%   60.49%
+
+full high-resolution scan
+  success                      100%    100%      100%     100%
+  total sensing cost           100%    100%      100%     100%
 ```
 
-The adaptive policy is therefore close to the oracle cost curve. It does not
-slow or densify sensing everywhere. It breaks only low-confidence relations
-into local singleton components, forcing those patches to pay for their own
-observations.
+All cost fractions include the guide channel. The matched-cost shuffled cue is
+the key attacker: nearly the same number of scalar measurements at the wrong
+locations does not rescue reconstruction.
 
-The key receipt is the shuffled-confidence attacker: spending essentially the
-same number of measurements at the wrong locations does not recover the image.
+The mechanism earned through Gate 3 is therefore:
 
 ```text
-uncertainty is not only a veto;
-uncertainty purchases observation.
+cheap image evidence
+    -> local match confidence
+    -> local relation authority
+    -> expensive sensing only where confidence fails
 ```
 
-Scope fence: the tracker confidence is synthetic in Gate 2. Gate 3 should derive
-that confidence from image evidence itself and test whether the same local
-budget mechanism survives occlusion / look-alike correspondence failures.
+The next boundary is exact relation content. Related patches currently share
+identical expensive content. Gate 4 should make the relation only approximately
+predictive and test whether observed residual error can decide when a second
+measurement is worth its cost.
