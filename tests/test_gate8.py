@@ -15,7 +15,7 @@ def test_gate8_coded_overlap_receipt():
     receipt = run_gate8(
         training_world_count=84,
         validation_worlds_per_cell=24,
-        test_worlds_per_cell=32,
+        test_worlds_per_cell=48,
     )
 
     degree_two = _sensor(receipt, "regular_degree_2")
