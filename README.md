@@ -773,21 +773,30 @@ how to spend it locally     -> independent crop diffusion does not
 The next GPU mechanism must preserve global denoising state while making its
 spatial computation sparse.
 
-[PRACTICAL_ROUTER_P2.md](PRACTICAL_ROUTER_P2.md) now tests the mechanism-correctness
-half of that requirement. P2 keeps the full 512×512 SDXL denoising trajectory
-coherent and masks which latent regions are allowed to continue changing. It
-includes a full-mask parity control, edge/random matched masks, and an oracle
-mask ceiling. **P2 deliberately makes no speed claim yet** because its UNet
-evaluation is still full-frame.
+[PRACTICAL_ROUTER_P2.md](PRACTICAL_ROUTER_P2.md) has now passed the
+mechanism-correctness gate on an RTX 3060. Full-mask parity is exact (120 dB),
+edge-selected 4/16 regions recover **30.87%** of the full-frame teacher
+correction versus **17.30%** for random, and edge wins **9/9** cases. The oracle
+4/16 mask recovers 40.33%, so the cheap selector captures about three quarters
+of the recoverable oracle effect.
+
+P2 deliberately did not claim acceleration because its masked route still
+evaluates the full UNet.
+
+[PRACTICAL_ROUTER_P3.md](PRACTICAL_ROUTER_P3.md) now makes the expensive part
+actually sparse: four selected latent tiles are batched through the UNet with
+0/4/8-pixel latent halos while the global scheduler/noise/timestep state remains
+shared.
 
 Run on CUDA:
 
 ```bash
-python gpu_diffusion_router_p2.py --local-only
+python gpu_diffusion_router_p3.py --local-only
 ```
 
-If P2 passes, P3 gets permission to make the same globally coherent update
-spatially sparse for actual compute savings.
+P3 uses seeds 100/101 for halo selection and holds seed 102 out. A win now must
+retain the P2 routing advantage **and** beat the ordinary full-frame stage in
+measured CUDA wall time.
 
 ## Boundary inherited from SighImageFactorization
 
