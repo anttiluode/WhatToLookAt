@@ -189,6 +189,84 @@ mechanism*, not a real tracker. The next gate should derive correspondence
 confidence from image evidence itself and preserve the same local-budget
 advantage.
 
+
+## Gate 3 — image-derived confidence, with sensing cost counted
+
+Gate 2's confidence scalar was synthetic. Gate 3 replaces it with a cheap
+**2×4 grayscale guide image** for each tracked patch and explicitly charges that
+guide channel to the sensing budget.
+
+Each patch has:
+
+```text
+cheap guide image       8 scalar samples
+expensive content       8×8 RGB = 192 scalar samples
+full 16-patch scan      3072 scalar samples
+all 16 guide images      128 scalar samples
+```
+
+The high-resolution content is shared inside each hidden object relation. The
+guide images are used only for identity matching. Ambiguous guide patches are
+blended slightly past the midpoint toward the nearest cross-object look-alike,
+so the nearest historical template often becomes genuinely wrong rather than
+having a wrong ID injected by hand.
+
+Three image-derived confidence diagnostics are calibrated on 80 training
+worlds, compared on 40 separate validation worlds, and then frozen:
+
+| cue | validation balanced accuracy |
+|---|---:|
+| **best-vs-second-best template margin** | **0.9759** |
+| negative best-match error | 0.9631 |
+| forward/backward cycle consistency | 0.9072 |
+
+The validation-selected cue is the **template margin**, threshold
+`0.42853`.
+
+On 80 untouched worlds per ambiguity level:
+
+| ambiguous guides | mean wrong matches | always trust success / total cost | image-confidence adaptive success / total cost | shuffled confidence | oracle uncertainty | full scan |
+|---:|---:|---:|---:|---:|---:|---:|
+| 0 | 0.00 | 100% / 29.17% | **100% / 29.71%** | 100% / 29.71% | 100% / 29.17% | 100% / 100% |
+| 2 | 1.69 | 1.25% / 29.17% | **100% / 41.90%** | 6.25% / 41.90% | 100% / 39.71% | 100% / 100% |
+| 4 | 3.35 | 0% / 29.17% | **96.25% / 55.18%** | 5.0% / 54.79% | 100% / 50.10% | 100% / 100% |
+| 6 | 5.01 | 0% / 29.17% | **96.25% / 67.37%** | 0% / 66.74% | 100% / 60.49% | 100% / 100% |
+
+Percentages are total scalar sensing cost relative to a full high-resolution
+scan, including the guide channel.
+
+This removes the most important hidden cheat in Gate 2: confidence now comes
+from measured appearance evidence, and that evidence has a cost.
+
+The matched-cost shuffled-confidence attacker survives the transition. It uses
+the same margin values and nearly the same total sensing cost, but assigns
+caution to the wrong locations and collapses.
+
+So the current mechanism is:
+
+```text
+cheap image evidence
+    -> local correspondence confidence
+    -> relation authority
+    -> expensive sensing only where confidence fails
+```
+
+or, in the project's emerging currency:
+
+```text
+certainty earns compression;
+uncertainty buys observation.
+```
+
+### Gate 3 scope fence
+
+The guide/content split is still synthetic, and the relation class is exact:
+all four expensive patches inside one hidden object share identical content.
+Gate 4 should therefore attack **model mismatch inside a relation**. If related
+patches are only approximately predictable from one another, the machine must
+decide whether another expensive sample is worth buying from its observed
+reconstruction residual rather than relying on exact equality.
+
 ## Boundary inherited from SighImageFactorization
 
 > **Structure may eliminate ambiguity; it may not manufacture an observable
@@ -200,14 +278,20 @@ score calibration/uncertainty separately from image prettiness.
 
 ## Next gates
 
-Gate 2 has now shown the abstract confidence → sensing-budget mechanism. The
-immediate next step is to remove its synthetic confidence cue:
+Gate 3 has now derived confidence from a charged low-resolution image channel.
+The next attacker is **relation model mismatch**:
 
-- derive correspondence confidence from the image / matching process itself;
-- attack that cue with look-alikes, occlusion and appearance jumps;
-- keep the same local-budget control and shuffled-cue attacker;
-- then add a sparse-measurement / hardware-cost gate that varies how many
-  inputs each measurement is allowed to touch.
+- let related high-resolution patches share only a predictable component rather
+  than being exactly equal;
+- make one representative measurement leave a measurable residual on the
+  unobserved relation members;
+- ask whether residual/uncertainty can buy a second expensive measurement only
+  when it reduces error enough to justify its cost;
+- compare against fixed one-per-relation, full sensing, and equal-cost random
+  extra measurements.
+
+After that, the sparse-measurement / hardware-cost gate can vary how many
+inputs each physical measurement is allowed to touch.
 
 After that, the Gate-19/20 lesson from SighImageFactorization can enter directly:
 when the meaning of a predictor changes, sensing budget should rise, stale
