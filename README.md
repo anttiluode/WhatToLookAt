@@ -794,9 +794,25 @@ Run on CUDA:
 python gpu_diffusion_router_p3.py --local-only
 ```
 
-P3 uses seeds 100/101 for halo selection and holds seed 102 out. A win now must
-retain the P2 routing advantage **and** beat the ordinary full-frame stage in
-measured CUDA wall time.
+P3 has now run and **fails**. No halo is selected on seeds 100/101:
+all three sparse-crop executors have negative correction recovery and are slower
+than the ordinary full-frame teacher. Even halo 8, whose four crops contain
+100% as many raw latent spatial elements as the full frame, still fails. Hard
+spatial splitting of this SDXL U-Net stops here.
+
+[PRACTICAL_ROUTER_P4.md](PRACTICAL_ROUTER_P4.md) switches to a different axis:
+established **DeepCache** feature reuse across denoising steps. This keeps the
+full global frame intact and asks whether temporal/depth redundancy can produce
+a real wall-clock win on this exact short Turbo route before we attempt any
+WhatToLookAt-specific adaptive cache policy.
+
+Run on CUDA:
+
+```bash
+pip install DeepCache
+python gpu_diffusion_router_p4_cache.py --local-only
+```
+
 
 ## Boundary inherited from SighImageFactorization
 

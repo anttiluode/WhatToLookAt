@@ -1,6 +1,6 @@
 # Practical router P3 — sparse UNet execution inside the global trajectory
 
-Status: **pre-registered; ready for CUDA.**
+Status: **run on RTX 3060; P3 FAIL. No halo selected on validation.**
 
 P2 passed every predeclared criterion:
 
@@ -108,3 +108,39 @@ Upload:
 ```text
 results/practical_diffusion_router_p3/
 ```
+
+
+## P3 result
+
+Hard spatial U-Net execution fails decisively on validation seeds 100/101.
+
+| latent halo | naive spatial work | edge recovery | edge-random | edge stage | speedup vs teacher |
+|---:|---:|---:|---:|---:|---:|
+| 0 | 25.0% | -27.54% | -15.10 pp | 0.958 s | 0.780× |
+| 4 | 56.25% | -14.36% | +8.34 pp | 0.956 s | 0.782× |
+| 8 | 100% | -7.82% | +16.98 pp | 0.969 s | 0.771× |
+
+The P2 full-U-Net edge route on the same six validation cases still averages
++29.62% recovery.
+
+No P3 halo meets even the basic recovery criterion, and every one is slower
+than the ordinary full-frame teacher. Therefore **no halo is selected** and the
+held-out seed-102 panel is not used to rescue the result.
+
+The strongest diagnostic is halo 8. Four selected 32×32 latent crops process
+the same raw number of spatial elements as one 64×64 full frame, yet the update
+remains wrong. This means the failure cannot be explained by insufficient raw
+spatial work alone. Splitting the U-Net destroys interactions that matter
+across crop boundaries, while the small batched kernels also fail to translate
+nominal sparsity into RTX-3060 wall-time savings.
+
+So the boundary is now:
+
+```text
+P2: sparse authority inside one global U-Net trajectory works
+P3: physically splitting the U-Net spatial graph does not
+```
+
+The next practical gate switches from spatial cutting to **temporal/depth
+feature reuse**, which preserves the global frame. See
+[PRACTICAL_ROUTER_P4.md](PRACTICAL_ROUTER_P4.md).
