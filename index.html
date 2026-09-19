@@ -70,6 +70,11 @@
   <div class="note"><strong>Gate 7 — full coordinate coverage still fails.</strong> The three-row designed sensor touches 192/192 coordinates and is perfect for one-coordinate innovations. With total innovation energy held fixed, its worst held-out success collapses to 44.17% at support 2 and 63.33% at support 4.</div>
   <div class="note"><strong>The missing object is measurement diversity.</strong> Twelve overlapping sparse rows stay at 100% for the post-hoc sensor and reach 99.17–100% for the random sparse sensor once support is at least 2. Multiple signed changes can cancel inside a coverage-only row, so “touch every coordinate” is weaker than “give every sparse possibility a distinguishable signature.”</div>
 </div>
+
+<div class="receipt" style="margin-top:26px">
+  <div class="note"><strong>Gate 8 — buy diversity deliberately.</strong> Regular sparse codes give every coordinate 1, 2, 3 or 4 independent measurement memberships. Degree 1 and 2 fail the 95% validation target; degree 3 is the first winner at 98.75% worst-case validation success and 96.67% worst held-out success.</div>
+  <div class="note"><strong>Same touch budget, different geometry.</strong> Degree-3 overlap uses 9 rows / 9,216 coordinate touches. At exactly that touch budget, random sparse validates at 93.75%, post-hoc pruning at 91.25%, and dense three-row sensing at 93.75%. The older robust 12-row sparse ceiling costs 12,288 touches, so deliberate overlap buys the target with 25% less guide mixing work.</div>
+</div>
 </main>
 <script>
 const N=16,B=4,C=[[.10,.20,.90],[.90,.20,.10],[.20,.85,.25],[.90,.80,.10]];

@@ -613,6 +613,104 @@ A natural first attacker is a degree-2 design: give every coordinate two
 different sparse measurement memberships, then compare it against same-touch
 random and post-hoc operators.
 
+
+## Gate 8 — buy measurement diversity deliberately
+
+Gate 7 showed that touching every coordinate once is not enough. Multiple signed
+changes can still collapse inside the same measurement. Gate 8 therefore turns
+"measurement diversity" into a designed object instead of merely adding more
+generic rows.
+
+The structured family uses independent 64-wide partition layers over the same
+192-coordinate signal:
+
+```text
+degree 1   3 rows    every coordinate appears once
+degree 2   6 rows    every coordinate appears twice
+degree 3   9 rows    every coordinate appears three times
+degree 4  12 rows    every coordinate appears four times
+```
+
+Every layer covers all coordinates exactly once, with independent +/- row
+coefficients. Thresholds are trained on mixed innovation supports
+`K = 1,2,4,8,16,32,64`. A separate validation panel selects the smallest
+structured degree whose **worst** support / innovation-count cell reaches 95%
+end-to-end reconstruction success.
+
+The validation frontier is:
+
+| structured code | rows | coordinate touches | worst validation success | worst held-out success |
+|---|---:|---:|---:|---:|
+| degree 1 | 3 | 3072 | 48.75% | 48.33% |
+| degree 2 | 6 | 6144 | 87.5% | 88.33% |
+| **degree 3** | **9** | **9216** | **98.75%** | **96.67%** |
+| degree 4 | 12 | 12288 | 100% | 100% |
+
+So degree 2 is not enough in this world, but degree 3 is.
+
+At the **same 9216 coordinate-touch budget** as the selected degree-3 code:
+
+| same-touch sensor | worst validation success | worst held-out success |
+|---|---:|---:|
+| **regular degree-3 overlap** | **98.75%** | **96.67%** |
+| random sparse, 9 rows | 93.75% | 95.0% |
+| post-hoc-pruned sparse, 9 rows | 91.25% | 90.0% |
+| dense, 3 rows | 93.75% | 96.67% |
+
+The validation rule matters: the same-touch controls do not earn the 95% target
+before the held-out panel is seen. The older robust 12-row controls do:
+
+```text
+random sparse 12 rows       validation 96.25%   held-out 96.67%
+post-hoc pruned 12 rows     validation 100%     held-out 99.17%
+```
+
+That means the structured overlap buys the Gate-7 robustness target with
+
+```text
+9 rows / 9216 touches
+```
+
+instead of
+
+```text
+12 rows / 12288 touches
+```
+
+—a **25% reduction in guide coordinate-touch work** relative to the robust
+12-row sparse ceiling.
+
+The useful mechanism is now narrower and stronger:
+
+```text
+coverage says "every coordinate is seen somewhere"
+
+coded overlap says
+"every coordinate is seen in several different measurement contexts"
+```
+
+The second gives sparse combinations more opportunities to leave a
+distinguishable signature rather than cancel.
+
+### Gate 8 scope fence
+
+The degree-3 construction is still a synthetic regular code with random signs,
+and the 25% saving is specific to this signal dimension / row width / attacker.
+This is not yet an optimized expander or RIP construction.
+
+The next clean question is whether the **placement of overlap** is doing real
+work or whether exact regular degree is enough. Gate 9 should keep degree 3 and
+the same 9216 touches, then compare:
+
+- independent partition layers;
+- deliberately low-coincidence pairings between layers;
+- random regular degree-3 incidence;
+- a degree-matched adversarial design that repeatedly pairs the same
+  coordinates together.
+
+If low-coincidence overlap wins, then the next mechanism is not merely degree;
+it is the combinatorics of the measurement code.
+
 ## Boundary inherited from SighImageFactorization
 
 > **Structure may eliminate ambiguity; it may not manufacture an observable
@@ -637,14 +735,22 @@ Gate 7 has now run that frozen-sensor support sweep, and the simple prediction
 was wrong in an informative way. Coverage-designed sensing collapses at
 two-coordinate signed innovations even though every coordinate is touched.
 
-The next gate therefore targets **measurement diversity** rather than coverage:
+Gate 8 has now bought that diversity explicitly. Exact coordinate degree 3 is
+the first structured design to pass the 95% validation target across the full
+support sweep, and it does so with 25% fewer coordinate touches than the robust
+12-row sparse controls.
 
-- give each coordinate multiple sparse measurement memberships;
-- keep total coordinate-touch cost explicit;
-- compare structured overlap against same-cost random overlap and post-hoc
-  pruning;
-- ask for the cheapest sensor whose signatures survive signed multi-coordinate
-  cancellation.
+The next attacker keeps **degree, row width, and total touches fixed** and asks
+whether the arrangement of overlap matters:
+
+- independent partition layers;
+- low-coincidence / expander-like overlap;
+- random regular incidence;
+- adversarial repeated pairings.
+
+If all degree-3 regular designs behave alike, degree is the mechanism. If
+low-coincidence overlap wins, code geometry itself becomes the next earned
+object.
 
 After that, the Gate-19/20 lesson from SighImageFactorization can enter directly:
 when the meaning of a predictor changes, sensing budget should rise, stale
@@ -663,6 +769,7 @@ python gate4_relation_residual_budget.py
 python gate5_price_of_sparse_measurements.py
 python gate6_designed_vs_pruned.py
 python gate7_coverage_not_enough.py
+python gate8_coded_overlap.py
 python -m pytest -q
 ```
 
@@ -677,6 +784,7 @@ results/gate4_summary.json
 results/gate5_summary.json
 results/gate6_summary.json
 results/gate7_summary.json
+results/gate8_summary.json
 ```
 
 The live browser instrument is served by GitHub Pages from `index.html`.
