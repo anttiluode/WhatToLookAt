@@ -206,3 +206,21 @@ def correction_capture(
     if total <= 1e-20:
         return float(random_fraction)
     return float(energy[[int(i) for i in selected]].sum() / total)
+
+
+def sparse_latent_work_fraction(
+    selected_tiles: int,
+    grid: int,
+    halo_latent: int,
+    latent_size: int = 64,
+) -> float:
+    """Naive spatial element ratio for batched tile+halo UNet inputs.
+
+    This is not FLOP accounting; it is a transparent geometric proxy used by
+    P3 alongside measured CUDA wall time.
+    """
+    if latent_size % grid:
+        raise ValueError("latent_size must be divisible by grid")
+    tile = latent_size // grid
+    crop = tile + 2 * int(halo_latent)
+    return float(int(selected_tiles) * crop * crop / (latent_size * latent_size))
