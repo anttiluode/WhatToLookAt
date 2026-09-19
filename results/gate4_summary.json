@@ -1,0 +1,47 @@
+{
+  "training_worlds": 100,
+  "validation_worlds": 50,
+  "test_worlds_per_level": 80,
+  "quality_threshold_psnr_db": 40.0,
+  "learned_guide_residual_threshold": 0.0239926701254525,
+  "training_balanced_accuracy": 1.0,
+  "validation_balanced_accuracy": 1.0,
+  "guide_cost_scalars": 128,
+  "expensive_patch_cost_scalars": 192,
+  "full_scan_cost_scalars": 3072,
+  "fixed_one_per_relation": [
+    {"innovation_patches": 0, "mean_oracle_extra_reads": 0.0, "success_fraction": 1.0, "mean_expensive_patch_reads": 4.0, "mean_total_scalar_cost": 896.0, "mean_total_cost_fraction_of_full_scan": 0.29166666666666663, "median_psnr_db": 48.72731828576819},
+    {"innovation_patches": 2, "mean_oracle_extra_reads": 2.0, "success_fraction": 0.0, "mean_expensive_patch_reads": 4.0, "mean_total_scalar_cost": 896.0, "mean_total_cost_fraction_of_full_scan": 0.29166666666666663, "median_psnr_db": 24.3064919374588},
+    {"innovation_patches": 4, "mean_oracle_extra_reads": 4.0125, "success_fraction": 0.0, "mean_expensive_patch_reads": 4.0, "mean_total_scalar_cost": 896.0, "mean_total_cost_fraction_of_full_scan": 0.29166666666666663, "median_psnr_db": 21.299001393811416},
+    {"innovation_patches": 6, "mean_oracle_extra_reads": 6.0125, "success_fraction": 0.0, "mean_expensive_patch_reads": 4.0, "mean_total_scalar_cost": 896.0, "mean_total_cost_fraction_of_full_scan": 0.29166666666666663, "median_psnr_db": 19.55237898353635},
+    {"innovation_patches": 8, "mean_oracle_extra_reads": 7.9, "success_fraction": 0.0, "mean_expensive_patch_reads": 4.0, "mean_total_scalar_cost": 896.0, "mean_total_cost_fraction_of_full_scan": 0.29166666666666663, "median_psnr_db": 18.283478542126833}
+  ],
+  "residual_adaptive": [
+    {"innovation_patches": 0, "mean_oracle_extra_reads": 0.0, "success_fraction": 1.0, "mean_expensive_patch_reads": 4.0, "mean_total_scalar_cost": 896.0, "mean_total_cost_fraction_of_full_scan": 0.29166666666666663, "median_psnr_db": 48.72731828576819},
+    {"innovation_patches": 2, "mean_oracle_extra_reads": 2.0, "success_fraction": 1.0, "mean_expensive_patch_reads": 6.0, "mean_total_scalar_cost": 1280.0, "mean_total_cost_fraction_of_full_scan": 0.41666666666666663, "median_psnr_db": 49.51703785658},
+    {"innovation_patches": 4, "mean_oracle_extra_reads": 4.0125, "success_fraction": 1.0, "mean_expensive_patch_reads": 8.0125, "mean_total_scalar_cost": 1666.4, "mean_total_cost_fraction_of_full_scan": 0.5424479166666667, "median_psnr_db": 50.47414636308485},
+    {"innovation_patches": 6, "mean_oracle_extra_reads": 6.0125, "success_fraction": 1.0, "mean_expensive_patch_reads": 10.0125, "mean_total_scalar_cost": 2050.4, "mean_total_cost_fraction_of_full_scan": 0.6674479166666668, "median_psnr_db": 51.73881317867103},
+    {"innovation_patches": 8, "mean_oracle_extra_reads": 7.9, "success_fraction": 1.0, "mean_expensive_patch_reads": 11.9125, "mean_total_scalar_cost": 2415.2, "mean_total_cost_fraction_of_full_scan": 0.7861979166666668, "median_psnr_db": 53.45822531984423}
+  ],
+  "equal_cost_random_extra": [
+    {"innovation_patches": 0, "mean_oracle_extra_reads": 0.0, "success_fraction": 1.0, "mean_expensive_patch_reads": 4.0, "mean_total_scalar_cost": 896.0, "mean_total_cost_fraction_of_full_scan": 0.29166666666666663, "median_psnr_db": 48.72731828576819},
+    {"innovation_patches": 2, "mean_oracle_extra_reads": 2.0, "success_fraction": 0.0, "mean_expensive_patch_reads": 6.0, "mean_total_scalar_cost": 1280.0, "mean_total_cost_fraction_of_full_scan": 0.41666666666666663, "median_psnr_db": 24.422270471557667},
+    {"innovation_patches": 4, "mean_oracle_extra_reads": 4.0125, "success_fraction": 0.0, "mean_expensive_patch_reads": 8.0125, "mean_total_scalar_cost": 1666.4, "mean_total_cost_fraction_of_full_scan": 0.5424479166666667, "median_psnr_db": 22.631031537885676},
+    {"innovation_patches": 6, "mean_oracle_extra_reads": 6.0125, "success_fraction": 0.0125, "mean_expensive_patch_reads": 10.0125, "mean_total_scalar_cost": 2050.4, "mean_total_cost_fraction_of_full_scan": 0.6674479166666668, "median_psnr_db": 22.542561436031647},
+    {"innovation_patches": 8, "mean_oracle_extra_reads": 7.9, "success_fraction": 0.0, "mean_expensive_patch_reads": 11.9125, "mean_total_scalar_cost": 2415.2, "mean_total_cost_fraction_of_full_scan": 0.7861979166666668, "median_psnr_db": 22.629124489418437}
+  ],
+  "oracle_residual": [
+    {"innovation_patches": 0, "mean_oracle_extra_reads": 0.0, "success_fraction": 1.0, "mean_expensive_patch_reads": 4.0, "mean_total_scalar_cost": 896.0, "mean_total_cost_fraction_of_full_scan": 0.29166666666666663, "median_psnr_db": 48.72731828576819},
+    {"innovation_patches": 2, "mean_oracle_extra_reads": 2.0, "success_fraction": 1.0, "mean_expensive_patch_reads": 6.0, "mean_total_scalar_cost": 1280.0, "mean_total_cost_fraction_of_full_scan": 0.41666666666666663, "median_psnr_db": 49.51703785658},
+    {"innovation_patches": 4, "mean_oracle_extra_reads": 4.0125, "success_fraction": 1.0, "mean_expensive_patch_reads": 8.0125, "mean_total_scalar_cost": 1666.4, "mean_total_cost_fraction_of_full_scan": 0.5424479166666667, "median_psnr_db": 50.47414636308485},
+    {"innovation_patches": 6, "mean_oracle_extra_reads": 6.0125, "success_fraction": 1.0, "mean_expensive_patch_reads": 10.0125, "mean_total_scalar_cost": 2050.4, "mean_total_cost_fraction_of_full_scan": 0.6674479166666668, "median_psnr_db": 51.73881317867103},
+    {"innovation_patches": 8, "mean_oracle_extra_reads": 7.9, "success_fraction": 1.0, "mean_expensive_patch_reads": 11.9, "mean_total_scalar_cost": 2412.8, "mean_total_cost_fraction_of_full_scan": 0.7854166666666668, "median_psnr_db": 53.452380062552436}
+  ],
+  "full_scan": [
+    {"innovation_patches": 0, "mean_oracle_extra_reads": 0.0, "success_fraction": 1.0, "mean_expensive_patch_reads": 16.0, "mean_total_scalar_cost": 3072.0, "mean_total_cost_fraction_of_full_scan": 1.0, "median_psnr_db": 120.0},
+    {"innovation_patches": 2, "mean_oracle_extra_reads": 2.0, "success_fraction": 1.0, "mean_expensive_patch_reads": 16.0, "mean_total_scalar_cost": 3072.0, "mean_total_cost_fraction_of_full_scan": 1.0, "median_psnr_db": 120.0},
+    {"innovation_patches": 4, "mean_oracle_extra_reads": 4.0125, "success_fraction": 1.0, "mean_expensive_patch_reads": 16.0, "mean_total_scalar_cost": 3072.0, "mean_total_cost_fraction_of_full_scan": 1.0, "median_psnr_db": 120.0},
+    {"innovation_patches": 6, "mean_oracle_extra_reads": 6.0125, "success_fraction": 1.0, "mean_expensive_patch_reads": 16.0, "mean_total_scalar_cost": 3072.0, "mean_total_cost_fraction_of_full_scan": 1.0, "median_psnr_db": 120.0},
+    {"innovation_patches": 8, "mean_oracle_extra_reads": 7.9, "success_fraction": 1.0, "mean_expensive_patch_reads": 16.0, "mean_total_scalar_cost": 3072.0, "mean_total_cost_fraction_of_full_scan": 1.0, "median_psnr_db": 120.0}
+  ]
+}

@@ -267,6 +267,75 @@ patches are only approximately predictable from one another, the machine must
 decide whether another expensive sample is worth buying from its observed
 reconstruction residual rather than relying on exact equality.
 
+
+## Gate 4 — a relation is a prediction, not an equality
+
+Gate 3 still made every expensive high-resolution patch inside one relation
+exactly equal. Gate 4 weakens that assumption.
+
+Each four-patch object now has a shared high-resolution base plus a local
+residual. Ordinary patches have tiny residual amplitude `0.003`; a controlled
+number of patches receive large innovations of amplitude `0.18`.
+
+The cheap 8-scalar guide is now a fixed linear projection of the **current**
+high-resolution content, so its cost is explicit and its role is narrow: audit
+whether a relation still predicts the expensive signal well enough.
+
+For every relation:
+
+1. choose one high-resolution anchor using only the guide measurements;
+2. tentatively let the other members inherit that anchor;
+3. compute each member's guide residual from the anchor;
+4. if the residual is too large, buy that patch's own expensive high-resolution
+   measurement.
+
+The residual threshold is learned on 100 training worlds against an explicit
+local target: would copying the relation anchor put this patch below 40 dB?
+Validation uses 50 separate worlds.
+
+```text
+learned guide-residual threshold     0.0239927
+training balanced accuracy           1.000
+validation balanced accuracy         1.000
+```
+
+On 80 untouched worlds per innovation level:
+
+| large-innovation patches | fixed one/relation success / cost | residual-adaptive success / cost | equal-cost random extra | oracle residual | full scan |
+|---:|---:|---:|---:|---:|---:|
+| 0 | 100% / 29.17% | **100% / 29.17%** | 100% / 29.17% | 100% / 29.17% | 100% / 100% |
+| 2 | 0% / 29.17% | **100% / 41.67%** | 0% / 41.67% | 100% / 41.67% | 100% / 100% |
+| 4 | 0% / 29.17% | **100% / 54.24%** | 0% / 54.24% | 100% / 54.24% | 100% / 100% |
+| 6 | 0% / 29.17% | **100% / 66.74%** | 1.25% / 66.74% | 100% / 66.74% | 100% / 100% |
+| 8 | 0% / 29.17% | **100% / 78.62%** | 0% / 78.62% | 100% / 78.54% | 100% / 100% |
+
+All costs include the guide channel. The equal-cost random attacker buys exactly
+the same number of extra high-resolution patches as the adaptive policy, but at
+random non-anchor locations.
+
+That means the new mechanism is stronger than “good relations let us sample
+less”:
+
+```text
+relation = a compression hypothesis
+
+cheap residual test
+    -> relation still predictive? keep compressing
+    -> relation locally broken? buy the missing detail
+```
+
+The adaptive cost curve is essentially the oracle residual curve in this
+synthetic regime.
+
+### Gate 4 scope fence
+
+The innovations are sparse and deliberately strong, which makes the cheap
+projection an unusually clean discriminator. The next attacker should make
+mismatch **diffuse and weak** rather than sparse and obvious. That is where the
+compressed-sensing paper's "price of sparsity" question becomes directly
+relevant: how sparse may the *measurement operator itself* become before the
+computational saving is eaten by additional samples?
+
 ## Boundary inherited from SighImageFactorization
 
 > **Structure may eliminate ambiguity; it may not manufacture an observable
@@ -278,20 +347,21 @@ score calibration/uncertainty separately from image prettiness.
 
 ## Next gates
 
-Gate 3 has now derived confidence from a charged low-resolution image channel.
-The next attacker is **relation model mismatch**:
+Gate 4 now shows that a learned relation can be treated as a **compression
+hypothesis** and audited with a cheap current residual measurement. The next
+attacker is the hardware/statistical one:
 
-- let related high-resolution patches share only a predictable component rather
-  than being exactly equal;
-- make one representative measurement leave a measurable residual on the
-  unobserved relation members;
-- ask whether residual/uncertainty can buy a second expensive measurement only
-  when it reduces error enough to justify its cost;
-- compare against fixed one-per-relation, full sensing, and equal-cost random
-  extra measurements.
+- replace dense guide projections with measurements that each touch only a
+  small number of high-resolution inputs;
+- sweep measurement-row sparsity against total sample count and reconstruction
+  quality;
+- compare dense random guides, sparse guides, and post-hoc sparsified guides at
+  matched multiply/add cost;
+- ask where the computational saving stops paying because too many extra
+  measurements are required.
 
-After that, the sparse-measurement / hardware-cost gate can vary how many
-inputs each physical measurement is allowed to touch.
+That is the direct bridge into the modern "price of measurement sparsity"
+compressed-sensing literature.
 
 After that, the Gate-19/20 lesson from SighImageFactorization can enter directly:
 when the meaning of a predictor changes, sensing budget should rise, stale

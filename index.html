@@ -50,6 +50,11 @@
   <div class="note"><strong>Gate 3 — the confidence signal is now an image measurement.</strong> Every patch pays for an 8-scalar 2×4 guide thumbnail; an expensive 8×8 RGB patch costs 192 scalars. Validation selects best-vs-second-best template margin (0.9759 balanced accuracy) over match error and cycle consistency. The guide cost is included in every adaptive budget.</div>
   <div class="note"><strong>The budget still localizes.</strong> With 4 ambiguous guide patches (3.35 wrong matches on average), blind trust succeeds 0% at 29.17% of a full scan. Image-confidence adaptive sensing succeeds 96.25% at 55.18%. Shuffling the same confidence values costs 54.79% but succeeds only 5%. At 6 ambiguous guides, adaptive sensing still succeeds 96.25% at 67.37% of full sensing.</div>
 </div>
+
+<div class="receipt" style="margin-top:26px">
+  <div class="note"><strong>Gate 4 — a relation is now a falsifiable compression hypothesis.</strong> One expensive anchor is read per relation. An 8-scalar current guide projection tests whether another member still matches that relation closely enough to inherit the anchor. Large residuals buy their own high-resolution read.</div>
+  <div class="note"><strong>Matched-cost attacker.</strong> With 4 large innovations, fixed one-per-relation sensing collapses to 0% success at 29.17% of a full scan. Residual-adaptive sensing is 100% at 54.24%. Buying exactly the same number of extra expensive patches at random is still 0%. With 8 innovations, adaptive remains 100% at 78.62%, essentially the 78.54% oracle cost.</div>
+</div>
 </main>
 <script>
 const N=16,B=4,C=[[.10,.20,.90],[.90,.20,.10],[.20,.85,.25],[.90,.80,.10]];
