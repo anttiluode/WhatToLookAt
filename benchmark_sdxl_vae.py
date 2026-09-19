@@ -191,6 +191,58 @@ def summarize(cases: list[dict], seed_set: set[int], variant: str) -> dict:
     }
 
 
+def _load_variant_cpu(name: str, local_only: bool):
+    """Load a candidate on CPU for cache/download preflight."""
+    if name == "fp16_fix":
+        return AutoencoderKL.from_pretrained(
+            FP16_VAE_ID,
+            dtype=torch.float16,
+            local_files_only=local_only,
+        )
+    if name == "taesdxl":
+        return AutoencoderTiny.from_pretrained(
+            TINY_VAE_ID,
+            dtype=torch.float16,
+            local_files_only=local_only,
+        )
+    raise ValueError(name)
+
+
+def preflight_candidates(local_only: bool) -> None:
+    """Verify/download both candidate VAEs before expensive reference generation."""
+    failures = []
+    for name in ("fp16_fix", "taesdxl"):
+        model_id = FP16_VAE_ID if name == "fp16_fix" else TINY_VAE_ID
+        print(f"Preflight {name}: {model_id}")
+        try:
+            model = _load_variant_cpu(name, local_only)
+        except Exception as exc:
+            failures.append((name, model_id, exc))
+            continue
+        del model
+
+    if failures:
+        lines = [
+            "Candidate VAE preflight failed before reference generation.",
+            "",
+        ]
+        for name, model_id, exc in failures:
+            lines.append(f"- {name}: {model_id}")
+            lines.append(f"  {type(exc).__name__}: {exc}")
+        if local_only:
+            lines += [
+                "",
+                "At least one candidate is not cached locally.",
+                "Rerun once WITHOUT --local-only so Hugging Face can download/cache",
+                "sdxl-vae-fp16-fix and taesdxl before the benchmark begins:",
+                "",
+                "    python3.13 benchmark_sdxl_vae.py",
+                "",
+                "After that, --local-only may be used for repeat runs.",
+            ]
+        raise SystemExit("\n".join(lines))
+
+
 def load_variant(name: str, local_only: bool):
     if name == "fp16_fix":
         return AutoencoderKL.from_pretrained(
@@ -229,6 +281,9 @@ def main():
     prompts = tuple(args.prompt) if args.prompt else PROMPTS
 
     print("GPU:", torch.cuda.get_device_name(0))
+    print("Preflighting candidate VAEs before generating any references...")
+    preflight_candidates(args.local_only)
+    print("Candidate VAE preflight OK.")
     print("Loading SDXL-Turbo reference pipeline...")
 
     pipe_t2i = AutoPipelineForText2Image.from_pretrained(
