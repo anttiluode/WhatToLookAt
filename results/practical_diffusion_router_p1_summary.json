@@ -1,0 +1,86 @@
+{
+  "source_gate": "Practical diffusion router P0",
+  "train_seeds_for_alpha": [100, 101],
+  "held_out_seed_for_alpha": 102,
+  "fitted_alphas": {
+    "edge_energy": 0.1040907944804391,
+    "local_variance": 0.13239853533631016,
+    "gaussian_residue": 0.10509662888705674,
+    "sihti_residue": 0.07755575102567246,
+    "random": 0.11985940054601023
+  },
+  "aggregate_all_cases": {
+    "edge_energy": {
+      "cases": 9,
+      "mean_capture": 0.435133557754624,
+      "mean_actuation_cosine": 0.25695093442205674,
+      "median_actuation_cosine": 0.2212899972912358,
+      "mean_oracle_blend_recovery": 0.035266796468316285,
+      "mean_p0_recovery": -2.022310555924337,
+      "mean_fixed_alpha_recovery": 0.03309178890764005,
+      "positive_fixed_alpha_cases": 9
+    },
+    "local_variance": {
+      "cases": 9,
+      "mean_capture": 0.40351137445024565,
+      "mean_actuation_cosine": 0.2688403451929956,
+      "mean_oracle_blend_recovery": 0.03759194043039146,
+      "mean_fixed_alpha_recovery": 0.032777251440889804
+    },
+    "gaussian_residue": {
+      "cases": 9,
+      "mean_capture": 0.4165131796221338,
+      "mean_actuation_cosine": 0.23941540387234517,
+      "mean_oracle_blend_recovery": 0.032616394649986176,
+      "mean_fixed_alpha_recovery": 0.029593656301090662
+    },
+    "sihti_residue": {
+      "cases": 9,
+      "mean_capture": 0.35947449220733785,
+      "mean_actuation_cosine": 0.22795785078932962,
+      "mean_oracle_blend_recovery": 0.02695218237704812,
+      "mean_fixed_alpha_recovery": 0.02254355329162218
+    },
+    "random": {
+      "cases": 9,
+      "mean_capture": 0.24305399013221798,
+      "mean_actuation_cosine": 0.31145956789608403,
+      "mean_oracle_blend_recovery": 0.029986329422833993,
+      "mean_fixed_alpha_recovery": 0.025512345497847002
+    }
+  },
+  "aggregate_held_out_seed102": {
+    "edge_energy": {
+      "cases": 3,
+      "mean_capture": 0.44048968224140345,
+      "mean_actuation_cosine": 0.27495140736535123,
+      "mean_oracle_blend_recovery": 0.041293450851018876,
+      "mean_p0_recovery": -2.2170990432515514,
+      "mean_fixed_alpha_recovery": 0.03975667647148784,
+      "positive_fixed_alpha_cases": 3
+    },
+    "random": {
+      "cases": 3,
+      "mean_capture": 0.26694538655428973,
+      "mean_actuation_cosine": 0.26801067801781436,
+      "mean_oracle_blend_recovery": 0.03469797056299606,
+      "mean_p0_recovery": -1.6025804945839177,
+      "mean_fixed_alpha_recovery": 0.027028946426533123,
+      "positive_fixed_alpha_cases": 2
+    }
+  },
+  "claim_receipt": {
+    "edge_minus_random_mean_capture": 0.192079567622406,
+    "edge_train_fitted_alpha": 0.1040907944804391,
+    "edge_test_mean_fixed_alpha_recovery": 0.03975667647148784,
+    "random_test_mean_fixed_alpha_recovery": 0.027028946426533123,
+    "edge_test_positive_cases": 3,
+    "selection_signal_pass": true,
+    "actuation_salvage_pass": false
+  },
+  "verdict": "selection survives; independent crop diffusion is the wrong local actuator",
+  "provenance": {
+    "workflow_run_id": 35425507702,
+    "workflow_artifact_id": 10578209660
+  }
+}

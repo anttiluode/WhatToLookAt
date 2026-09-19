@@ -751,9 +751,27 @@ pip install -r requirements-gpu.txt
 python gpu_diffusion_router.py --local-only
 ```
 
-This GPU branch is intentionally separate from the synthetic Gate 0→8 chain:
-it is a practical falsification experiment, not evidence until the CUDA receipt
-exists.
+The CUDA receipt now exists, and P0 **fails**: independent crop refinement makes
+the output substantially *farther* from the full-frame teacher and is slower
+than simply running the teacher. Edge routing averages -2.02 correction
+recovery at 1.400 s versus the teacher's 1.009 s.
+
+[PRACTICAL_ROUTER_P1.md](PRACTICAL_ROUTER_P1.md) then separates the selector
+from the actuator. The useful part survives: at the same 4/16-tile budget, edge
+energy selects **43.51%** of teacher correction energy versus **24.31%** for
+random. What fails is the action: independent crop diffusion has only ~0.26
+mean directional cosine with the full-frame correction, and even an
+oracle-strength scalar blend recovers only ~3.5%.
+
+So the practical boundary is now sharper:
+
+```text
+where to spend compute      -> cheap edge evidence works
+how to spend it locally     -> independent crop diffusion does not
+```
+
+The next GPU mechanism must preserve global denoising state while making its
+spatial computation sparse.
 
 ## Boundary inherited from SighImageFactorization
 
