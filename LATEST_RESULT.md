@@ -1,61 +1,54 @@
-# Latest result — Gate 1
+# Latest result — Gate 2
 
-Gate 0 showed only an oracle upper bound: if the correct relation partition is
-given, that structure can replace measurements.
+Gate 2 turns relation confidence into a **physical sensing budget**.
 
-Gate 1 now learns the relation from **past temporal common fate** before the
-future frame is undersampled.
+Gate 1 had learned a useful relation graph from common-fate history, but still
+assumed patch correspondence was trustworthy. Gate 2 injects 0, 2, 4, or 6
+cross-object correspondence errors and gives the tracker a noisy local
+confidence value.
 
-The synthetic history contains 16 tracked patches, four per hidden object.
-Each hidden object supplies one ordered eight-step motion sequence. All four
-object sequences use the same multiset of velocity vectors, merely in different
-orders, so unordered motion statistics do not identify the relation.
+A threshold learned on 80 training worlds is frozen at **0.525**, with training
+balanced accuracy **0.99375**.
 
-Across 48 independent worlds:
-
-```text
-ordered common-fate history:
-    median relation ARI                 1.000
-
-independently time-shuffled history:
-    median relation ARI                 0.000
-```
-
-The patches are then rearranged spatially before the future image is sampled.
+On 80 untouched worlds per ambiguity level:
 
 ```text
-quality criterion: PSNR >= 40 dB
+wrong correspondences       0        2        4        6
 
-history-learned relation:
-    first tested random budget with >=90% success
-    12 / 256 pixels = 4.6875%
+always trust
+  success                 100%       0%       0%       0%
+  measurements             4.00     4.00     4.00     4.00
 
-oracle relation:
-    12 / 256 pixels = 4.6875%
+confidence-adaptive
+  success                 100%      96.25%   95.0%    95.0%
+  measurements             4.00     5.99     7.95     9.95
 
-time-shuffled-history relation:
-    criterion not reached by 128 / 256 pixels
+global caution
+  success                 100%     100%     100%     100%
+  measurements            16.00    16.00    16.00    16.00
 
-absolute-coordinate memory:
-    criterion not reached by 128 / 256 pixels
+shuffled confidence
+  success                 100%       1.25%    0%       1.25%
+  measurements             4.00     5.99     7.95     9.91
 
-spatial lattice:
-    criterion not reached by 128 / 256 pixels
-
-active learned relation:
-    median budget = 4 / 256 pixels = 1.5625%
-    success       = 100%
+oracle uncertainty
+  success                 100%     100%     100%     100%
+  measurements             4.00     6.00     8.00    10.00
 ```
 
-So the current receipt is:
+The adaptive policy is therefore close to the oracle cost curve. It does not
+slow or densify sensing everywhere. It breaks only low-confidence relations
+into local singleton components, forcing those patches to pay for their own
+observations.
+
+The key receipt is the shuffled-confidence attacker: spending essentially the
+same number of measurements at the wrong locations does not recover the image.
 
 ```text
-past temporal structure
-    -> learned persistent relation
-    -> fewer measurements of a rearranged future
+uncertainty is not only a veto;
+uncertainty purchases observation.
 ```
 
-The remaining scaffold is explicit: patch correspondence is provided across
-history and the future frame. Gate 2 should attack that correspondence and make
-sensing budget respond to relation confidence rather than assuming the track is
-trustworthy.
+Scope fence: the tracker confidence is synthetic in Gate 2. Gate 3 should derive
+that confidence from image evidence itself and test whether the same local
+budget mechanism survives occlusion / look-alike correspondence failures.
