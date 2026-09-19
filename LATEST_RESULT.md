@@ -1,63 +1,69 @@
-# Latest result — Gate 5
+# Latest result — Gate 6
 
-Gate 5 makes the cheap sensing operator itself sparse.
+Gate 6 separates **designed sparse sensing** from **post-hoc sparsification**.
 
-A relation failure changes only **8 of 192** high-resolution coordinates. A
-guide measurement touches only (d) coordinates, so very sparse rows can
-literally miss the changed support.
+The relation failure is intentionally extreme: each changed patch modifies only
+**1 of 192** high-resolution coordinates. Sparse guide rows may touch only
+**64 coordinates**.
 
-For every row support (d), guide-row count (m) is swept over
-`1,2,4,8,16,32,64`. Thresholds are trained on 100 worlds. A separate detector
-validation set is followed by a second end-to-end policy validation panel.
-The smallest (m) whose *worst* validation innovation level reaches 95%
-reconstruction success is frozen before the 80-world-per-level test.
+Four sensing families sweep guide-row count
+`m = 1,2,3,4,6,8,12,16`. Each candidate learns its own threshold on 150
+training worlds. The smallest (m) whose *worst* validation innovation level
+reaches 95% reconstruction success is frozen before 120-world-per-level testing.
 
 Selected frontier:
 
 ```text
-row support d      selected m     guide samples     coordinate touches
-1                  none <=64      1024 @ m=64       1024
-2                  none <=64      1024 @ m=64       2048
-4                  32             512               2048
-8                  32             512               4096
-16                  8             128               2048
-32                  8             128               4096
-64                  4              64               4096
-96                  4              64               6144
-192                 4              64              12288
+family                    m   coverage   guide scalars   coordinate touches
+coverage-designed sparse  3   192/192    48              3072
+post-hoc pruned           12  192/192    192            12288
+random sparse             12  190/192    192            12288
+dense                      2  192/192     32             6144
 ```
 
-The extreme sparse cases expose the price directly:
+The designed sparse supports deliberately cover new coordinates before
+repeating. Three 64-wide rows therefore cover the entire 192-coordinate signal
+space.
+
+Post-hoc pruning keeps the largest weights of independently generated dense
+rows. At equal row count it leaves support holes, so it needs twelve rows before
+its worst validation level reaches the same target.
+
+Held-out success after freezing the selected sensors:
 
 ```text
-d=1, m=64   best minimum validation success   60.0%
-d=2, m=64   best minimum validation success   92.5%
+innovation patches          0       2       4       6       8
+
+coverage-designed sparse  100%    100%    100%    100%    100%
+post-hoc pruned           100%    100%    100%    100%    100%
+random sparse             100%     98.33%  97.5%   95.0%   98.33%
+dense                     100%     95.83%  96.67%  93.33%  97.5%
 ```
 
-They save per-row work, but too many sparse innovations fall outside the
-measurement support.
+The important comparison is not a slogan that sparse beats dense. Dense reaches
+the validation target with fewer guide scalar samples (32 versus 48), but twice
+the coordinate-touch work and slightly weaker held-out robustness.
 
-A useful middle regime appears at **d=64, m=4**. It uses the same 64 guide
-scalar measurements as the selected dense **d=192, m=4** guide, but only
-4096 coordinate touches across the scene instead of 12288.
-
-Held-out d=64,m=4:
+The clean sparse-vs-sparse receipt is:
 
 ```text
-innovation patches        0       2       4       6       8
-success                 100%    100%    100%    98.75%  100%
-total sensing cost      27.08%  39.58%  52.08%  64.51%  77.08%
+coverage-designed sparse      3072 guide coordinate touches
+post-hoc pruned sparse       12288 guide coordinate touches
+held-out success             100% across every innovation level for both
 ```
 
-So the gate earns a real cost curve rather than a slogan:
+So support layout itself has become part of the algorithm:
 
 ```text
-measurement sparsity
-    saves fan-in / mixing work
-    but increases the chance that sparse signal support is never touched
-    and therefore increases required sample count.
+build sparse first
+    -> cover the possible support deliberately
+
+build dense then prune
+    -> retained large weights can leave blind coordinates
+    -> extra rows are needed to close those holes
 ```
 
-The next gate should compare **designed sparse sensing** with **post-hoc
-sparsification of a dense measurement operator** at matched downstream quality
-and compute cost.
+Scope fence: this is a one-coordinate innovation regime chosen specifically to
+make support blindness visible. The next gate should freeze these selected
+operators and sweep innovation support size. If the interpretation is correct,
+the designed-sparse advantage should shrink as failures become more diffuse.
