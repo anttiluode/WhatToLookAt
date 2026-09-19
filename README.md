@@ -130,6 +130,65 @@ which patches belong to the same object. That is deliberate. The next attacker
 should make correspondence uncertain rather than quietly crediting tracking to
 the sensing mechanism.
 
+
+## Gate 2 — uncertainty buys local measurements
+
+Gate 1 still assumed that patch correspondence was trustworthy. Gate 2 attacks
+that scaffold.
+
+A synthetic tracker proposes current-patch → historical-patch matches. Zero,
+one, two, or three cross-object swap pairs create 0, 2, 4, or 6 wrong
+correspondences. The tracker also emits a noisy local confidence value.
+
+A confidence threshold is selected on 80 separate training worlds and then
+frozen:
+
+```text
+learned threshold              0.525
+training balanced accuracy     0.99375
+```
+
+Five held-out policies compete:
+
+- **always trust** — keep the relation graph at full authority and spend only
+  four measurements;
+- **global caution** — distrust the whole relation graph and measure all 16
+  patches;
+- **confidence-adaptive** — trusted matches share measurements through the
+  relation graph; low-confidence patches become local singleton components and
+  must pay for their own observation;
+- **shuffled confidence** — identical confidence values and almost identical
+  sensing cost, assigned to the wrong patches;
+- **oracle uncertainty** — ceiling that knows which correspondences are wrong.
+
+Reference: 80 untouched worlds per ambiguity level.
+
+| wrong matches | always trust success / budget | confidence-adaptive success / budget | global caution | shuffled confidence | oracle |
+|---:|---:|---:|---:|---:|---:|
+| 0 | 100% / 4.00 | **100% / 4.00** | 100% / 16 | 100% / 4.00 | 100% / 4 |
+| 2 | 0% / 4.00 | **96.25% / 5.99** | 100% / 16 | 1.25% / 5.99 | 100% / 6 |
+| 4 | 0% / 4.00 | **95.0% / 7.95** | 100% / 16 | 0% / 7.95 | 100% / 8 |
+| 6 | 0% / 4.00 | **95.0% / 9.95** | 100% / 16 | 1.25% / 9.91 | 100% / 10 |
+
+So the new mechanism is not simply “be cautious”:
+
+```text
+local relation uncertainty
+        -> withdraw local relation authority
+        -> spend extra sensing only there
+```
+
+The shuffled-confidence attacker is the important receipt. Merely spending the
+same number of extra measurements does not work when they are spent in the
+wrong places.
+
+### Gate 2 scope fence
+
+The confidence channel is synthetic. Gate 2 establishes the *budgeting
+mechanism*, not a real tracker. The next gate should derive correspondence
+confidence from image evidence itself and preserve the same local-budget
+advantage.
+
 ## Boundary inherited from SighImageFactorization
 
 > **Structure may eliminate ambiguity; it may not manufacture an observable
@@ -141,14 +200,14 @@ score calibration/uncertainty separately from image prettiness.
 
 ## Next gates
 
-The immediate next step is to attack the scaffold instead of jumping straight
-to a Transformer:
+Gate 2 has now shown the abstract confidence → sensing-budget mechanism. The
+immediate next step is to remove its synthetic confidence cue:
 
-- uncertain / broken patch correspondence;
-- confidence-controlled use of the learned relation;
-- active sensing that spends extra measurements where correspondence is weak;
-- then a sparse-measurement / hardware-cost gate that varies how many inputs
-  each measurement is allowed to touch.
+- derive correspondence confidence from the image / matching process itself;
+- attack that cue with look-alikes, occlusion and appearance jumps;
+- keep the same local-budget control and shuffled-cue attacker;
+- then add a sparse-measurement / hardware-cost gate that varies how many
+  inputs each measurement is allowed to touch.
 
 After that, the Gate-19/20 lesson from SighImageFactorization can enter directly:
 when the meaning of a predictor changes, sensing budget should rise, stale
