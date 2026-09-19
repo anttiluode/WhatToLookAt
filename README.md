@@ -527,6 +527,92 @@ become diffuse, blind-coordinate coverage should matter less and post-hoc /
 random sparse sensing should catch up. If it does not, there is another
 mechanism hiding beyond coverage.
 
+
+## Gate 7 — coverage is not enough
+
+Gate 6's strongest result came from an intentionally one-coordinate failure:
+three 64-wide sparse rows covered all 192 coordinates and therefore no
+single-coordinate innovation could hide in an untouched location.
+
+Gate 7 freezes those exact Gate-6-selected sensors and their support-1-trained
+thresholds. It does **not** redesign or recalibrate them. The only changed
+variable is the number of coordinates inside each relation failure:
+
+```text
+K = 1, 2, 4, 8, 16, 32, 64
+```
+
+To keep this from becoming a trivial "bigger error is easier" sweep, the
+per-coordinate amplitude is scaled as
+
+```text
+0.65 / sqrt(K)
+```
+
+so total innovation energy stays approximately fixed.
+
+The frozen-sensor result overturns the simplest Gate-6 interpretation:
+
+| innovation support K | coverage-designed, 3 rows | post-hoc pruned, 12 rows | random sparse, 12 rows | dense, 2 rows |
+|---:|---:|---:|---:|---:|
+| 1 | **100%** | 100% | 94.17% | 95.83% |
+| 2 | **44.17%** | 100% | 99.17% | 90.0% |
+| 4 | 63.33% | 100% | 100% | 82.5% |
+| 8 | 80.0% | 100% | 100% | 85.83% |
+| 16 | 90.83% | 100% | 100% | 91.67% |
+| 32 | 96.67% | 100% | 100% | 89.17% |
+| 64 | 93.33% | 100% | 100% | 85.83% |
+
+Values are the minimum held-out reconstruction success across 0/2/4/6/8
+innovation patches, with 120 untouched worlds in every cell.
+
+The surprising failure is the three-row coverage-designed sensor. It still
+touches **192/192** coordinates. Nothing is unobserved in the Gate-6 sense.
+Yet as soon as two signed coordinates may change, several changed coordinates
+can land in the same row and partially cancel.
+
+That gives a stronger boundary:
+
+```text
+coverage prevents an innovation from being completely unseen
+
+but
+
+coverage alone does not give each innovation a distinguishable signature
+```
+
+The twelve-row sparse sensors are much more redundant. Their overlapping
+supports give changed coordinates multiple opportunities to leave different
+measurement signatures, so post-hoc and random sparse sensing become extremely
+robust once the innovation has more than one active coordinate.
+
+Gate 7 therefore corrects Gate 6 rather than extending its slogan:
+
+```text
+support coverage is sufficient for the 1-sparse attacker
+measurement diversity is required for multi-coordinate signed change
+```
+
+This is where the compressed-sensing connection stops being metaphorical.
+The thing we now need is not merely "touch every coordinate." It is closer to
+the classical demand that different sparse possibilities remain distinguishable
+under the measurement operator.
+
+### Gate 7 scope fence
+
+The twelve-row controls pay four times Gate 6's designed-sparse coordinate-touch
+budget, so Gate 7 does **not** establish the minimum-cost way to obtain that
+measurement diversity.
+
+The next gate should ask the sharper engineering question:
+
+> Can a deliberately overlapping/coded sparse sensor recover multi-coordinate
+> robustness with substantially fewer than 12 rows?
+
+A natural first attacker is a degree-2 design: give every coordinate two
+different sparse measurement memberships, then compare it against same-touch
+random and post-hoc operators.
+
 ## Boundary inherited from SighImageFactorization
 
 > **Structure may eliminate ambiguity; it may not manufacture an observable
@@ -547,13 +633,18 @@ Gate 6 has now separated designed sparse sensing from post-hoc pruning. In the
 one-coordinate innovation regime, deliberate coverage closes blind spots with
 three sparse rows while post-hoc pruning needs twelve.
 
-The next attacker is a support-size sweep with the **same frozen sensors**:
+Gate 7 has now run that frozen-sensor support sweep, and the simple prediction
+was wrong in an informative way. Coverage-designed sensing collapses at
+two-coordinate signed innovations even though every coordinate is touched.
 
-- one-coordinate innovations should strongly reward coverage design;
-- increasingly diffuse innovations should make random/post-hoc supports more
-  likely to intersect the change and therefore close the gap;
-- if the gap persists even when support coverage is no longer the bottleneck,
-  another mechanism has been earned.
+The next gate therefore targets **measurement diversity** rather than coverage:
+
+- give each coordinate multiple sparse measurement memberships;
+- keep total coordinate-touch cost explicit;
+- compare structured overlap against same-cost random overlap and post-hoc
+  pruning;
+- ask for the cheapest sensor whose signatures survive signed multi-coordinate
+  cancellation.
 
 After that, the Gate-19/20 lesson from SighImageFactorization can enter directly:
 when the meaning of a predictor changes, sensing budget should rise, stale
@@ -571,6 +662,7 @@ python gate3_image_confidence.py
 python gate4_relation_residual_budget.py
 python gate5_price_of_sparse_measurements.py
 python gate6_designed_vs_pruned.py
+python gate7_coverage_not_enough.py
 python -m pytest -q
 ```
 
@@ -584,6 +676,7 @@ results/gate3_summary.json
 results/gate4_summary.json
 results/gate5_summary.json
 results/gate6_summary.json
+results/gate7_summary.json
 ```
 
 The live browser instrument is served by GitHub Pages from `index.html`.
