@@ -1,39 +1,61 @@
-# Latest result — Gate 0
+# Latest result — Gate 1
 
-Gate 0 establishes the oracle upper bound for the repository.
+Gate 0 showed only an oracle upper bound: if the correct relation partition is
+given, that structure can replace measurements.
 
-A 16×16 scene contains four constant-colour objects, each split into four
-spatially disconnected patches. Random pixel measurements are reconstructed
-under either the true relation partition, an ordinary four-neighbour lattice,
-or a size-matched shuffled relation partition.
+Gate 1 now learns the relation from **past temporal common fate** before the
+future frame is undersampled.
 
-Reference run: 48 random masks for each measurement count.
+The synthetic history contains 16 tracked patches, four per hidden object.
+Each hidden object supplies one ordered eight-step motion sequence. All four
+object sequences use the same multiset of velocity vectors, merely in different
+orders, so unordered motion statistics do not identify the relation.
+
+Across 48 independent worlds:
+
+```text
+ordered common-fate history:
+    median relation ARI                 1.000
+
+independently time-shuffled history:
+    median relation ARI                 0.000
+```
+
+The patches are then rearranged spatially before the future image is sampled.
 
 ```text
 quality criterion: PSNR >= 40 dB
 
-active true-relation sampling:
-    4 / 256 pixels = 1.5625%
-    PSNR            = 120 dB (numerically exact)
+history-learned relation:
+    first tested random budget with >=90% success
+    12 / 256 pixels = 4.6875%
 
-random true-relation sampling:
-    first tested budget with >=90% success = 16 / 256 = 6.25%
-    success at 16 measurements             = 100%
+oracle relation:
+    12 / 256 pixels = 4.6875%
+
+time-shuffled-history relation:
+    criterion not reached by 128 / 256 pixels
+
+absolute-coordinate memory:
+    criterion not reached by 128 / 256 pixels
 
 spatial lattice:
-    median PSNR at 128 / 256 measurements  = 17.03 dB
-    >=40 dB success at 128 measurements    = 0%
+    criterion not reached by 128 / 256 pixels
 
-shuffled relation graph:
-    median PSNR at 128 / 256 measurements  = 12.25 dB
-    >=40 dB success at 128 measurements    = 0%
+active learned relation:
+    median budget = 4 / 256 pixels = 1.5625%
+    success       = 100%
 ```
 
-The receipt is deliberately narrow:
+So the current receipt is:
 
-> A correct relation partition can replace measurements in a world that is
-> simple on that partition, and destroying the partition destroys the gain.
+```text
+past temporal structure
+    -> learned persistent relation
+    -> fewer measurements of a rearranged future
+```
 
-This is not yet evidence that the system can *learn* such a graph without
-looking at the future answer. Gate 1 must learn the relation from past temporal
-evidence and then spend it on a later undersampled frame.
+The remaining scaffold is explicit: patch correspondence is provided across
+history and the future frame. Gate 2 should attack that correspondence and make
+sensing budget respond to relation confidence rather than assuming the track is
+trustworthy.
