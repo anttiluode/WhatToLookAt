@@ -37,3 +37,5 @@ jobs:
         run: python gate5_price_of_sparse_measurements.py --train-worlds 50 --threshold-validation-worlds 25 --policy-validation-worlds 20 --test-worlds 24 --output /tmp/gate5_ci.json
       - name: Reproduce Gate 6 CI receipt
         run: python gate6_designed_vs_pruned.py --train-worlds 60 --validation-worlds 30 --test-worlds 32 --output /tmp/gate6_ci.json
+      - name: Reproduce Gate 7 CI receipt
+        run: python gate7_coverage_not_enough.py --train-worlds 60 --test-worlds 24 --output /tmp/gate7_ci.json
