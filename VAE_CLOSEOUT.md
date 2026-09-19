@@ -82,12 +82,32 @@ or physical sensing.
 
 ## Run
 
+The benchmark now preflights **both candidate VAEs before generating any of the
+nine standard-VAE references**. This avoids wasting a reference pass only to
+discover a missing Hugging Face cache entry afterward.
+
+First run, if either candidate has not been cached:
+
 ```bash
 git pull
+python benchmark_sdxl_vae.py
+```
+
+That downloads/caches:
+
+```text
+madebyollin/sdxl-vae-fp16-fix
+madebyollin/taesdxl
+```
+
+Repeat runs may then be fully offline:
+
+```bash
 python benchmark_sdxl_vae.py --local-only
 ```
 
-If either VAE is not cached yet, omit `--local-only` for the first run.
+With `--local-only`, a missing candidate now fails immediately during
+preflight instead of after the standard reference panel has already run.
 
 Upload:
 
