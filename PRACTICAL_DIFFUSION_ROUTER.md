@@ -1,6 +1,6 @@
 # Practical GPU Gate P0 — route diffusion compute where the image says it matters
 
-Status: **pre-registered; ready for a CUDA run.**
+Status: **run on RTX 3060 across 3 prompts × 3 seeds; P0 FAIL.**
 
 This is the practical handoff from the Sihti AI branch.
 
@@ -102,3 +102,29 @@ results/practical_diffusion_router/*_contact.png
 ```
 
 The default is already the 3 prompts × 3 seeds used by the Sihti gates.
+
+
+## P0 result
+
+The independent-crop implementation fails both quality and speed:
+
+```text
+selector          mean correction recovery    mean route time
+
+edge energy             -2.022                    1.400 s
+local variance           -1.782                    1.384 s
+Gaussian residual        -2.087                    1.479 s
+Sihti residue            -1.995                    1.459 s
+random                   -1.289                    1.384 s
+
+full-frame teacher                                  1.009 s
+```
+
+Edge beats random recovery in only **1/9** cases and is faster than the teacher
+in **0/9**. The pre-registered gate fails decisively.
+
+This does not by itself kill selective compute. P1 separates selector quality
+from actuator quality and finds that edge-selected tiles still contain 43.51%
+of teacher correction energy versus 24.31% for random. The failure is the
+independent crop diffusion operation, not the spatial cue. See
+[PRACTICAL_ROUTER_P1.md](PRACTICAL_ROUTER_P1.md).
