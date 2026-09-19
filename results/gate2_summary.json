@@ -1,0 +1,36 @@
+{
+  "training_worlds": 80,
+  "test_worlds_per_level": 80,
+  "learned_confidence_threshold": 0.525,
+  "training_balanced_accuracy": 0.99375,
+  "always_trust": [
+    {"wrong_matches": 0, "success_fraction": 1.0, "mean_measurements": 4.0, "median_psnr_db": 120.0},
+    {"wrong_matches": 2, "success_fraction": 0.0, "mean_measurements": 4.0, "median_psnr_db": 13.673740170064338},
+    {"wrong_matches": 4, "success_fraction": 0.0, "mean_measurements": 4.0, "median_psnr_db": 10.363130360209587},
+    {"wrong_matches": 6, "success_fraction": 0.0, "mean_measurements": 4.0, "median_psnr_db": 8.653327270502203}
+  ],
+  "confidence_adaptive": [
+    {"wrong_matches": 0, "success_fraction": 1.0, "mean_measurements": 4.0, "median_psnr_db": 120.0},
+    {"wrong_matches": 2, "success_fraction": 0.9625, "mean_measurements": 5.9875, "median_psnr_db": 120.0},
+    {"wrong_matches": 4, "success_fraction": 0.95, "mean_measurements": 7.95, "median_psnr_db": 120.0},
+    {"wrong_matches": 6, "success_fraction": 0.95, "mean_measurements": 9.95, "median_psnr_db": 120.0}
+  ],
+  "global_cautious": [
+    {"wrong_matches": 0, "success_fraction": 1.0, "mean_measurements": 16.0, "median_psnr_db": 120.0},
+    {"wrong_matches": 2, "success_fraction": 1.0, "mean_measurements": 16.0, "median_psnr_db": 120.0},
+    {"wrong_matches": 4, "success_fraction": 1.0, "mean_measurements": 16.0, "median_psnr_db": 120.0},
+    {"wrong_matches": 6, "success_fraction": 1.0, "mean_measurements": 16.0, "median_psnr_db": 120.0}
+  ],
+  "shuffled_confidence": [
+    {"wrong_matches": 0, "success_fraction": 1.0, "mean_measurements": 4.0, "median_psnr_db": 120.0},
+    {"wrong_matches": 2, "success_fraction": 0.0125, "mean_measurements": 5.9875, "median_psnr_db": 14.093996308390883},
+    {"wrong_matches": 4, "success_fraction": 0.0, "mean_measurements": 7.95, "median_psnr_db": 12.33308371783407},
+    {"wrong_matches": 6, "success_fraction": 0.0125, "mean_measurements": 9.9125, "median_psnr_db": 11.350081184789664}
+  ],
+  "oracle_uncertainty": [
+    {"wrong_matches": 0, "success_fraction": 1.0, "mean_measurements": 4.0, "median_psnr_db": 120.0},
+    {"wrong_matches": 2, "success_fraction": 1.0, "mean_measurements": 6.0, "median_psnr_db": 120.0},
+    {"wrong_matches": 4, "success_fraction": 1.0, "mean_measurements": 8.0, "median_psnr_db": 120.0},
+    {"wrong_matches": 6, "success_fraction": 1.0, "mean_measurements": 10.0, "median_psnr_db": 120.0}
+  ]
+}

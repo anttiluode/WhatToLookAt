@@ -27,3 +27,5 @@ jobs:
         run: python what_to_look_at.py --seeds 16 --output /tmp/gate0_ci.json
       - name: Reproduce Gate 1 CI receipt
         run: python gate1_history_graph.py --worlds 16 --output /tmp/gate1_ci.json
+      - name: Reproduce Gate 2 CI receipt
+        run: python gate2_confidence_budget.py --train-worlds 40 --test-worlds 24 --output /tmp/gate2_ci.json

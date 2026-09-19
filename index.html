@@ -40,6 +40,11 @@
   <div class="note"><strong>Gate 1 — history earns the graph.</strong> Sixteen tracked parts carry eight-step motion histories. The four hidden objects use the same velocity vocabulary in different temporal orders. Ordered common fate clusters perfectly across the 48-world reference (median ARI 1.000); independently shuffling time drops median ARI to 0.000.</div>
   <div class="note"><strong>Then spend the history.</strong> After the parts are randomly rearranged, the learned relation reaches the 40 dB / 90% criterion at 12/256 random pixels, exactly matching the oracle relation. Time-shuffled history, absolute-coordinate memory, and the spatial lattice do not reach the criterion even at 128/256. Active learned sampling uses 4/256 pixels with 100% success.</div>
 </div>
+
+<div class="receipt" style="margin-top:26px">
+  <div class="note"><strong>Gate 2 — uncertainty buys observation.</strong> Wrong correspondences make blind four-measurement trust collapse to 0% success. A learned local confidence threshold instead grows the average budget from 4.00 → 5.99 → 7.95 → 9.95 measurements as 0 → 2 → 4 → 6 matches become wrong, while held-out success stays 100% → 96.25% → 95% → 95%.</div>
+  <div class="note"><strong>Not just “measure more.”</strong> Global caution is perfect but always costs 16 measurements. Shuffling the same confidence values keeps almost the same adaptive budget but drops success to 1.25%, 0%, and 1.25% in the ambiguous worlds. The extra observations have to be spent where the relation is actually uncertain.</div>
+</div>
 </main>
 <script>
 const N=16,B=4,C=[[.10,.20,.90],[.90,.20,.10],[.20,.85,.25],[.90,.80,.10]];
