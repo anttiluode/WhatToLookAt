@@ -177,3 +177,32 @@ def paste_refined_centers(
         out.paste(center, (col * tile, row * tile))
 
     return out
+
+
+def make_tile_mask(
+    selected: list[int],
+    size: int = 512,
+    grid: int = 4,
+) -> Image.Image:
+    """Return a hard L-mode mask covering exactly the selected grid cells."""
+    if size % grid:
+        raise ValueError("size must be divisible by grid")
+    tile = size // grid
+    data = np.zeros((size, size), dtype=np.uint8)
+    for idx in selected:
+        row, col = divmod(int(idx), grid)
+        data[row*tile:(row+1)*tile, col*tile:(col+1)*tile] = 255
+    return Image.fromarray(data, mode="L")
+
+
+def correction_capture(
+    energy: np.ndarray,
+    selected: list[int],
+    random_fraction: float = 0.25,
+) -> float:
+    """Fraction of non-negative correction energy contained in selected cells."""
+    energy = np.asarray(energy, dtype=np.float64).ravel()
+    total = float(energy.sum())
+    if total <= 1e-20:
+        return float(random_fraction)
+    return float(energy[[int(i) for i in selected]].sum() / total)
