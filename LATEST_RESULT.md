@@ -1,3 +1,33 @@
+# H0 design corrected — hard tile paste invalidated
+
+The first 2048px H0 contact sheet exposed a design error before the result was
+scored: the **all-16 tile teacher itself was visibly blocky**. Independent
+512px refinements had been pasted edge-to-edge, so selective outputs were being
+judged against a broken high-resolution reference.
+
+That H0 run is invalid as visual-quality evidence.
+
+H0b replaces it with:
+
+```text
+5×5 overlapping 512px tiles
+128px overlap
+384px stride
+cosine partition-of-unity feathering
+smooth all-25 teacher
+smooth base + selected feathered corrections
+```
+
+Skipping a tile still deletes one complete diffusion call. The change is only
+that the image assembly is now coherent.
+
+A teacher-seam validity control is added, and the claim-eligible budgets become
+6/25 and 12/25. Seed 102 remains held out.
+
+See `HIGHRES_TILE_GATE.md`.
+
+---
+
 # 512×512 branch closed — fp16-fix VAE passes
 
 The final engineering benchmark selects

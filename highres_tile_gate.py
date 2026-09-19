@@ -1,36 +1,34 @@
 #!/usr/bin/env python3
-"""High-resolution Gate H0: skip whole 512px diffusion tiles at 2048px.
+"""High-resolution Gate H0b: overlap-blended whole-tile omission at 2048px.
 
-The 512px SDXL-Turbo speed branch is closed. Its final engineering result is an
-fp16-friendly full SDXL VAE: ~1.36-1.38x faster with ~99.5-99.7% recovery.
+H0's first implementation is invalid as a visual-quality test: it pasted
+independently refined 512px blocks edge-to-edge, so the all-tile "teacher" was
+itself visibly blocky. H0b fixes the geometry before any claim is scored.
 
-H0 moves WhatToLookAt to a regime where omission changes economics directly.
+Geometry:
+    2048x2048 output
+    512x512 diffusion tiles
+    128px overlap
+    384px stride
+    5x5 = 25 independent tile calls
 
-For each case:
-  1. generate one 512px source image;
-  2. Lanczos-upscale it to 2048px;
-  3. refine all sixteen independent 512px tiles with the same SDXL-Turbo
-     img2img operation using the fp16-fix VAE;
-  4. treat that all-tile output as the tiled-refinement teacher;
-  5. ask whether cheap edge energy on the 2048px base can identify which tile
-     calls are worth keeping.
-
-Because every tile is independent in both teacher and selective routes, skipping
-one tile literally deletes one full VAE+UNet+VAE diffusion invocation. There is
-no sparse kernel, crop-trajectory mismatch, or hidden global full-frame call.
+Each tile contributes through a cosine feather window. The 25 windows form a
+partition of unity, so the all-tile teacher is a smooth weighted blend. A
+selective route starts from the smooth Lanczos base and adds only the selected
+feathered tile corrections. Skipping a tile still deletes one complete
+VAE+UNet+VAE diffusion call, but it no longer creates a hard rectangular paste.
 
 Candidate budgets:
-    refine 4/16  (skip 75%)
-    refine 8/16  (skip 50%)
-    refine 12/16 (skip 25%, diagnostic only; ineligible for the main claim)
+    refine 6/25  (~24%, skip 76%)
+    refine 12/25 (~48%, skip 52%)
+    refine 18/25 (~72%, diagnostic only)
 
-Random selection is evaluated with 64 matched-budget draws per case using the
-already-computed teacher tiles. Oracle selection ranks tiles by actual teacher
-correction energy and is a ceiling only.
+Validation seeds 100/101 choose the smallest eligible passing budget. Seed 102
+is held out.
 
-Validation seeds 100/101 choose the smallest passing eligible budget. Seed 102
-is held out. A pass therefore means a cheap selector has converted into actual
-whole-call omission at a useful quality/speed frontier.
+A teacher-seam validity control is included. If overlap blending still creates
+boundary jumps more than 2x nearby ordinary gradients, the gate is invalid
+regardless of recovery.
 """
 from __future__ import annotations
 
@@ -52,8 +50,13 @@ from diffusers import (
 from highres_tile_utils import (
     candidate_pass,
     choose_smallest_passing,
-    correction_capture,
     edge_energy_scores,
+    feather_window,
+    gram_recovery,
+    greedy_oracle_indices,
+    grid_size,
+    partition_sum,
+    tile_origins,
     top_indices,
 )
 
@@ -68,9 +71,13 @@ PROMPTS = (
 
 SOURCE_SIZE = 512
 OUTPUT_SIZE = 2048
-GRID = 4
-TILE_SIZE = OUTPUT_SIZE // GRID
-REFINE_COUNTS = (4, 8, 12)
+TILE_SIZE = 512
+OVERLAP = 128
+STRIDE = TILE_SIZE - OVERLAP
+GRID = grid_size(OUTPUT_SIZE, TILE_SIZE, OVERLAP)
+TOTAL_TILES = GRID * GRID
+
+REFINE_COUNTS = (6, 12, 18)
 RANDOM_REPEATS = 64
 
 VALIDATION_SEEDS = (100, 101)
@@ -82,6 +89,7 @@ MIN_EDGE_CORRELATION = 0.90
 MIN_EDGE_RANDOM_MARGIN = 0.10
 MIN_SPEEDUP = 1.75
 MAX_REFINE_FRACTION = 0.50
+MAX_TEACHER_SEAM_RATIO = 2.0
 
 
 def sync():
@@ -101,7 +109,12 @@ def timed(fn):
 
 
 def arr(image: Image.Image) -> np.ndarray:
-    return np.asarray(image.convert("RGB"), dtype=np.float64) / 255.0
+    return np.asarray(image.convert("RGB"), dtype=np.float32) / 255.0
+
+
+def to_image(x: np.ndarray) -> Image.Image:
+    y = np.clip(np.asarray(x) * 255.0 + 0.5, 0, 255).astype(np.uint8)
+    return Image.fromarray(y, mode="RGB")
 
 
 def mse(a: Image.Image, b: Image.Image) -> float:
@@ -122,7 +135,7 @@ def layout_psnr(a: Image.Image, b: Image.Image) -> float:
 
 
 def edges(image: Image.Image) -> np.ndarray:
-    x = arr(image)
+    x = arr(image).astype(np.float64)
     gray = 0.299 * x[:, :, 0] + 0.587 * x[:, :, 1] + 0.114 * x[:, :, 2]
     gx = np.diff(gray, axis=1, append=gray[:, -1:])
     gy = np.diff(gray, axis=0, append=gray[-1:, :])
@@ -136,25 +149,152 @@ def edge_corr(a: Image.Image, b: Image.Image) -> float:
     return float(np.corrcoef(x, y)[0, 1])
 
 
-def tile_box(index: int) -> tuple[int, int, int, int]:
-    row, col = divmod(int(index), GRID)
-    x0 = col * TILE_SIZE
-    y0 = row * TILE_SIZE
-    return (x0, y0, x0 + TILE_SIZE, y0 + TILE_SIZE)
+def recovery(base: Image.Image, candidate: Image.Image, teacher: Image.Image) -> float:
+    base_err = mse(base, teacher)
+    if base_err <= 1e-20:
+        return 0.0
+    return float(1.0 - mse(candidate, teacher) / base_err)
 
 
-def assemble(base: Image.Image, teacher_tiles: list[Image.Image], selected: list[int]) -> Image.Image:
-    out = base.convert("RGB").copy()
-    for index in selected:
-        out.paste(teacher_tiles[int(index)], tile_box(int(index))[:2])
-    return out
+def boundary_gradient_values(image: Image.Image) -> tuple[np.ndarray, np.ndarray]:
+    x = arr(image).astype(np.float64)
+    gray = 0.299 * x[:, :, 0] + 0.587 * x[:, :, 1] + 0.114 * x[:, :, 2]
+    vertical = np.mean(np.abs(gray[:, 1:] - gray[:, :-1]), axis=0)
+    horizontal = np.mean(np.abs(gray[1:, :] - gray[:-1, :]), axis=1)
+    return vertical, horizontal
 
 
-def correction_energy(base: Image.Image, teacher_tiles: list[Image.Image]) -> np.ndarray:
+def teacher_seam_ratio(image: Image.Image) -> float:
+    """Boundary jump divided by nearby non-boundary jump."""
+    vertical, horizontal = boundary_gradient_values(image)
+    boundaries = [STRIDE * i for i in range(1, GRID)]
+
+    ratios = []
+    radius = 12
+    exclusion = 2
+
+    for boundary in boundaries:
+        idx = boundary - 1
+        lo = max(0, idx - radius)
+        hi = min(len(vertical), idx + radius + 1)
+        neighborhood = np.concatenate([
+            vertical[lo:max(lo, idx - exclusion)],
+            vertical[min(hi, idx + exclusion + 1):hi],
+        ])
+        if neighborhood.size:
+            ratios.append(float(vertical[idx] / max(float(neighborhood.mean()), 1e-8)))
+
+    for boundary in boundaries:
+        idx = boundary - 1
+        lo = max(0, idx - radius)
+        hi = min(len(horizontal), idx + radius + 1)
+        neighborhood = np.concatenate([
+            horizontal[lo:max(lo, idx - exclusion)],
+            horizontal[min(hi, idx + exclusion + 1):hi],
+        ])
+        if neighborhood.size:
+            ratios.append(float(horizontal[idx] / max(float(neighborhood.mean()), 1e-8)))
+
+    return 1.0 if not ratios else float(np.mean(ratios))
+
+
+def make_windows() -> list[np.ndarray]:
+    windows = []
+    for index in range(TOTAL_TILES):
+        row, col = divmod(index, GRID)
+        windows.append(
+            feather_window(row, col, GRID, TILE_SIZE, OVERLAP).astype(np.float32)
+        )
+    return windows
+
+
+def weighted_deltas(
+    base_np: np.ndarray,
+    refined_tiles: list[Image.Image],
+    origins: list[tuple[int, int]],
+    windows: list[np.ndarray],
+) -> list[np.ndarray]:
+    deltas = []
+    for index, (y0, x0) in enumerate(origins):
+        base_crop = base_np[y0:y0+TILE_SIZE, x0:x0+TILE_SIZE]
+        refined = arr(refined_tiles[index])
+        delta = (refined - base_crop) * windows[index][:, :, None]
+        deltas.append(delta.astype(np.float32))
+    return deltas
+
+
+def build_gram(
+    deltas: list[np.ndarray],
+    origins: list[tuple[int, int]],
+) -> np.ndarray:
+    n = len(deltas)
+    g = np.zeros((n, n), dtype=np.float64)
+
+    for i in range(n):
+        yi, xi = origins[i]
+        g[i, i] = float(np.sum(deltas[i].astype(np.float64) ** 2))
+        for j in range(i + 1, n):
+            yj, xj = origins[j]
+
+            y0 = max(yi, yj)
+            x0 = max(xi, xj)
+            y1 = min(yi + TILE_SIZE, yj + TILE_SIZE)
+            x1 = min(xi + TILE_SIZE, xj + TILE_SIZE)
+            if y1 <= y0 or x1 <= x0:
+                continue
+
+            ai = deltas[i][
+                y0 - yi:y1 - yi,
+                x0 - xi:x1 - xi,
+            ].astype(np.float64)
+            bj = deltas[j][
+                y0 - yj:y1 - yj,
+                x0 - xj:x1 - xj,
+            ].astype(np.float64)
+            dot = float(np.sum(ai * bj))
+            g[i, j] = dot
+            g[j, i] = dot
+
+    return g
+
+
+def assemble(
+    base_np: np.ndarray,
+    refined_tiles: list[Image.Image],
+    selected: list[int],
+    origins: list[tuple[int, int]],
+    windows: list[np.ndarray],
+) -> Image.Image:
+    accum = np.zeros_like(base_np, dtype=np.float32)
+    weight = np.zeros(base_np.shape[:2], dtype=np.float32)
+
+    selected_set = {int(i) for i in selected}
+    for index in selected_set:
+        y0, x0 = origins[index]
+        w = windows[index]
+        refined = arr(refined_tiles[index])
+        accum[y0:y0+TILE_SIZE, x0:x0+TILE_SIZE] += refined * w[:, :, None]
+        weight[y0:y0+TILE_SIZE, x0:x0+TILE_SIZE] += w
+
+    # All-tile windows form a partition of unity. For a selected subset, the
+    # missing weight is explicitly assigned back to the smooth Lanczos base.
+    weight = np.clip(weight, 0.0, 1.0)
+    out = base_np * (1.0 - weight[:, :, None]) + accum
+    return to_image(out)
+
+
+def random_recoveries(
+    gram: np.ndarray,
+    count: int,
+    seed: int,
+    repeats: int = RANDOM_REPEATS,
+) -> np.ndarray:
+    rng = np.random.default_rng(int(seed))
     values = []
-    for index, tile in enumerate(teacher_tiles):
-        base_tile = base.crop(tile_box(index))
-        values.append(mse(base_tile, tile))
+    n = gram.shape[0]
+    for _ in range(int(repeats)):
+        selected = [int(i) for i in rng.choice(n, int(count), replace=False)]
+        values.append(gram_recovery(gram, selected))
     return np.asarray(values, dtype=np.float64)
 
 
@@ -164,7 +304,7 @@ def make_contact(
     variants: list[tuple[str, Image.Image]],
     path: Path,
 ):
-    items = [("2048 base", base), ("all 16 tiles", teacher)] + variants
+    items = [("2048 base", base), ("all 25 overlap tiles", teacher)] + variants
     thumb = 384
     label_h = 26
     cols = 3
@@ -179,22 +319,7 @@ def make_contact(
             (x0, y0),
         )
         draw.text((x0 + 4, y0 + thumb + 4), label, fill="black")
-    canvas.save(path)
-
-
-def random_distribution(
-    energy: np.ndarray,
-    count: int,
-    seed: int,
-    repeats: int = RANDOM_REPEATS,
-) -> np.ndarray:
-    rng = np.random.default_rng(int(seed))
-    values = []
-    total = len(energy)
-    for _ in range(int(repeats)):
-        selected = [int(i) for i in rng.choice(total, int(count), replace=False)]
-        values.append(correction_capture(energy, selected))
-    return np.asarray(values, dtype=np.float64)
+    canvas.save(path, quality=92)
 
 
 def summarize(cases: list[dict], seed_set: set[int], count: int) -> dict:
@@ -208,12 +333,18 @@ def summarize(cases: list[dict], seed_set: set[int], count: int) -> dict:
     layout = np.asarray([row["layout_psnr_db"] for row in rows])
     edgec = np.asarray([row["edge_correlation"] for row in rows])
     speed = np.asarray([row["measured_speedup"] for row in rows])
+    seam = np.asarray([
+        case["teacher_seam_ratio"]
+        for case in cases
+        if int(case["seed"]) in seed_set
+    ])
 
     return {
         "cases": len(rows),
         "refine_count": int(count),
-        "refine_fraction": float(count / (GRID * GRID)),
-        "skip_fraction": float(1.0 - count / (GRID * GRID)),
+        "total_tiles": TOTAL_TILES,
+        "refine_fraction": float(count / TOTAL_TILES),
+        "skip_fraction": float(1.0 - count / TOTAL_TILES),
         "mean_recovery": float(recoveries.mean()),
         "min_recovery": float(recoveries.min()),
         "mean_random_median_recovery": float(random_median.mean()),
@@ -227,7 +358,11 @@ def summarize(cases: list[dict], seed_set: set[int], count: int) -> dict:
         "min_edge_correlation": float(edgec.min()),
         "mean_measured_speedup": float(speed.mean()),
         "min_measured_speedup": float(speed.min()),
-        "mean_oracle_recovery": float(np.mean([row["oracle_recovery"] for row in rows])),
+        "mean_greedy_oracle_recovery": float(np.mean([
+            row["greedy_oracle_recovery"] for row in rows
+        ])),
+        "mean_teacher_seam_ratio": float(seam.mean()),
+        "max_teacher_seam_ratio": float(seam.max()),
     }
 
 
@@ -245,17 +380,29 @@ def main():
     ap.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("results/highres_tile_h0"),
+        default=Path("results/highres_tile_h0b"),
     )
     args = ap.parse_args()
 
     if not torch.cuda.is_available():
-        raise SystemExit("H0 requires CUDA.")
+        raise SystemExit("H0b requires CUDA.")
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     prompts = tuple(args.prompt) if args.prompt else PROMPTS
 
+    origins = tile_origins(OUTPUT_SIZE, TILE_SIZE, OVERLAP)
+    windows = make_windows()
+
+    part = partition_sum(OUTPUT_SIZE, TILE_SIZE, OVERLAP)
+    partition_error = float(np.max(np.abs(part - 1.0)))
+    if partition_error > 1e-5:
+        raise RuntimeError(f"feather windows do not partition unity: {partition_error}")
+
     print("GPU:", torch.cuda.get_device_name(0))
+    print(
+        f"Geometry: {GRID}x{GRID}={TOTAL_TILES} tiles, "
+        f"{TILE_SIZE}px, overlap {OVERLAP}px, stride {STRIDE}px"
+    )
     print("Loading SDXL-Turbo and fp16-fix VAE...")
 
     pipe_t2i = AutoPipelineForText2Image.from_pretrained(
@@ -312,51 +459,80 @@ def main():
                 (OUTPUT_SIZE, OUTPUT_SIZE),
                 Image.Resampling.LANCZOS,
             )
+            base_np = arr(base)
 
-            teacher_tiles = []
+            refined_tiles = []
             tile_seconds = []
-            for tile_index in range(GRID * GRID):
-                tile = base.crop(tile_box(tile_index))
-                refined, dt = timed(lambda tile=tile, tile_index=tile_index: pipe_i2i(
-                    prompt=prompt,
-                    image=tile,
-                    num_inference_steps=args.steps,
-                    strength=args.strength,
-                    guidance_scale=0.0,
-                    generator=gen(seed + 100000 + tile_index),
-                ).images[0])
-                teacher_tiles.append(refined)
+            for tile_index, (y0, x0) in enumerate(origins):
+                tile = base.crop((x0, y0, x0 + TILE_SIZE, y0 + TILE_SIZE))
+                refined, dt = timed(
+                    lambda tile=tile, tile_index=tile_index: pipe_i2i(
+                        prompt=prompt,
+                        image=tile,
+                        num_inference_steps=args.steps,
+                        strength=args.strength,
+                        guidance_scale=0.0,
+                        generator=gen(seed + 100000 + tile_index),
+                    ).images[0]
+                )
+                refined_tiles.append(refined)
                 tile_seconds.append(float(dt))
 
             teacher = assemble(
-                base,
-                teacher_tiles,
-                list(range(GRID * GRID)),
+                base_np,
+                refined_tiles,
+                list(range(TOTAL_TILES)),
+                origins,
+                windows,
             )
             teacher_seconds = float(sum(tile_seconds))
+            seam_ratio = teacher_seam_ratio(teacher)
 
-            base_np = arr(base)
-            edge_scores = edge_energy_scores(base_np, GRID)
-            energy = correction_energy(base, teacher_tiles)
+            deltas = weighted_deltas(base_np, refined_tiles, origins, windows)
+            gram = build_gram(deltas, origins)
+
+            # Cross-check the Gram recovery against the actual image assembly.
+            gram_all = gram_recovery(gram, list(range(TOTAL_TILES)))
+            if abs(gram_all - 1.0) > 1e-6:
+                raise RuntimeError(f"full Gram recovery is not 1: {gram_all}")
+
+            scores = edge_energy_scores(
+                base_np,
+                OUTPUT_SIZE,
+                TILE_SIZE,
+                OVERLAP,
+            )
 
             budgets = {}
             contact_variants = []
 
+            print(
+                f"teacher seam ratio {seam_ratio:.3f}  "
+                f"all-tile time {teacher_seconds:.2f}s"
+            )
+
             for count in REFINE_COUNTS:
                 selector_t0 = time.perf_counter()
-                edge_selected = top_indices(edge_scores, count)
+                edge_selected = top_indices(scores, count)
                 selector_seconds = time.perf_counter() - selector_t0
 
-                edge_image = assemble(base, teacher_tiles, edge_selected)
-                edge_recovery = correction_capture(energy, edge_selected)
+                edge_image = assemble(
+                    base_np,
+                    refined_tiles,
+                    edge_selected,
+                    origins,
+                    windows,
+                )
+                edge_recovery = recovery(base, edge_image, teacher)
+                gram_edge = gram_recovery(gram, edge_selected)
 
-                random_values = random_distribution(
-                    energy,
+                random_values = random_recoveries(
+                    gram,
                     count,
                     seed=seed + 700000 + count,
                 )
-                oracle_selected = top_indices(energy, count)
-                oracle_recovery = correction_capture(energy, oracle_selected)
+                oracle_selected = greedy_oracle_indices(gram, count)
+                oracle_recovery = gram_recovery(gram, oracle_selected)
 
                 selected_tile_seconds = float(
                     sum(tile_seconds[i] for i in edge_selected)
@@ -371,11 +547,12 @@ def main():
                 budgets[str(count)] = {
                     "edge_selected_tiles": edge_selected,
                     "edge_recovery": float(edge_recovery),
+                    "edge_recovery_gram_crosscheck": float(gram_edge),
                     "random_median_recovery": float(np.median(random_values)),
                     "random_p10_recovery": float(np.percentile(random_values, 10)),
                     "random_p90_recovery": float(np.percentile(random_values, 90)),
-                    "oracle_selected_tiles": oracle_selected,
-                    "oracle_recovery": float(oracle_recovery),
+                    "greedy_oracle_selected_tiles": oracle_selected,
+                    "greedy_oracle_recovery": float(oracle_recovery),
                     "layout_psnr_db": layout_psnr(edge_image, teacher),
                     "edge_correlation": edge_corr(edge_image, teacher),
                     "selector_seconds": float(selector_seconds),
@@ -384,16 +561,24 @@ def main():
                     "all_tile_seconds": teacher_seconds,
                     "measured_speedup": speedup,
                 }
-                contact_variants.append(
-                    (f"edge {count}/16", edge_image)
+
+                edge_image.save(
+                    args.output_dir / f"{stem}_edge_{count}of{TOTAL_TILES}.jpg",
+                    quality=92,
                 )
+                contact_variants.append(
+                    (f"edge {count}/{TOTAL_TILES}", edge_image)
+                )
+
                 print(
-                    f"{count:2d}/16 edge recovery {edge_recovery:.3f}  "
+                    f"{count:2d}/{TOTAL_TILES} edge recovery {edge_recovery:.3f}  "
                     f"random-med {np.median(random_values):.3f}  "
-                    f"oracle {oracle_recovery:.3f}  "
+                    f"greedy-oracle {oracle_recovery:.3f}  "
                     f"speedup {speedup:.2f}x"
                 )
 
+            base.save(args.output_dir / f"{stem}_base.jpg", quality=92)
+            teacher.save(args.output_dir / f"{stem}_teacher.jpg", quality=92)
             contact = args.output_dir / f"{stem}_contact.jpg"
             make_contact(base, teacher, contact_variants, contact)
 
@@ -404,11 +589,14 @@ def main():
                 "all_tile_seconds": teacher_seconds,
                 "mean_tile_seconds": float(np.mean(tile_seconds)),
                 "tile_seconds": tile_seconds,
-                "edge_scores": [float(x) for x in edge_scores],
-                "correction_energy": [float(x) for x in energy],
+                "teacher_seam_ratio": float(seam_ratio),
+                "edge_scores": [float(x) for x in scores],
                 "budgets": budgets,
                 "contact_sheet": str(contact),
             })
+
+            del deltas, gram
+            torch.cuda.empty_cache()
 
     validation = {
         f"refine_{count}": summarize(
@@ -428,7 +616,9 @@ def main():
         "min_speedup": MIN_SPEEDUP,
         "required_wins": required_wins(n_validation),
         "max_refine_fraction": MAX_REFINE_FRACTION,
+        "max_teacher_seam_ratio": MAX_TEACHER_SEAM_RATIO,
     }
+
     for summary in validation.values():
         summary["pass"] = candidate_pass(summary, **thresholds)
 
@@ -448,13 +638,22 @@ def main():
         held_out["pass"] = held_out_pass
 
     payload = {
+        "gate": "H0b overlap-blended whole-tile omission",
+        "invalidated_predecessor": (
+            "H0 hard 4x4 tile paste is invalid as visual evidence because the "
+            "all-tile teacher itself had visible block seams."
+        ),
         "model": MODEL_ID,
         "gpu": torch.cuda.get_device_name(0),
         "vae": FP16_VAE_ID,
         "source_size": SOURCE_SIZE,
         "output_size": OUTPUT_SIZE,
-        "grid": GRID,
         "tile_size": TILE_SIZE,
+        "overlap": OVERLAP,
+        "stride": STRIDE,
+        "grid": GRID,
+        "total_tiles": TOTAL_TILES,
+        "partition_max_abs_error": partition_error,
         "refine_counts": list(REFINE_COUNTS),
         "random_repeats": RANDOM_REPEATS,
         "validation_seeds": list(VALIDATION_SEEDS),
@@ -462,14 +661,12 @@ def main():
         "thresholds": thresholds,
         "timing_note": (
             "Selective route time is selector CPU time plus the actual measured "
-            "per-tile diffusion times of the selected independent calls from the "
-            "all-tile pass. Because tile calls are independent and deterministic, "
-            "skipping a tile deletes that measured call exactly."
+            "per-tile diffusion times of selected independent 512px calls. "
+            "Omitted calls are genuinely absent."
         ),
         "scope_note": (
-            "H0 uses reproducible generated photographic scenes. A pass earns "
-            "a natural-photo follow-up; it is not yet a claim about arbitrary "
-            "real 2K/4K photographs."
+            "H0b uses reproducible generated photographic scenes. A pass earns "
+            "a real-natural-photo H1; it is not yet an arbitrary-photo claim."
         ),
         "validation": validation,
         "selected_candidate": selected,
@@ -478,9 +675,9 @@ def main():
             "pass": bool(selected is not None and held_out_pass),
             "selected_candidate": selected,
             "interpretation": (
-                "cheap edge evidence earns whole-tile diffusion omission at 2048px"
+                "overlap-blended edge routing earns whole-call omission at 2048px"
                 if selected is not None and held_out_pass
-                else "no eligible <=50%-refinement budget preserves the declared quality/speed frontier"
+                else "no eligible <=50%-refinement overlap-blended budget preserves the declared frontier"
             ),
         },
         "cases": cases,
