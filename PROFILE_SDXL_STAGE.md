@@ -1,6 +1,6 @@
 # SDXL-Turbo stage profile — closing the 512² speed question
 
-Status: **measurement ready; no optimization claim.**
+Status: **measured on RTX 3060 across 3 prompts × 3 seeds. VAE bottleneck confirmed.**
 
 The P3 and P4 results now justify stopping the 512×512 acceleration search
 unless a profile identifies a large, simple bottleneck.
@@ -81,3 +81,45 @@ results/sdxl_stage_profile/
 - Either way, the original WhatToLookAt idea should move to a regime where
   omission deletes a **whole expensive operation**: tiled high-resolution
   refinement, streaming/video updates, or physical sensing.
+
+
+## Profile result
+
+The hypothesis is confirmed quantitatively.
+
+Across all 9 cases:
+
+| component | mean CUDA time | fraction of wall |
+|---|---:|---:|
+| **VAE decode** | **277.48 ms** | **36.36%** |
+| U-Net, 2 calls total | 238.36 ms | 31.24% |
+| **VAE encode** | **167.91 ms** | **22.00%** |
+| text encoder 2 | 24.67 ms | 3.23% |
+| text encoder 1 | 11.23 ms | 1.47% |
+| other wall | 43.46 ms | 5.69% |
+| **total wall** | **763.11 ms** | **100%** |
+
+Therefore:
+
+```text
+VAE encode + decode = 445.39 ms = 58.36%
+U-Net total         = 238.36 ms = 31.24%
+```
+
+This is the hard systems explanation for the failed P3 speed route. P3 tried to
+sparsify roughly one third of the stage while paying the majority VAE cost in
+full. Even an imaginary zero-cost U-Net would leave about **525 ms** of stage
+time once the remaining measured components are retained.
+
+Conversely, if the VAE were free, the measured stage ceiling would be roughly:
+
+```text
+763.11 / (763.11 - 445.39) ≈ 2.40×
+```
+
+That does **not** mean a real replacement can achieve 2.40×; it only shows that
+the VAE is large enough to justify one final engineering substitution.
+
+[VAE_CLOSEOUT.md](VAE_CLOSEOUT.md) therefore benchmarks the two obvious
+established alternatives—an fp16-friendly full SDXL VAE and TAESDXL—and then
+closes 512×512 regardless of outcome.

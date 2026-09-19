@@ -1,3 +1,28 @@
+# 512×512 profile result — VAE bottleneck confirmed
+
+The ordinary SDXL-Turbo four-step continuation on the RTX 3060 averages
+**763.11 ms**.
+
+```text
+VAE decode       277.48 ms   36.36%
+VAE encode       167.91 ms   22.00%
+U-Net total      238.36 ms   31.24%
+text encoders     35.91 ms    4.70%
+other wall        43.46 ms    5.69%
+```
+
+VAE encode+decode therefore consumes **445.39 ms / 58.36%** of the stage.
+
+That closes the mystery behind P3: the routed U-Net was not the majority of the
+wall clock. P4 showed ~0.10–0.11 s of real reusable U-Net work, but not at the
+required quality.
+
+One final engineering baseline is now prepared in `VAE_CLOSEOUT.md`: compare
+the standard VAE against the fp16-friendly full SDXL VAE and TAESDXL. No new
+routing mechanism is allowed at 512×512 after that result.
+
+---
+
 # Practical diffusion branch — P4 result
 
 P4 tests established DeepCache on the exact short SDXL-Turbo continuation and
