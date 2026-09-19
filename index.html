@@ -35,6 +35,11 @@
 <div class="barrow"><span>controls tested to</span><div class="bar"><span style="width:100%"></span></div><b>128 px</b></div>
 </div>
 <p class="lead" style="margin-top:34px;font-size:.98rem">The central score for the project is <b>B(Q)</b>: the minimum physical measurement cost needed to maintain quality Q. The aim is eventually to make B(Q) dynamic—low in a stable world, high during surprise, then low again after relearning.</p>
+
+<div class="receipt" style="margin-top:26px">
+  <div class="note"><strong>Gate 1 — history earns the graph.</strong> Sixteen tracked parts carry eight-step motion histories. The four hidden objects use the same velocity vocabulary in different temporal orders. Ordered common fate clusters perfectly across the 48-world reference (median ARI 1.000); independently shuffling time drops median ARI to 0.000.</div>
+  <div class="note"><strong>Then spend the history.</strong> After the parts are randomly rearranged, the learned relation reaches the 40 dB / 90% criterion at 12/256 random pixels, exactly matching the oracle relation. Time-shuffled history, absolute-coordinate memory, and the spatial lattice do not reach the criterion even at 128/256. Active learned sampling uses 4/256 pixels with 100% success.</div>
+</div>
 </main>
 <script>
 const N=16,B=4,C=[[.10,.20,.90],[.90,.20,.10],[.20,.85,.25],[.90,.80,.10]];
