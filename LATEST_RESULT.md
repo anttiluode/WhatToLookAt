@@ -1,3 +1,32 @@
+# Practical diffusion branch — P4 result
+
+P4 tests established DeepCache on the exact short SDXL-Turbo continuation and
+fails the pre-registered quality/speed frontier.
+
+Validation seeds 100/101:
+
+```text
+branch 0: recovery 38.22%, min PSNR 23.13 dB, speedup 1.152x
+branch 1: recovery 64.12%, min PSNR 24.97 dB, speedup 1.166x
+branch 2: recovery 72.20%, min PSNR 25.83 dB, speedup 1.158x
+```
+
+All three are genuinely faster, but none reaches the required 80% mean recovery
+and 28 dB minimum PSNR. No candidate is selected; seed 102 is not used to rescue
+the result.
+
+This is a useful correction to the P3 timing story: the clock *can* see reused
+U-Net work, but only about 0.10–0.11 s is safely exposed by this tested cache
+family, and the quality loss is too large on a four-step Turbo trajectory.
+
+The 512² algorithmic speed branch stops here. One final profiler measures where
+the ordinary stage time lives before the project moves to high-resolution tiles,
+streaming/video, or physical sensing.
+
+See `PROFILE_SDXL_STAGE.md`.
+
+---
+
 # Practical diffusion branch — P3 result
 
 P3 kills hard spatial U-Net tiling on the RTX 3060.
