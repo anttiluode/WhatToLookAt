@@ -1,3 +1,33 @@
+# Practical diffusion branch — latest result
+
+P2 is the first **positive causal mechanism** in the real SDXL branch.
+
+On 9 RTX-3060 cases:
+
+```text
+edge 4/16 mask      mean recovery 30.87%
+random 4/16 mask    mean recovery 17.30%
+oracle 4/16 mask    mean recovery 40.33%
+full mask            exact teacher parity, 120 dB
+edge wins            9 / 9
+```
+
+The important correction to P0 is architectural. Independent crop diffusion
+failed because every crop became a separate trajectory. P2 keeps one global
+latent/noise/timestep trajectory and only controls which regions are allowed to
+continue changing. Under that actuator, the cheap edge cue works causally.
+
+P2 still performs a full-frame UNet evaluation and therefore earns no speed
+claim.
+
+P3 is now the next falsifier: keep P2's global state, but run the UNet only on
+the selected latent tiles plus a 0/4/8 latent-pixel halo. Seeds 100/101 select
+the smallest halo meeting quality+routing+speed criteria; seed 102 is held out.
+
+See `PRACTICAL_ROUTER_P3.md`.
+
+---
+
 # Latest result — Gate 8
 
 Gate 8 turns Gate 7's "measurement diversity" requirement into an explicit
