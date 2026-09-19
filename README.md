@@ -814,6 +814,36 @@ python gpu_diffusion_router_p4_cache.py --local-only
 ```
 
 
+
+## 512×512 speed closeout — the VAE was the bottleneck
+
+The final component profile resolves why the spatial-routing experiments could
+not turn their selector signal into wall-clock speed on SDXL-Turbo.
+
+Across 9 RTX-3060 cases, the ordinary four-step stage averages **763 ms**:
+
+```text
+VAE decode       277 ms   36.4%
+VAE encode       168 ms   22.0%
+U-Net total      238 ms   31.2%
+text encoders     36 ms    4.7%
+other             43 ms    5.7%
+```
+
+So the VAE alone consumes **58.4%** of the stage. P3 was trying to sparsify a
+U-Net that accounts for only about one third of the clock while paying the VAE
+cost in full.
+
+This earns one final **engineering** benchmark, not another WhatToLookAt gate:
+[VAE_CLOSEOUT.md](VAE_CLOSEOUT.md) compares the standard VAE with
+`madebyollin/sdxl-vae-fp16-fix` and `madebyollin/taesdxl` under fixed
+prompt/base/noise/UNet conditions.
+
+After that benchmark, the 512×512 Turbo speed branch is closed. The original
+WhatToLookAt mechanism should move to workloads where omitting work deletes an
+entire expensive operation—high-resolution tiled refinement, streaming/video,
+or physical sensing.
+
 ## Boundary inherited from SighImageFactorization
 
 > **Structure may eliminate ambiguity; it may not manufacture an observable
