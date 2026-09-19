@@ -1,0 +1,10 @@
+# Optional CUDA dependencies for the practical diffusion router.
+# Install a CUDA-compatible torch build first if your environment needs one.
+torch>=2.1
+diffusers>=0.31
+transformers>=4.40
+accelerate>=0.30
+safetensors>=0.4
+numpy>=1.26
+scipy>=1.10
+pillow>=9.1
