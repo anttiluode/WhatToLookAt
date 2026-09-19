@@ -711,6 +711,50 @@ the same 9216 touches, then compare:
 If low-coincidence overlap wins, then the next mechanism is not merely degree;
 it is the combinatorics of the measurement code.
 
+
+## Practical GPU branch — route diffusion compute, don't force Sihti to win
+
+The Sihti SDXL branch now provides a useful negative result for this repository.
+
+Across 9 prompt/seed cases, Sihti's residue did correlate with where a more
+expensive SDXL-Turbo refinement changed the cheap output, but simpler observables
+did better:
+
+```text
+predictor             mean Spearman    top-25% correction capture
+
+Sihti residue             0.587                 38.54%
+Gaussian residual         0.619                 42.99%
+draft edge energy         0.681                 45.72%
+local variance            0.598                 44.70%
+random location             --                  25.00% expectation
+```
+
+So the practical branch takes the survivor rather than the branding:
+
+> **cheap local evidence may tell us where expensive diffusion work is worth
+> spending.**
+
+[PRACTICAL_DIFFUSION_ROUTER.md](PRACTICAL_DIFFUSION_ROUTER.md) turns that into
+a CUDA gate. It creates a cheap full-frame SDXL-Turbo base, refines only 4 of
+16 spatial tiles with context, and compares edge-selected tiles against
+same-compute variance, Gaussian-residual, Sihti-residue, and random selectors.
+
+The gate only passes if edge routing both improves recovery toward a 4-step
+full-frame teacher relative to random selection **and** is actually faster
+end-to-end than the teacher route.
+
+Run:
+
+```bash
+pip install -r requirements-gpu.txt
+python gpu_diffusion_router.py --local-only
+```
+
+This GPU branch is intentionally separate from the synthetic Gate 0→8 chain:
+it is a practical falsification experiment, not evidence until the CUDA receipt
+exists.
+
 ## Boundary inherited from SighImageFactorization
 
 > **Structure may eliminate ambiguity; it may not manufacture an observable
