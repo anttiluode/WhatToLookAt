@@ -39,3 +39,5 @@ jobs:
         run: python gate6_designed_vs_pruned.py --train-worlds 60 --validation-worlds 30 --test-worlds 32 --output /tmp/gate6_ci.json
       - name: Reproduce Gate 7 CI receipt
         run: python gate7_coverage_not_enough.py --train-worlds 60 --test-worlds 24 --output /tmp/gate7_ci.json
+      - name: Reproduce Gate 8 CI receipt
+        run: python gate8_coded_overlap.py --train-worlds 84 --validation-worlds 24 --test-worlds 32 --output /tmp/gate8_ci.json
