@@ -1,6 +1,6 @@
 # Practical router P4 — feature caching instead of spatially cutting the U-Net
 
-Status: **pre-registered; ready for CUDA.**
+Status: **run on RTX 3060; P4 FAILS the quality/speed frontier. No candidate selected.**
 
 P3 decisively rejects the hard spatial-execution route.
 
@@ -106,3 +106,48 @@ Upload:
 ```text
 results/practical_diffusion_router_p4/
 ```
+
+
+## P4 result
+
+DeepCache produces a real stage-time reduction, but none of the tested branches
+preserves enough of the ordinary four-step continuation to pass the
+pre-registered quality frontier.
+
+Validation seeds 100/101:
+
+| branch | mean recovery | minimum PSNR | mean stage | speedup | faster |
+|---:|---:|---:|---:|---:|---:|
+| 0 | 38.22% | 23.13 dB | 0.672 s | 1.152× | 6/6 |
+| 1 | 64.12% | 24.97 dB | **0.664 s** | **1.166×** | 6/6 |
+| 2 | **72.20%** | **25.83 dB** | 0.669 s | 1.158× | 6/6 |
+| ordinary teacher | 100% | reference | 0.775 s | 1.000× | — |
+
+Required:
+
+```text
+mean recovery >= 80%
+minimum PSNR  >= 28 dB
+mean speedup  >= 1.10x
+```
+
+All three branches pass the speed requirement and all three fail the quality
+requirements. Therefore **selected_candidate = null** and the seed-102 panel is
+not used to choose or rescue a cache configuration.
+
+This gives a useful quantitative closeout rather than a vague failure:
+
+```text
+available measured stage saving from tested caching ≈ 0.10–0.11 s
+quality-preserving candidate                         none
+```
+
+DeepCache is doing what prior work says in the narrow sense that reusing U-Net
+features reduces latency. The short SDXL-Turbo trajectory simply does not expose
+enough safe temporal redundancy under this gate.
+
+So P4 does not proceed to an adaptive-cache P5.
+
+The remaining 512² systems question is only **where the remaining ~0.77 s stage
+time lives**. [PROFILE_SDXL_STAGE.md](PROFILE_SDXL_STAGE.md) adds a component
+profiler to settle the VAE-versus-U-Net question before this scale is closed.
