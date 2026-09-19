@@ -23,5 +23,7 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -r requirements.txt
       - run: python -m pytest -q
-      - name: Reproduce Gate 0 receipt
+      - name: Reproduce Gate 0 CI receipt
         run: python what_to_look_at.py --seeds 16 --output /tmp/gate0_ci.json
+      - name: Reproduce Gate 1 CI receipt
+        run: python gate1_history_graph.py --worlds 16 --output /tmp/gate1_ci.json
