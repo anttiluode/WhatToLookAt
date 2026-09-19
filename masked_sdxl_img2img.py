@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 from PIL import Image, ImageFilter
 
 from diffusers.image_processor import PipelineImageInput
@@ -38,6 +39,118 @@ logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
 class MaskedStableDiffusionXLImg2ImgPipeline(StableDiffusionXLImg2ImgPipeline):
     debug_save = 0
+
+    def _sparse_unet_prediction(
+        self,
+        latent_model_input: torch.FloatTensor,
+        t: torch.Tensor,
+        prompt_embeds: torch.FloatTensor,
+        timestep_cond: Optional[torch.FloatTensor],
+        added_cond_kwargs: Dict[str, torch.Tensor],
+        sparse_tiles: List[int],
+        sparse_grid: int,
+        sparse_halo_latent: int,
+    ) -> torch.FloatTensor:
+        """Evaluate the UNet only on selected latent tiles plus a fixed halo.
+
+        The global latent/noise/timestep state remains full-frame. Only the
+        expensive UNet prediction is cropped. Predictions from each crop are
+        written back only into its selected tile center; background regions are
+        reset by the ordinary masked-pipeline logic on the next step.
+
+        P3 intentionally supports the experiment's no-CFG, batch-1 route only.
+        This keeps the sparse executor explicit instead of silently changing
+        prompt batch semantics.
+        """
+        if self.do_classifier_free_guidance:
+            raise ValueError("sparse P3 path currently requires guidance_scale <= 1")
+        if latent_model_input.shape[0] != 1:
+            raise ValueError("sparse P3 path currently requires batch size 1")
+        if "image_embeds" in added_cond_kwargs:
+            raise ValueError("sparse P3 path does not support IP-Adapter embeddings")
+
+        grid = int(sparse_grid)
+        halo = int(sparse_halo_latent)
+        if grid < 1 or halo < 0:
+            raise ValueError("invalid sparse grid/halo")
+
+        _, _, height, width = latent_model_input.shape
+        if height % grid or width % grid:
+            raise ValueError("latent shape must be divisible by sparse_grid")
+
+        tile_h = height // grid
+        tile_w = width // grid
+        crop_h = tile_h + 2 * halo
+        crop_w = tile_w + 2 * halo
+        # SDXL has three spatial downsamplings, so multiples of 8 avoid
+        # shape-rounding surprises in the down/up path.
+        if crop_h % 8 or crop_w % 8:
+            raise ValueError(
+                f"sparse crop {crop_h}x{crop_w} must be divisible by 8; "
+                "choose a compatible latent halo"
+            )
+
+        selected = [int(index) for index in sparse_tiles]
+        if not selected:
+            return torch.zeros_like(latent_model_input)
+        if len(set(selected)) != len(selected):
+            raise ValueError("sparse_tiles must be unique")
+        if min(selected) < 0 or max(selected) >= grid * grid:
+            raise ValueError("sparse tile index outside grid")
+
+        padded = (
+            F.pad(latent_model_input, (halo, halo, halo, halo), mode="replicate")
+            if halo
+            else latent_model_input
+        )
+
+        crops = []
+        coords = []
+        for index in selected:
+            row, col = divmod(index, grid)
+            y0 = row * tile_h
+            x0 = col * tile_w
+            crops.append(
+                padded[:, :, y0 : y0 + crop_h, x0 : x0 + crop_w]
+            )
+            coords.append((row, col))
+
+        crop_batch = torch.cat(crops, dim=0)
+        count = len(selected)
+
+        sparse_prompt = prompt_embeds.repeat(count, 1, 1)
+        sparse_timestep_cond = (
+            None if timestep_cond is None else timestep_cond.repeat(count, 1)
+        )
+        sparse_added = {
+            "text_embeds": added_cond_kwargs["text_embeds"].repeat(count, 1),
+            "time_ids": added_cond_kwargs["time_ids"].repeat(count, 1),
+        }
+
+        crop_pred = self.unet(
+            crop_batch,
+            t,
+            encoder_hidden_states=sparse_prompt,
+            timestep_cond=sparse_timestep_cond,
+            cross_attention_kwargs=self.cross_attention_kwargs,
+            added_cond_kwargs=sparse_added,
+            return_dict=False,
+        )[0]
+
+        full_pred = torch.zeros_like(latent_model_input)
+        for batch_index, (row, col) in enumerate(coords):
+            center = crop_pred[
+                batch_index : batch_index + 1,
+                :,
+                halo : halo + tile_h,
+                halo : halo + tile_w,
+            ]
+            y0 = row * tile_h
+            x0 = col * tile_w
+            full_pred[:, :, y0 : y0 + tile_h, x0 : x0 + tile_w] = center
+
+        return full_pred
+
 
     @torch.no_grad()
     def __call__(
@@ -91,6 +204,9 @@ class MaskedStableDiffusionXLImg2ImgPipeline(StableDiffusionXLImg2ImgPipeline):
         blur_compose=4,
         sample_mode="sample",
         mask_noise_seed: int = 12345,
+        sparse_tiles: Optional[List[int]] = None,
+        sparse_grid: int = 4,
+        sparse_halo_latent: int = 0,
         **kwargs,
     ):
         r"""
@@ -436,15 +552,27 @@ class MaskedStableDiffusionXLImg2ImgPipeline(StableDiffusionXLImg2ImgPipeline):
                 if ip_adapter_image is not None or ip_adapter_image_embeds is not None:
                     added_cond_kwargs["image_embeds"] = image_embeds
 
-                noise_pred = self.unet(
-                    latent_model_input,
-                    t,
-                    encoder_hidden_states=prompt_embeds,
-                    timestep_cond=timestep_cond,
-                    cross_attention_kwargs=self.cross_attention_kwargs,
-                    added_cond_kwargs=added_cond_kwargs,
-                    return_dict=False,
-                )[0]
+                if sparse_tiles is None:
+                    noise_pred = self.unet(
+                        latent_model_input,
+                        t,
+                        encoder_hidden_states=prompt_embeds,
+                        timestep_cond=timestep_cond,
+                        cross_attention_kwargs=self.cross_attention_kwargs,
+                        added_cond_kwargs=added_cond_kwargs,
+                        return_dict=False,
+                    )[0]
+                else:
+                    noise_pred = self._sparse_unet_prediction(
+                        latent_model_input=latent_model_input,
+                        t=t,
+                        prompt_embeds=prompt_embeds,
+                        timestep_cond=timestep_cond,
+                        added_cond_kwargs=added_cond_kwargs,
+                        sparse_tiles=sparse_tiles,
+                        sparse_grid=sparse_grid,
+                        sparse_halo_latent=sparse_halo_latent,
+                    )
 
                 # perform guidance
                 if self.do_classifier_free_guidance:
