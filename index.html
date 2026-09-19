@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>What To Look At — measurement budget microscope</title>
+<style>
+:root{color-scheme:dark;--bg:#090b10;--panel:#121722;--ink:#f4f7fb;--muted:#9eabc0;--line:#273246;--hot:#ffd76a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#172033 0,#090b10 40%);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,sans-serif}main{max-width:1180px;margin:auto;padding:42px 20px 70px}h1{font-size:clamp(2.2rem,6vw,5rem);line-height:.92;margin:0 0 16px;letter-spacing:-.055em}.lead{max-width:850px;color:#c7d0df;font-size:1.16rem;line-height:1.6}.equation{margin:26px 0;padding:18px 22px;border:1px solid var(--line);background:#0d121c;border-radius:15px;font-family:ui-monospace,monospace;color:#dbe6f6}.controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:30px 0}.controls label{color:var(--muted)}input[type=range]{width:min(420px,70vw)}button{background:#eef4ff;color:#09101a;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}.budget{font-variant-numeric:tabular-nums;font-weight:800;color:var(--hot)}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.grid{grid-template-columns:1fr}}.card{background:linear-gradient(180deg,#151b28,#10151f);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 18px 50px #0006}.card h2{font-size:1rem;margin:2px 0 10px;color:#dbe5f5}.card canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;background:#05070b;border-radius:9px}.metric{margin-top:9px;color:var(--muted);font:600 .88rem ui-monospace,monospace}.receipt{margin-top:34px;display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:800px){.receipt{grid-template-columns:1fr}}.note{background:#0d121c;border:1px solid var(--line);border-radius:15px;padding:20px;line-height:1.6}.note strong{color:#fff}.bars{display:grid;gap:10px;margin-top:14px}.barrow{display:grid;grid-template-columns:150px 1fr 75px;gap:10px;align-items:center;color:var(--muted);font-size:.88rem}.bar{height:12px;background:#202a3b;border-radius:99px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,#7397ff,#c8d6ff)}a{color:#a9c4ff}
+</style>
+</head>
+<body><main>
+<h1>What To Look At</h1>
+<p class="lead">A measurement-budget microscope. If a system already knows which disconnected pieces belong together, how much of the next world can it stop looking at?</p>
+<div class="equation">learn structure → choose measurements → reconstruct → measure surprise → spend sensing only when needed</div>
+<div class="controls">
+<label>Random measurements: <span id="budget" class="budget">16 / 256</span></label>
+<input id="slider" type="range" min="1" max="128" value="16" />
+<button id="reroll">new mask</button>
+<button id="active">one per relation</button>
+</div>
+<div class="grid">
+<div class="card"><h2>ground truth</h2><canvas id="truth" width="256" height="256"></canvas><div class="metric">four objects, disconnected parts</div></div>
+<div class="card"><h2>what the sensor saw</h2><canvas id="measured" width="256" height="256"></canvas><div class="metric" id="seenMetric"></div></div>
+<div class="card"><h2>true relation prior</h2><canvas id="relation" width="256" height="256"></canvas><div class="metric" id="relMetric"></div></div>
+<div class="card"><h2>spatial lattice prior</h2><canvas id="spatial" width="256" height="256"></canvas><div class="metric" id="spatialMetric"></div></div>
+</div>
+<div class="receipt">
+<div class="note"><strong>Gate 0 receipt.</strong> With an oracle relation graph, actively taking one sample from each of four components reconstructs this deliberately simple world from 4/256 pixels = 1.5625%. With random sampling, 16 measurements were the first tested budget to reach the 40 dB criterion on at least 90% of 48 masks. The spatial and shuffled controls did not reach it even at 128 measurements.</div>
+<div class="note"><strong>Why this is not victory yet.</strong> Gate 0 gives the system the answer-shaped relation graph. Gate 1 must earn that graph from past common-fate evidence and then use it on a future frame it has not seen. The shuffled-relation attacker exists precisely so “a graph” is not enough; it must be the right relation.</div>
+</div>
+<div class="bars">
+<div class="barrow"><span>active relation</span><div class="bar"><span style="width:3.125%"></span></div><b>4 px</b></div>
+<div class="barrow"><span>random relation</span><div class="bar"><span style="width:12.5%"></span></div><b>16 px</b></div>
+<div class="barrow"><span>controls tested to</span><div class="bar"><span style="width:100%"></span></div><b>128 px</b></div>
+</div>
+<p class="lead" style="margin-top:34px;font-size:.98rem">The central score for the project is <b>B(Q)</b>: the minimum physical measurement cost needed to maintain quality Q. The aim is eventually to make B(Q) dynamic—low in a stable world, high during surprise, then low again after relearning.</p>
+</main>
+<script>
+const N=16,B=4,C=[[.10,.20,.90],[.90,.20,.10],[.20,.85,.25],[.90,.80,.10]];
+const labels=Array.from({length:N},(_,r)=>Array.from({length:N},(_,c)=>(Math.floor(r/B)+Math.floor(c/B))%4));
+const truth=labels.map(row=>row.map(g=>C[g].slice()));
+let seed=7,activeMode=false;
+function rand(){seed=(1664525*seed+1013904223)>>>0;return seed/4294967296}
+function maskFor(k){const ids=[...Array(N*N).keys()];for(let i=ids.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}const s=new Set(ids.slice(0,k));return labels.map((row,r)=>row.map((_,c)=>s.has(r*N+c)))}
+function activeMask(){const m=labels.map(row=>row.map(()=>false));for(let g=0;g<4;g++){outer:for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(labels[r][c]===g){m[r][c]=true;break outer}}return m}
+function observed(mask){return truth.map((row,r)=>row.map((v,c)=>mask[r][c]?v:[0,0,0]))}
+function relationRecon(mask,obs){let global=[0,0,0],n=0;for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(mask[r][c]){for(let q=0;q<3;q++)global[q]+=obs[r][c][q];n++}global=global.map(v=>v/n);const means=[];for(let g=0;g<4;g++){let a=[0,0,0],k=0;for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(labels[r][c]===g&&mask[r][c]){for(let q=0;q<3;q++)a[q]+=obs[r][c][q];k++}means[g]=k?a.map(v=>v/k):global}return labels.map((row,r)=>row.map((g,c)=>mask[r][c]?obs[r][c]:means[g].slice()))}
+function spatialRecon(mask,obs){let global=[0,0,0],n=0;for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(mask[r][c]){for(let q=0;q<3;q++)global[q]+=obs[r][c][q];n++}global=global.map(v=>v/n);let x=labels.map(row=>row.map(()=>global.slice()));for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(mask[r][c])x[r][c]=obs[r][c].slice();for(let it=0;it<220;it++){const y=x.map(row=>row.map(v=>v.slice()));for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!mask[r][c]){let a=[0,0,0],k=0;for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){const rr=r+dr,cc=c+dc;if(rr>=0&&rr<N&&cc>=0&&cc<N){for(let q=0;q<3;q++)a[q]+=x[rr][cc][q];k++}}for(let q=0;q<3;q++)y[r][c]=.5*x[r][c][q]+.5*a[q]/k}x=y}return x}
+function p(v){return Math.max(0,Math.min(255,Math.round(255*v)))}
+function draw(id,img,mask=null){const cv=document.getElementById(id),ctx=cv.getContext('2d'),s=cv.width/N;ctx.clearRect(0,0,cv.width,cv.height);for(let r=0;r<N;r++)for(let c=0;c<N;c++){const v=img[r][c];ctx.fillStyle=`rgb(${p(v[0])},${p(v[1])},${p(v[2])})`;ctx.fillRect(c*s,r*s,s,s);if(mask&&!mask[r][c]){ctx.fillStyle='#080a0ecc';ctx.fillRect(c*s,r*s,s,s)}}}
+function PSNR(a,b){let e=0;for(let r=0;r<N;r++)for(let c=0;c<N;c++)for(let q=0;q<3;q++){const d=a[r][c][q]-b[r][c][q];e+=d*d}e/=N*N*3;return e<1e-14?120:10*Math.log10(1/e)}
+function render(){const k=+document.getElementById('slider').value;const mask=activeMode?activeMask():maskFor(k),obs=observed(mask),rel=relationRecon(mask,obs),sp=spatialRecon(mask,obs),count=mask.flat().filter(Boolean).length;document.getElementById('budget').textContent=`${count} / 256 (${(100*count/256).toFixed(2)}%)`;draw('truth',truth);draw('measured',truth,mask);draw('relation',rel);draw('spatial',sp);document.getElementById('seenMetric').textContent=`${count} measured pixels`;document.getElementById('relMetric').textContent=`PSNR ${PSNR(truth,rel).toFixed(2)} dB`;document.getElementById('spatialMetric').textContent=`PSNR ${PSNR(truth,sp).toFixed(2)} dB`}
+document.getElementById('slider').addEventListener('input',()=>{activeMode=false;render()});
+document.getElementById('reroll').onclick=()=>{activeMode=false;seed=(Date.now()>>>0);render()};
+document.getElementById('active').onclick=()=>{activeMode=true;render()};
+render();
+</script>
+</body></html>
