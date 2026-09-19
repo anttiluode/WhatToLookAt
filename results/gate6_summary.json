@@ -1,0 +1,101 @@
+{
+  "training_worlds": 150,
+  "validation_worlds_per_level": 80,
+  "test_worlds_per_level": 120,
+  "signal_dimension": 192,
+  "innovation_support": 1,
+  "sparse_row_support": 64,
+  "validation_min_success_target": 0.95,
+  "guide_row_candidates": [1, 2, 3, 4, 6, 8, 12, 16],
+  "selection_summary": [
+    {
+      "strategy": "coverage_designed",
+      "selected_guide_rows": 3,
+      "coordinate_coverage": 192,
+      "validation_min_success": 1.0,
+      "guide_scalar_samples_total": 48,
+      "guide_coordinate_touches_total": 3072,
+      "held_out_success_by_innovation_level": {
+        "0": 1.0,
+        "2": 1.0,
+        "4": 1.0,
+        "6": 1.0,
+        "8": 1.0
+      },
+      "held_out_total_cost_fraction_by_innovation_level": {
+        "0": 0.265625,
+        "2": 0.390625,
+        "4": 0.515625,
+        "6": 0.640625,
+        "8": 0.765625
+      }
+    },
+    {
+      "strategy": "posthoc_pruned",
+      "selected_guide_rows": 12,
+      "coordinate_coverage": 192,
+      "validation_min_success": 1.0,
+      "guide_scalar_samples_total": 192,
+      "guide_coordinate_touches_total": 12288,
+      "held_out_success_by_innovation_level": {
+        "0": 1.0,
+        "2": 1.0,
+        "4": 1.0,
+        "6": 1.0,
+        "8": 1.0
+      },
+      "held_out_total_cost_fraction_by_innovation_level": {
+        "0": 0.3125,
+        "2": 0.4375,
+        "4": 0.5625,
+        "6": 0.6875,
+        "8": 0.8125
+      }
+    },
+    {
+      "strategy": "random_sparse",
+      "selected_guide_rows": 12,
+      "coordinate_coverage": 190,
+      "validation_min_success": 0.95,
+      "guide_scalar_samples_total": 192,
+      "guide_coordinate_touches_total": 12288,
+      "held_out_success_by_innovation_level": {
+        "0": 1.0,
+        "2": 0.9833333333333333,
+        "4": 0.975,
+        "6": 0.95,
+        "8": 0.9833333333333333
+      },
+      "held_out_total_cost_fraction_by_innovation_level": {
+        "0": 0.3125,
+        "2": 0.4359375,
+        "4": 0.559375,
+        "6": 0.6822916666666666,
+        "8": 0.8098958333333334
+      }
+    },
+    {
+      "strategy": "dense",
+      "selected_guide_rows": 2,
+      "coordinate_coverage": 192,
+      "validation_min_success": 0.95,
+      "guide_scalar_samples_total": 32,
+      "guide_coordinate_touches_total": 6144,
+      "held_out_success_by_innovation_level": {
+        "0": 1.0,
+        "2": 0.9583333333333334,
+        "4": 0.9666666666666667,
+        "6": 0.9333333333333333,
+        "8": 0.975
+      },
+      "held_out_total_cost_fraction_by_innovation_level": {
+        "0": 0.2713541666666667,
+        "2": 0.3927083333333333,
+        "4": 0.5130208333333334,
+        "6": 0.6296875,
+        "8": 0.7520833333333333
+      }
+    }
+  ],
+  "note": "The full executable writes every candidate validation curve and held-out receipt. This compact reference JSON keeps the selected frontier visible."
+}

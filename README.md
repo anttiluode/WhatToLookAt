@@ -434,6 +434,99 @@ world, delete most of its measurement interactions afterward, and ask whether
 the same relation-failure decision can be preserved. That separates "build a
 cheap sparse sensor" from "compress an already dense sensor/computation."
 
+
+## Gate 6 — sparse sensing should be designed sparse, not merely pruned
+
+Gate 5 measured the price of row sparsity. Gate 6 now separates two ways of
+getting a sparse measurement operator.
+
+The signal is deliberately adversarial to careless sparsification: a relation
+failure changes only **1 of 192** high-resolution coordinates. Every sparse
+guide row may touch only **64 coordinates**.
+
+Four families compete:
+
+- **coverage-designed sparse** — use disjoint supports until every signal
+  coordinate has been touched at least once, then allow repeats;
+- **post-hoc pruned** — build dense Gaussian rows first, then retain only the 64
+  largest absolute weights in each row;
+- **random sparse** — choose every 64-coordinate support independently;
+- **dense** — keep all 192 interactions.
+
+For every family,
+
+```text
+m = 1, 2, 3, 4, 6, 8, 12, 16
+```
+
+is swept. Each candidate learns its own residual threshold on 150 training
+worlds. The smallest (m) whose **worst** validation innovation level reaches
+95% end-to-end reconstruction success is frozen, then tested on 120 untouched
+worlds per innovation level.
+
+Selected validation frontier:
+
+| sensing family | selected m | signal coordinates covered | guide scalar samples | coordinate touches |
+|---|---:|---:|---:|---:|
+| **coverage-designed sparse** | **3** | **192 / 192** | **48** | **3072** |
+| post-hoc pruned | 12 | 192 / 192 | 192 | 12288 |
+| random sparse | 12 | 190 / 192 | 192 | 12288 |
+| dense | 2 | 192 / 192 | 32 | 6144 |
+
+The designed sparse operator reaches its validation target as soon as three
+64-wide rows exactly cover the 192-coordinate signal space. Post-hoc pruning
+needs twelve rows before its independently chosen retained supports close the
+blind spots.
+
+Held-out success after freezing those choices:
+
+| innovation patches | designed sparse | post-hoc pruned | random sparse | dense |
+|---:|---:|---:|---:|---:|
+| 0 | **100%** | 100% | 100% | 100% |
+| 2 | **100%** | 100% | 98.33% | 95.83% |
+| 4 | **100%** | 100% | 97.5% | 96.67% |
+| 6 | **100%** | 100% | 95.0% | 93.33% |
+| 8 | **100%** | 100% | 98.33% | 97.5% |
+
+The result is deliberately not "sparse beats dense." Dense uses fewer guide
+**scalar samples** at its selected validation point: 32 versus 48. But it pays
+6144 coordinate touches and slips below the 95% held-out target at the six-
+innovation level. Coverage-designed sparse pays 48 guide scalars, only 3072
+touches, and remains at 100% held-out success.
+
+The cleaner comparison is sparse-versus-sparse:
+
+```text
+coverage-designed sparse     3072 coordinate touches
+post-hoc pruned sparse      12288 coordinate touches
+
+same held-out 100% success frontier
+4x difference in guide mixing work
+```
+
+So Gate 6 earns a narrower mechanism:
+
+```text
+when failures are sparse,
+support coverage is part of the sensing algorithm.
+
+pruning weights after dense design
+    !=
+designing sparse measurement supports before observation.
+```
+
+### Gate 6 scope fence
+
+This advantage is strongest because the innovation itself is one-coordinate
+sparse. It is therefore a support-coverage result, not a universal theorem that
+designed sparse matrices dominate pruning.
+
+The next attacker should sweep **innovation support size** while keeping the
+selected sparse operators frozen. The prediction is falsifiable: as failures
+become diffuse, blind-coordinate coverage should matter less and post-hoc /
+random sparse sensing should catch up. If it does not, there is another
+mechanism hiding beyond coverage.
+
 ## Boundary inherited from SighImageFactorization
 
 > **Structure may eliminate ambiguity; it may not manufacture an observable
@@ -450,16 +543,17 @@ sparsity saves mixing work but needs many more measurements and can still miss
 sparse innovations; moderate sparsity preserves the sensing budget while
 cutting coordinate-touch cost.
 
-The next attacker separates two ideas that Gate 5 still conflates:
+Gate 6 has now separated designed sparse sensing from post-hoc pruning. In the
+one-coordinate innovation regime, deliberate coverage closes blind spots with
+three sparse rows while post-hoc pruning needs twelve.
 
-- **designed sparse sensing:** build the sparse measurement operator before the
-  observation;
-- **post-hoc sparsification:** observe with a dense operator, then zero most of
-  its interactions and try to preserve the downstream relation-failure
-  decision.
+The next attacker is a support-size sweep with the **same frozen sensors**:
 
-That is the second setting in the recent "price of sparsity" paper and a useful
-bridge to pruning / sparse computation as well as sensing.
+- one-coordinate innovations should strongly reward coverage design;
+- increasingly diffuse innovations should make random/post-hoc supports more
+  likely to intersect the change and therefore close the gap;
+- if the gap persists even when support coverage is no longer the bottleneck,
+  another mechanism has been earned.
 
 After that, the Gate-19/20 lesson from SighImageFactorization can enter directly:
 when the meaning of a predictor changes, sensing budget should rise, stale
@@ -472,6 +566,11 @@ python -m pip install -r requirements.txt
 
 python what_to_look_at.py
 python gate1_history_graph.py
+python gate2_confidence_budget.py
+python gate3_image_confidence.py
+python gate4_relation_residual_budget.py
+python gate5_price_of_sparse_measurements.py
+python gate6_designed_vs_pruned.py
 python -m pytest -q
 ```
 
@@ -480,6 +579,11 @@ Receipts are written to:
 ```text
 results/gate0_summary.json
 results/gate1_summary.json
+results/gate2_summary.json
+results/gate3_summary.json
+results/gate4_summary.json
+results/gate5_summary.json
+results/gate6_summary.json
 ```
 
 The live browser instrument is served by GitHub Pages from `index.html`.
