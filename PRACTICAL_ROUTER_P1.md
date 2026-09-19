@@ -1,6 +1,6 @@
 # Practical diffusion router P1 — separate selection from actuation
 
-Status: **pre-registered CPU diagnostic using the committed P0 GPU outputs.**
+Status: **run in GitHub Actions on all 9 P0 cases; selection PASS, scalar actuation salvage FAIL.**
 
 P0 failed much harder than "edge did not beat random":
 
@@ -72,3 +72,55 @@ Output:
 ```text
 results/practical_diffusion_router_p1_summary.json
 ```
+
+
+## Result
+
+The discriminator is clean.
+
+| selector | correction-energy capture | actuation cosine | P0 recovery | best-per-case blend recovery |
+|---|---:|---:|---:|---:|
+| **edge energy** | **43.51%** | 0.257 | -2.022 | 3.53% |
+| local variance | 40.35% | 0.269 | -1.782 | 3.76% |
+| Gaussian residual | 41.65% | 0.239 | -2.087 | 3.26% |
+| Sihti residue | 35.95% | 0.228 | -1.995 | 2.70% |
+| random | 24.31% | 0.311 | -1.289 | 3.00% |
+
+So the *where* signal survives strongly at the exact 4×4 geometry used by P0:
+
+```text
+edge capture - random capture = +19.21 percentage points
+```
+
+But the local crop action is badly scaled and only weakly aligned. The
+least-squares edge blend fitted on seeds 100/101 is only:
+
+```text
+alpha = 0.1041
+```
+
+On held-out seed 102, applying that frozen alpha gives:
+
+```text
+edge recovery     3.98%
+random recovery   2.70%
+positive edge cases 3/3
+```
+
+That is a real positive direction, but it misses the pre-registered 5% recovery
+and +3 point margin requirements. Even the per-case oracle scalar blend only
+recovers 3.53% on average.
+
+Therefore:
+
+> **selection survives; independent crop diffusion is the wrong local
+> actuator.**
+
+P0 did not fail because edge energy points to irrelevant regions. It failed
+because launching each selected crop as its own diffusion trajectory produces a
+change far larger than, and only weakly aligned with, the corresponding
+full-frame denoising correction.
+
+The next mechanism must preserve the global diffusion state/noise/timestep and
+make computation sparse *inside that trajectory*, rather than regenerate image
+crops independently.
