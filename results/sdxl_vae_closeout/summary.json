@@ -1,0 +1,1521 @@
+{
+  "model": "stabilityai/sdxl-turbo",
+  "gpu": "NVIDIA GeForce RTX 3060",
+  "reference_vae": "SDXL-Turbo bundled AutoencoderKL",
+  "candidates": {
+    "fp16_fix": "madebyollin/sdxl-vae-fp16-fix",
+    "taesdxl": "madebyollin/taesdxl"
+  },
+  "validation_seeds": [
+    100,
+    101
+  ],
+  "held_out_seeds": [
+    102
+  ],
+  "thresholds": {
+    "min_mean_recovery": 0.85,
+    "min_layout_psnr_db": 28.0,
+    "min_edge_correlation": 0.9,
+    "min_stage_speedup": 1.3,
+    "faster_case_fraction": "ceil(2N/3)"
+  },
+  "validation": {
+    "fp16_fix": {
+      "cases": 6,
+      "mean_recovery": 0.9950162205964682,
+      "min_recovery": 0.9926303310140064,
+      "mean_psnr_to_teacher_db": 45.30581184138481,
+      "mean_layout_psnr_to_teacher_db": 49.81257413087849,
+      "min_layout_psnr_to_teacher_db": 46.687788484703994,
+      "mean_edge_correlation_to_teacher": 0.9594117000026414,
+      "min_edge_correlation_to_teacher": 0.9378516605384203,
+      "mean_stage_seconds": 0.539618733334161,
+      "baseline_mean_stage_seconds": 0.7457943999955509,
+      "mean_stage_speedup": 1.3820765550289278,
+      "faster_case_count": 6,
+      "mean_vae_encode_ms": 94.82751973470052,
+      "mean_vae_decode_ms": 150.62357584635416,
+      "mean_vae_total_ms": 245.4510955810547,
+      "mean_unet_ms": 234.94877751668295,
+      "pass": true
+    },
+    "taesdxl": {
+      "cases": 6,
+      "mean_recovery": 0.20667883591708633,
+      "min_recovery": -0.31959836778312156,
+      "mean_psnr_to_teacher_db": 23.327335069693206,
+      "mean_layout_psnr_to_teacher_db": 24.577670349037323,
+      "min_layout_psnr_to_teacher_db": 21.507277025287443,
+      "mean_edge_correlation_to_teacher": 0.4880596537188808,
+      "min_edge_correlation_to_teacher": 0.2875356834027603,
+      "mean_stage_seconds": 0.3192613666663722,
+      "baseline_mean_stage_seconds": 0.7457943999955509,
+      "mean_stage_speedup": 2.3359995222187506,
+      "faster_case_count": 6,
+      "mean_vae_encode_ms": 12.504064083099365,
+      "mean_vae_decode_ms": 12.44211196899414,
+      "mean_vae_total_ms": 24.946176052093506,
+      "mean_unet_ms": 236.56533432006836,
+      "pass": false
+    }
+  },
+  "selected_candidate": "fp16_fix",
+  "held_out": {
+    "cases": 3,
+    "mean_recovery": 0.9973844699627491,
+    "min_recovery": 0.9964132775391296,
+    "mean_psnr_to_teacher_db": 48.98432954113273,
+    "mean_layout_psnr_to_teacher_db": 51.49054828385459,
+    "min_layout_psnr_to_teacher_db": 49.21558873613947,
+    "mean_edge_correlation_to_teacher": 0.9654202681957739,
+    "min_edge_correlation_to_teacher": 0.954131368096101,
+    "mean_stage_seconds": 0.5402007666610492,
+    "baseline_mean_stage_seconds": 0.7326482999972844,
+    "mean_stage_speedup": 1.356251870069979,
+    "faster_case_count": 3,
+    "mean_vae_encode_ms": 92.71637471516927,
+    "mean_vae_decode_ms": 150.69320678710938,
+    "mean_vae_total_ms": 243.40958150227866,
+    "mean_unet_ms": 237.16454569498697,
+    "pass": true
+  },
+  "claim_receipt": {
+    "pass": true,
+    "selected_candidate": "fp16_fix",
+    "interpretation": "a known VAE substitution earns a quality-preserving engineering speedup"
+  },
+  "cases": [
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "prompt_index": 1,
+      "seed": 100,
+      "stem": "p01_s100",
+      "base_path": "results\\sdxl_vae_closeout\\p01_s100_base.png",
+      "teacher_path": "results\\sdxl_vae_closeout\\p01_s100_teacher.png",
+      "baseline": {
+        "stage_seconds": 0.745218299998669,
+        "profile": {
+          "wall_ms": 745.218299998669,
+          "components": {
+            "text_encoder_1": {
+              "calls": 1,
+              "cuda_ms": 9.835519790649414,
+              "per_call_ms": [
+                9.835519790649414
+              ]
+            },
+            "text_encoder_2": {
+              "calls": 1,
+              "cuda_ms": 22.51468849182129,
+              "per_call_ms": [
+                22.51468849182129
+              ]
+            },
+            "vae_encode": {
+              "calls": 1,
+              "cuda_ms": 164.51072692871094,
+              "per_call_ms": [
+                164.51072692871094
+              ]
+            },
+            "unet": {
+              "calls": 2,
+              "cuda_ms": 224.7004165649414,
+              "per_call_ms": [
+                114.38387298583984,
+                110.31654357910156
+              ]
+            },
+            "vae_decode": {
+              "calls": 1,
+              "cuda_ms": 282.5133972167969,
+              "per_call_ms": [
+                282.5133972167969
+              ]
+            }
+          },
+          "component_cuda_sum_ms": 704.0747489929199,
+          "other_wall_ms": 41.14355100574903
+        }
+      },
+      "variants": {
+        "fp16_fix": {
+          "stage_seconds": 0.5463637000066228,
+          "speedup_vs_standard": 1.3639601239790193,
+          "recovery": 0.9926303310140064,
+          "psnr_to_teacher_db": 42.78781846697277,
+          "layout_psnr_to_teacher_db": 49.91457245751312,
+          "edge_correlation_to_teacher": 0.9378516605384203,
+          "profile": {
+            "wall_ms": 546.3637000066228,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 10.960895538330078,
+                "per_call_ms": [
+                  10.960895538330078
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 23.46393585205078,
+                "per_call_ms": [
+                  23.46393585205078
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 105.6174087524414,
+                "per_call_ms": [
+                  105.6174087524414
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 236.0975341796875,
+                "per_call_ms": [
+                  125.90592193603516,
+                  110.19161224365234
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 150.3426513671875,
+                "per_call_ms": [
+                  150.3426513671875
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 526.4824256896973,
+            "other_wall_ms": 19.881274316925555
+          }
+        },
+        "taesdxl": {
+          "stage_seconds": 0.33621529999072663,
+          "speedup_vs_standard": 2.2164913376018975,
+          "recovery": 0.02061516538678987,
+          "psnr_to_teacher_db": 21.55276453488009,
+          "layout_psnr_to_teacher_db": 22.9366140634346,
+          "edge_correlation_to_teacher": 0.32489572412989387,
+          "profile": {
+            "wall_ms": 336.21529999072663,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 12.17024040222168,
+                "per_call_ms": [
+                  12.17024040222168
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 28.75596809387207,
+                "per_call_ms": [
+                  28.75596809387207
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 23.146495819091797,
+                "per_call_ms": [
+                  23.146495819091797
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 239.23917388916016,
+                "per_call_ms": [
+                  128.3461151123047,
+                  110.89305877685547
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 14.80396842956543,
+                "per_call_ms": [
+                  14.80396842956543
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 318.11584663391113,
+            "other_wall_ms": 18.099453356815502
+          }
+        }
+      },
+      "contact_sheet": "results\\sdxl_vae_closeout\\p01_s100_contact.png"
+    },
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "prompt_index": 1,
+      "seed": 101,
+      "stem": "p01_s101",
+      "base_path": "results\\sdxl_vae_closeout\\p01_s101_base.png",
+      "teacher_path": "results\\sdxl_vae_closeout\\p01_s101_teacher.png",
+      "baseline": {
+        "stage_seconds": 0.781308400008129,
+        "profile": {
+          "wall_ms": 781.308400008129,
+          "components": {
+            "text_encoder_1": {
+              "calls": 1,
+              "cuda_ms": 10.261504173278809,
+              "per_call_ms": [
+                10.261504173278809
+              ]
+            },
+            "text_encoder_2": {
+              "calls": 1,
+              "cuda_ms": 28.440576553344727,
+              "per_call_ms": [
+                28.440576553344727
+              ]
+            },
+            "vae_encode": {
+              "calls": 1,
+              "cuda_ms": 163.04025268554688,
+              "per_call_ms": [
+                163.04025268554688
+              ]
+            },
+            "unet": {
+              "calls": 2,
+              "cuda_ms": 261.4446105957031,
+              "per_call_ms": [
+                134.3846435546875,
+                127.05996704101562
+              ]
+            },
+            "vae_decode": {
+              "calls": 1,
+              "cuda_ms": 272.2979736328125,
+              "per_call_ms": [
+                272.2979736328125
+              ]
+            }
+          },
+          "component_cuda_sum_ms": 735.484917640686,
+          "other_wall_ms": 45.82348236744292
+        }
+      },
+      "variants": {
+        "fp16_fix": {
+          "stage_seconds": 0.5357514999923296,
+          "speedup_vs_standard": 1.4583410406117667,
+          "recovery": 0.9974987563690654,
+          "psnr_to_teacher_db": 49.35271058000791,
+          "layout_psnr_to_teacher_db": 53.43373374550572,
+          "edge_correlation_to_teacher": 0.9513635676832917,
+          "profile": {
+            "wall_ms": 535.7514999923296,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.559935569763184,
+                "per_call_ms": [
+                  11.559935569763184
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 27.390975952148438,
+                "per_call_ms": [
+                  27.390975952148438
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 92.69964599609375,
+                "per_call_ms": [
+                  92.69964599609375
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 232.58316802978516,
+                "per_call_ms": [
+                  122.31270599365234,
+                  110.27046203613281
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 150.58636474609375,
+                "per_call_ms": [
+                  150.58636474609375
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 514.8200902938843,
+            "other_wall_ms": 20.93140969844535
+          }
+        },
+        "taesdxl": {
+          "stage_seconds": 0.3177830999775324,
+          "speedup_vs_standard": 2.458621619788366,
+          "recovery": -0.31959836778312156,
+          "psnr_to_teacher_db": 22.129852840836662,
+          "layout_psnr_to_teacher_db": 22.641483896774247,
+          "edge_correlation_to_teacher": 0.2875356834027603,
+          "profile": {
+            "wall_ms": 317.7830999775324,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 12.217344284057617,
+                "per_call_ms": [
+                  12.217344284057617
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 28.13337516784668,
+                "per_call_ms": [
+                  28.13337516784668
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 10.309632301330566,
+                "per_call_ms": [
+                  10.309632301330566
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 235.38892364501953,
+                "per_call_ms": [
+                  124.2767333984375,
+                  111.11219024658203
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 12.005375862121582,
+                "per_call_ms": [
+                  12.005375862121582
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 298.054651260376,
+            "other_wall_ms": 19.728448717156425
+          }
+        }
+      },
+      "contact_sheet": "results\\sdxl_vae_closeout\\p01_s101_contact.png"
+    },
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "prompt_index": 1,
+      "seed": 102,
+      "stem": "p01_s102",
+      "base_path": "results\\sdxl_vae_closeout\\p01_s102_base.png",
+      "teacher_path": "results\\sdxl_vae_closeout\\p01_s102_teacher.png",
+      "baseline": {
+        "stage_seconds": 0.7330795000016224,
+        "profile": {
+          "wall_ms": 733.0795000016224,
+          "components": {
+            "text_encoder_1": {
+              "calls": 1,
+              "cuda_ms": 10.11302375793457,
+              "per_call_ms": [
+                10.11302375793457
+              ]
+            },
+            "text_encoder_2": {
+              "calls": 1,
+              "cuda_ms": 23.195648193359375,
+              "per_call_ms": [
+                23.195648193359375
+              ]
+            },
+            "vae_encode": {
+              "calls": 1,
+              "cuda_ms": 163.10169982910156,
+              "per_call_ms": [
+                163.10169982910156
+              ]
+            },
+            "unet": {
+              "calls": 2,
+              "cuda_ms": 225.0055694580078,
+              "per_call_ms": [
+                114.30400085449219,
+                110.70156860351562
+              ]
+            },
+            "vae_decode": {
+              "calls": 1,
+              "cuda_ms": 271.4490966796875,
+              "per_call_ms": [
+                271.4490966796875
+              ]
+            }
+          },
+          "component_cuda_sum_ms": 692.8650379180908,
+          "other_wall_ms": 40.214462083531544
+        }
+      },
+      "variants": {
+        "fp16_fix": {
+          "stage_seconds": 0.5386199000058696,
+          "speedup_vs_standard": 1.3610330773029993,
+          "recovery": 0.9964132775391296,
+          "psnr_to_teacher_db": 48.65473244701896,
+          "layout_psnr_to_teacher_db": 53.26335426105742,
+          "edge_correlation_to_teacher": 0.954131368096101,
+          "profile": {
+            "wall_ms": 538.6199000058696,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.663359642028809,
+                "per_call_ms": [
+                  11.663359642028809
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 25.977855682373047,
+                "per_call_ms": [
+                  25.977855682373047
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 92.63513946533203,
+                "per_call_ms": [
+                  92.63513946533203
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 235.17696380615234,
+                "per_call_ms": [
+                  124.66790771484375,
+                  110.5090560913086
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 150.69593811035156,
+                "per_call_ms": [
+                  150.69593811035156
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 516.1492567062378,
+            "other_wall_ms": 22.470643299631774
+          }
+        },
+        "taesdxl": {
+          "stage_seconds": 0.3264049999997951,
+          "speedup_vs_standard": 2.2459199460856376,
+          "recovery": -0.29278262157825075,
+          "psnr_to_teacher_db": 23.086455117451933,
+          "layout_psnr_to_teacher_db": 24.015487473004022,
+          "edge_correlation_to_teacher": 0.3069687424039146,
+          "profile": {
+            "wall_ms": 326.4049999997951,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.978752136230469,
+                "per_call_ms": [
+                  11.978752136230469
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 27.33772850036621,
+                "per_call_ms": [
+                  27.33772850036621
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 10.33625602722168,
+                "per_call_ms": [
+                  10.33625602722168
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 244.13900756835938,
+                "per_call_ms": [
+                  127.79827117919922,
+                  116.34073638916016
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 12.068863868713379,
+                "per_call_ms": [
+                  12.068863868713379
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 305.8606081008911,
+            "other_wall_ms": 20.544391898903996
+          }
+        }
+      },
+      "contact_sheet": "results\\sdxl_vae_closeout\\p01_s102_contact.png"
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "prompt_index": 2,
+      "seed": 100,
+      "stem": "p02_s100",
+      "base_path": "results\\sdxl_vae_closeout\\p02_s100_base.png",
+      "teacher_path": "results\\sdxl_vae_closeout\\p02_s100_teacher.png",
+      "baseline": {
+        "stage_seconds": 0.7331746999989264,
+        "profile": {
+          "wall_ms": 733.1746999989264,
+          "components": {
+            "text_encoder_1": {
+              "calls": 1,
+              "cuda_ms": 10.322943687438965,
+              "per_call_ms": [
+                10.322943687438965
+              ]
+            },
+            "text_encoder_2": {
+              "calls": 1,
+              "cuda_ms": 22.402048110961914,
+              "per_call_ms": [
+                22.402048110961914
+              ]
+            },
+            "vae_encode": {
+              "calls": 1,
+              "cuda_ms": 163.2419891357422,
+              "per_call_ms": [
+                163.2419891357422
+              ]
+            },
+            "unet": {
+              "calls": 2,
+              "cuda_ms": 227.03308868408203,
+              "per_call_ms": [
+                115.96492767333984,
+                111.06816101074219
+              ]
+            },
+            "vae_decode": {
+              "calls": 1,
+              "cuda_ms": 271.47674560546875,
+              "per_call_ms": [
+                271.47674560546875
+              ]
+            }
+          },
+          "component_cuda_sum_ms": 694.4768152236938,
+          "other_wall_ms": 38.697884775232524
+        }
+      },
+      "variants": {
+        "fp16_fix": {
+          "stage_seconds": 0.5421293000108562,
+          "speedup_vs_standard": 1.3523982193625108,
+          "recovery": 0.9931212658142938,
+          "psnr_to_teacher_db": 43.87080152398822,
+          "layout_psnr_to_teacher_db": 51.57486771973289,
+          "edge_correlation_to_teacher": 0.9740482511015578,
+          "profile": {
+            "wall_ms": 542.1293000108562,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.972607612609863,
+                "per_call_ms": [
+                  11.972607612609863
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 27.400192260742188,
+                "per_call_ms": [
+                  27.400192260742188
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 92.49996948242188,
+                "per_call_ms": [
+                  92.49996948242188
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 237.6038360595703,
+                "per_call_ms": [
+                  127.16031646728516,
+                  110.44351959228516
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 150.75225830078125,
+                "per_call_ms": [
+                  150.75225830078125
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 520.2288637161255,
+            "other_wall_ms": 21.900436294730753
+          }
+        },
+        "taesdxl": {
+          "stage_seconds": 0.319051300000865,
+          "speedup_vs_standard": 2.2979837411630624,
+          "recovery": 0.31840326599170476,
+          "psnr_to_teacher_db": 23.910611790063157,
+          "layout_psnr_to_teacher_db": 26.592592960456415,
+          "edge_correlation_to_teacher": 0.4481611272799819,
+          "profile": {
+            "wall_ms": 319.051300000865,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.834367752075195,
+                "per_call_ms": [
+                  11.834367752075195
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 25.460735321044922,
+                "per_call_ms": [
+                  25.460735321044922
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 10.510335922241211,
+                "per_call_ms": [
+                  10.510335922241211
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 239.71737670898438,
+                "per_call_ms": [
+                  124.53990173339844,
+                  115.17747497558594
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 11.910143852233887,
+                "per_call_ms": [
+                  11.910143852233887
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 299.4329595565796,
+            "other_wall_ms": 19.618340444285423
+          }
+        }
+      },
+      "contact_sheet": "results\\sdxl_vae_closeout\\p02_s100_contact.png"
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "prompt_index": 2,
+      "seed": 101,
+      "stem": "p02_s101",
+      "base_path": "results\\sdxl_vae_closeout\\p02_s101_base.png",
+      "teacher_path": "results\\sdxl_vae_closeout\\p02_s101_teacher.png",
+      "baseline": {
+        "stage_seconds": 0.7331677000038326,
+        "profile": {
+          "wall_ms": 733.1677000038326,
+          "components": {
+            "text_encoder_1": {
+              "calls": 1,
+              "cuda_ms": 10.377216339111328,
+              "per_call_ms": [
+                10.377216339111328
+              ]
+            },
+            "text_encoder_2": {
+              "calls": 1,
+              "cuda_ms": 22.493183135986328,
+              "per_call_ms": [
+                22.493183135986328
+              ]
+            },
+            "vae_encode": {
+              "calls": 1,
+              "cuda_ms": 162.93478393554688,
+              "per_call_ms": [
+                162.93478393554688
+              ]
+            },
+            "unet": {
+              "calls": 2,
+              "cuda_ms": 225.6885757446289,
+              "per_call_ms": [
+                114.89997100830078,
+                110.78860473632812
+              ]
+            },
+            "vae_decode": {
+              "calls": 1,
+              "cuda_ms": 272.0624694824219,
+              "per_call_ms": [
+                272.0624694824219
+              ]
+            }
+          },
+          "component_cuda_sum_ms": 693.5562286376953,
+          "other_wall_ms": 39.611471366137266
+        }
+      },
+      "variants": {
+        "fp16_fix": {
+          "stage_seconds": 0.5390367000072729,
+          "speedup_vs_standard": 1.3601443092723378,
+          "recovery": 0.9946357272165378,
+          "psnr_to_teacher_db": 45.08648980944141,
+          "layout_psnr_to_teacher_db": 46.687788484703994,
+          "edge_correlation_to_teacher": 0.944442161753213,
+          "profile": {
+            "wall_ms": 539.0367000072729,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.709440231323242,
+                "per_call_ms": [
+                  11.709440231323242
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 27.405311584472656,
+                "per_call_ms": [
+                  27.405311584472656
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 92.72831726074219,
+                "per_call_ms": [
+                  92.72831726074219
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 234.59327697753906,
+                "per_call_ms": [
+                  123.94802856445312,
+                  110.64524841308594
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 150.64576721191406,
+                "per_call_ms": [
+                  150.64576721191406
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 517.0821132659912,
+            "other_wall_ms": 21.954586741281673
+          }
+        },
+        "taesdxl": {
+          "stage_seconds": 0.31638900001416914,
+          "speedup_vs_standard": 2.3172983257034803,
+          "recovery": 0.768347256087696,
+          "psnr_to_teacher_db": 28.73322386624038,
+          "layout_psnr_to_teacher_db": 29.46030091688621,
+          "edge_correlation_to_teacher": 0.7084337846305043,
+          "profile": {
+            "wall_ms": 316.38900001416914,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.917311668395996,
+                "per_call_ms": [
+                  11.917311668395996
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 26.69772720336914,
+                "per_call_ms": [
+                  26.69772720336914
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 10.357760429382324,
+                "per_call_ms": [
+                  10.357760429382324
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 235.45958709716797,
+                "per_call_ms": [
+                  124.65869140625,
+                  110.80089569091797
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 12.02790355682373,
+                "per_call_ms": [
+                  12.02790355682373
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 296.46028995513916,
+            "other_wall_ms": 19.92871005902998
+          }
+        }
+      },
+      "contact_sheet": "results\\sdxl_vae_closeout\\p02_s101_contact.png"
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "prompt_index": 2,
+      "seed": 102,
+      "stem": "p02_s102",
+      "base_path": "results\\sdxl_vae_closeout\\p02_s102_base.png",
+      "teacher_path": "results\\sdxl_vae_closeout\\p02_s102_teacher.png",
+      "baseline": {
+        "stage_seconds": 0.7332584999967366,
+        "profile": {
+          "wall_ms": 733.2584999967366,
+          "components": {
+            "text_encoder_1": {
+              "calls": 1,
+              "cuda_ms": 10.487808227539062,
+              "per_call_ms": [
+                10.487808227539062
+              ]
+            },
+            "text_encoder_2": {
+              "calls": 1,
+              "cuda_ms": 23.27961540222168,
+              "per_call_ms": [
+                23.27961540222168
+              ]
+            },
+            "vae_encode": {
+              "calls": 1,
+              "cuda_ms": 162.72793579101562,
+              "per_call_ms": [
+                162.72793579101562
+              ]
+            },
+            "unet": {
+              "calls": 2,
+              "cuda_ms": 227.12422943115234,
+              "per_call_ms": [
+                116.62643432617188,
+                110.49779510498047
+              ]
+            },
+            "vae_decode": {
+              "calls": 1,
+              "cuda_ms": 271.3917541503906,
+              "per_call_ms": [
+                271.3917541503906
+              ]
+            }
+          },
+          "component_cuda_sum_ms": 695.0113430023193,
+          "other_wall_ms": 38.24715699441731
+        }
+      },
+      "variants": {
+        "fp16_fix": {
+          "stage_seconds": 0.5451495999877807,
+          "speedup_vs_standard": 1.3450592278031064,
+          "recovery": 0.9981519815573833,
+          "psnr_to_teacher_db": 50.56569681041127,
+          "layout_psnr_to_teacher_db": 51.99270185436686,
+          "edge_correlation_to_teacher": 0.956778209521081,
+          "profile": {
+            "wall_ms": 545.1495999877807,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.626496315002441,
+                "per_call_ms": [
+                  11.626496315002441
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 27.75347137451172,
+                "per_call_ms": [
+                  27.75347137451172
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 92.8348159790039,
+                "per_call_ms": [
+                  92.8348159790039
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 240.50995635986328,
+                "per_call_ms": [
+                  130.07769775390625,
+                  110.43225860595703
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 150.68978881835938,
+                "per_call_ms": [
+                  150.68978881835938
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 523.4145288467407,
+            "other_wall_ms": 21.735071141039953
+          }
+        },
+        "taesdxl": {
+          "stage_seconds": 0.31225330001325347,
+          "speedup_vs_standard": 2.3482810268638117,
+          "recovery": 0.4361400051424892,
+          "psnr_to_teacher_db": 25.7210469901742,
+          "layout_psnr_to_teacher_db": 26.15716558378736,
+          "edge_correlation_to_teacher": 0.7177131259264926,
+          "profile": {
+            "wall_ms": 312.25330001325347,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.513855934143066,
+                "per_call_ms": [
+                  11.513855934143066
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 27.247615814208984,
+                "per_call_ms": [
+                  27.247615814208984
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 10.441727638244629,
+                "per_call_ms": [
+                  10.441727638244629
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 232.51251220703125,
+                "per_call_ms": [
+                  121.77613067626953,
+                  110.73638153076172
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 12.064767837524414,
+                "per_call_ms": [
+                  12.064767837524414
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 293.78047943115234,
+            "other_wall_ms": 18.47282058210112
+          }
+        }
+      },
+      "contact_sheet": "results\\sdxl_vae_closeout\\p02_s102_contact.png"
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "prompt_index": 3,
+      "seed": 100,
+      "stem": "p03_s100",
+      "base_path": "results\\sdxl_vae_closeout\\p03_s100_base.png",
+      "teacher_path": "results\\sdxl_vae_closeout\\p03_s100_teacher.png",
+      "baseline": {
+        "stage_seconds": 0.7481259999913163,
+        "profile": {
+          "wall_ms": 748.1259999913163,
+          "components": {
+            "text_encoder_1": {
+              "calls": 1,
+              "cuda_ms": 11.455488204956055,
+              "per_call_ms": [
+                11.455488204956055
+              ]
+            },
+            "text_encoder_2": {
+              "calls": 1,
+              "cuda_ms": 22.468608856201172,
+              "per_call_ms": [
+                22.468608856201172
+              ]
+            },
+            "vae_encode": {
+              "calls": 1,
+              "cuda_ms": 163.198974609375,
+              "per_call_ms": [
+                163.198974609375
+              ]
+            },
+            "unet": {
+              "calls": 2,
+              "cuda_ms": 239.38253784179688,
+              "per_call_ms": [
+                128.8704071044922,
+                110.51213073730469
+              ]
+            },
+            "vae_decode": {
+              "calls": 1,
+              "cuda_ms": 271.42657470703125,
+              "per_call_ms": [
+                271.42657470703125
+              ]
+            }
+          },
+          "component_cuda_sum_ms": 707.9321842193604,
+          "other_wall_ms": 40.193815771956
+        }
+      },
+      "variants": {
+        "fp16_fix": {
+          "stage_seconds": 0.534972800000105,
+          "speedup_vs_standard": 1.3984374532521455,
+          "recovery": 0.9940589736390102,
+          "psnr_to_teacher_db": 42.22061322616171,
+          "layout_psnr_to_teacher_db": 47.45104795421121,
+          "edge_correlation_to_teacher": 0.9715071108400538,
+          "profile": {
+            "wall_ms": 534.972800000105,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.709440231323242,
+                "per_call_ms": [
+                  11.709440231323242
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 24.219648361206055,
+                "per_call_ms": [
+                  24.219648361206055
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 92.76313781738281,
+                "per_call_ms": [
+                  92.76313781738281
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 234.61478424072266,
+                "per_call_ms": [
+                  124.28594970703125,
+                  110.3288345336914
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 150.64576721191406,
+                "per_call_ms": [
+                  150.64576721191406
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 513.9527778625488,
+            "other_wall_ms": 21.020022137556225
+          }
+        },
+        "taesdxl": {
+          "stage_seconds": 0.3192021000140812,
+          "speedup_vs_standard": 2.343737713374422,
+          "recovery": 0.03663807241054773,
+          "psnr_to_teacher_db": 20.12133323166568,
+          "layout_psnr_to_teacher_db": 21.507277025287443,
+          "edge_correlation_to_teacher": 0.4578646638106514,
+          "profile": {
+            "wall_ms": 319.2021000140812,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.581439971923828,
+                "per_call_ms": [
+                  11.581439971923828
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 25.858047485351562,
+                "per_call_ms": [
+                  25.858047485351562
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 10.339327812194824,
+                "per_call_ms": [
+                  10.339327812194824
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 240.78643798828125,
+                "per_call_ms": [
+                  126.39949035644531,
+                  114.38694763183594
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 11.93779182434082,
+                "per_call_ms": [
+                  11.93779182434082
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 300.5030450820923,
+            "other_wall_ms": 18.69905493198894
+          }
+        }
+      },
+      "contact_sheet": "results\\sdxl_vae_closeout\\p03_s100_contact.png"
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "prompt_index": 3,
+      "seed": 101,
+      "stem": "p03_s101",
+      "base_path": "results\\sdxl_vae_closeout\\p03_s101_base.png",
+      "teacher_path": "results\\sdxl_vae_closeout\\p03_s101_teacher.png",
+      "baseline": {
+        "stage_seconds": 0.7337712999724317,
+        "profile": {
+          "wall_ms": 733.7712999724317,
+          "components": {
+            "text_encoder_1": {
+              "calls": 1,
+              "cuda_ms": 9.927680015563965,
+              "per_call_ms": [
+                9.927680015563965
+              ]
+            },
+            "text_encoder_2": {
+              "calls": 1,
+              "cuda_ms": 22.26483154296875,
+              "per_call_ms": [
+                22.26483154296875
+              ]
+            },
+            "vae_encode": {
+              "calls": 1,
+              "cuda_ms": 163.1293487548828,
+              "per_call_ms": [
+                163.1293487548828
+              ]
+            },
+            "unet": {
+              "calls": 2,
+              "cuda_ms": 227.67513275146484,
+              "per_call_ms": [
+                116.91007995605469,
+                110.76505279541016
+              ]
+            },
+            "vae_decode": {
+              "calls": 1,
+              "cuda_ms": 271.4593200683594,
+              "per_call_ms": [
+                271.4593200683594
+              ]
+            }
+          },
+          "component_cuda_sum_ms": 694.4563131332397,
+          "other_wall_ms": 39.31498683919199
+        }
+      },
+      "variants": {
+        "fp16_fix": {
+          "stage_seconds": 0.5394583999877796,
+          "speedup_vs_standard": 1.36019997091352,
+          "recovery": 0.9981522695258956,
+          "psnr_to_teacher_db": 48.516437441736855,
+          "layout_psnr_to_teacher_db": 49.81343442360397,
+          "edge_correlation_to_teacher": 0.9772574480993118,
+          "profile": {
+            "wall_ms": 539.4583999877796,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.627519607543945,
+                "per_call_ms": [
+                  11.627519607543945
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 27.862016677856445,
+                "per_call_ms": [
+                  27.862016677856445
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 92.6566390991211,
+                "per_call_ms": [
+                  92.6566390991211
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 234.20006561279297,
+                "per_call_ms": [
+                  123.91321563720703,
+                  110.28684997558594
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 150.76864624023438,
+                "per_call_ms": [
+                  150.76864624023438
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 517.1148872375488,
+            "other_wall_ms": 22.34351275023073
+          }
+        },
+        "taesdxl": {
+          "stage_seconds": 0.30692740000085905,
+          "speedup_vs_standard": 2.3906998852835493,
+          "recovery": 0.41566762340890107,
+          "psnr_to_teacher_db": 23.516224154473274,
+          "layout_psnr_to_teacher_db": 24.32775323138504,
+          "edge_correlation_to_teacher": 0.7014669390594928,
+          "profile": {
+            "wall_ms": 306.92740000085905,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 11.697152137756348,
+                "per_call_ms": [
+                  11.697152137756348
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 25.024511337280273,
+                "per_call_ms": [
+                  25.024511337280273
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 10.360832214355469,
+                "per_call_ms": [
+                  10.360832214355469
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 228.80050659179688,
+                "per_call_ms": [
+                  117.91871643066406,
+                  110.88179016113281
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 11.967488288879395,
+                "per_call_ms": [
+                  11.967488288879395
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 287.85049057006836,
+            "other_wall_ms": 19.076909430790693
+          }
+        }
+      },
+      "contact_sheet": "results\\sdxl_vae_closeout\\p03_s101_contact.png"
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "prompt_index": 3,
+      "seed": 102,
+      "stem": "p03_s102",
+      "base_path": "results\\sdxl_vae_closeout\\p03_s102_base.png",
+      "teacher_path": "results\\sdxl_vae_closeout\\p03_s102_teacher.png",
+      "baseline": {
+        "stage_seconds": 0.7316068999934942,
+        "profile": {
+          "wall_ms": 731.6068999934942,
+          "components": {
+            "text_encoder_1": {
+              "calls": 1,
+              "cuda_ms": 10.170368194580078,
+              "per_call_ms": [
+                10.170368194580078
+              ]
+            },
+            "text_encoder_2": {
+              "calls": 1,
+              "cuda_ms": 22.407167434692383,
+              "per_call_ms": [
+                22.407167434692383
+              ]
+            },
+            "vae_encode": {
+              "calls": 1,
+              "cuda_ms": 163.30239868164062,
+              "per_call_ms": [
+                163.30239868164062
+              ]
+            },
+            "unet": {
+              "calls": 2,
+              "cuda_ms": 224.9021453857422,
+              "per_call_ms": [
+                114.08793640136719,
+                110.814208984375
+              ]
+            },
+            "vae_decode": {
+              "calls": 1,
+              "cuda_ms": 272.1607666015625,
+              "per_call_ms": [
+                272.1607666015625
+              ]
+            }
+          },
+          "component_cuda_sum_ms": 692.9428462982178,
+          "other_wall_ms": 38.66405369527638
+        }
+      },
+      "variants": {
+        "fp16_fix": {
+          "stage_seconds": 0.5368327999894973,
+          "speedup_vs_standard": 1.3628207889082178,
+          "recovery": 0.9975881507917347,
+          "psnr_to_teacher_db": 47.732559365967965,
+          "layout_psnr_to_teacher_db": 49.21558873613947,
+          "edge_correlation_to_teacher": 0.9853512269701395,
+          "profile": {
+            "wall_ms": 536.8327999894973,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 12.733440399169922,
+                "per_call_ms": [
+                  12.733440399169922
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 26.166271209716797,
+                "per_call_ms": [
+                  26.166271209716797
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 92.67916870117188,
+                "per_call_ms": [
+                  92.67916870117188
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 235.8067169189453,
+                "per_call_ms": [
+                  125.29561614990234,
+                  110.51110076904297
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 150.6938934326172,
+                "per_call_ms": [
+                  150.6938934326172
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 518.0794906616211,
+            "other_wall_ms": 18.753309327876195
+          }
+        },
+        "taesdxl": {
+          "stage_seconds": 0.3166386999946553,
+          "speedup_vs_standard": 2.3105416362745403,
+          "recovery": 0.052686743361906596,
+          "psnr_to_teacher_db": 21.791124734609475,
+          "layout_psnr_to_teacher_db": 22.63903014671726,
+          "edge_correlation_to_teacher": 0.6233249841976305,
+          "profile": {
+            "wall_ms": 316.6386999946553,
+            "components": {
+              "text_encoder_1": {
+                "calls": 1,
+                "cuda_ms": 13.238271713256836,
+                "per_call_ms": [
+                  13.238271713256836
+                ]
+              },
+              "text_encoder_2": {
+                "calls": 1,
+                "cuda_ms": 27.305984497070312,
+                "per_call_ms": [
+                  27.305984497070312
+                ]
+              },
+              "vae_encode": {
+                "calls": 1,
+                "cuda_ms": 10.4202241897583,
+                "per_call_ms": [
+                  10.4202241897583
+                ]
+              },
+              "unet": {
+                "calls": 2,
+                "cuda_ms": 233.61434173583984,
+                "per_call_ms": [
+                  123.08377838134766,
+                  110.53056335449219
+                ]
+              },
+              "vae_decode": {
+                "calls": 1,
+                "cuda_ms": 11.898880004882812,
+                "per_call_ms": [
+                  11.898880004882812
+                ]
+              }
+            },
+            "component_cuda_sum_ms": 296.4777021408081,
+            "other_wall_ms": 20.16099785384722
+          }
+        }
+      },
+      "contact_sheet": "results\\sdxl_vae_closeout\\p03_s102_contact.png"
+    }
+  ]
+}
