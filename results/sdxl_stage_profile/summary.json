@@ -1,0 +1,695 @@
+{
+  "model": "stabilityai/sdxl-turbo",
+  "gpu": "NVIDIA GeForce RTX 3060",
+  "stage_steps": 4,
+  "strength": 0.6,
+  "method": "CUDA events around top-level text encoders, VAE encode/decode and UNet forward; full synchronized wall time measured separately.",
+  "caution": "Component CUDA-event totals are a diagnostic breakdown, not an operator-level FLOP profile. Residual wall includes CPU/scheduler/pre/postprocessing overhead.",
+  "aggregate": {
+    "cases": 9,
+    "mean_wall_ms": 763.1103999996817,
+    "median_wall_ms": 751.3845000066794,
+    "components": {
+      "text_encoder_1": {
+        "mean_cuda_ms": 11.232369634840223,
+        "median_cuda_ms": 10.276864051818848,
+        "mean_calls": 1.0,
+        "mean_fraction_of_wall": 0.014719193493949118
+      },
+      "text_encoder_2": {
+        "mean_cuda_ms": 24.67327986823188,
+        "median_cuda_ms": 23.187456130981445,
+        "mean_calls": 1.0,
+        "mean_fraction_of_wall": 0.032332516852400614
+      },
+      "vae_encode": {
+        "mean_cuda_ms": 167.91153801812067,
+        "median_cuda_ms": 164.73907470703125,
+        "mean_calls": 1.0,
+        "mean_fraction_of_wall": 0.22003570914272785
+      },
+      "unet": {
+        "mean_cuda_ms": 238.35875532362195,
+        "median_cuda_ms": 234.8779525756836,
+        "mean_calls": 2.0,
+        "mean_fraction_of_wall": 0.31235160118866334
+      },
+      "vae_decode": {
+        "mean_cuda_ms": 277.4770338270399,
+        "median_cuda_ms": 272.8212585449219,
+        "mean_calls": 1.0,
+        "mean_fraction_of_wall": 0.363613225330379
+      },
+      "other_wall": {
+        "mean_ms": 43.457423327827,
+        "median_ms": 41.39598763687536,
+        "mean_fraction_of_wall": 0.05694775399187998
+      }
+    },
+    "gpu_component_rank": [
+      {
+        "component": "vae_decode",
+        "mean_cuda_ms": 277.4770338270399
+      },
+      {
+        "component": "unet",
+        "mean_cuda_ms": 238.35875532362195
+      },
+      {
+        "component": "vae_encode",
+        "mean_cuda_ms": 167.91153801812067
+      },
+      {
+        "component": "text_encoder_2",
+        "mean_cuda_ms": 24.67327986823188
+      },
+      {
+        "component": "text_encoder_1",
+        "mean_cuda_ms": 11.232369634840223
+      }
+    ]
+  },
+  "cases": [
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "seed": 100,
+      "profile": {
+        "wall_ms": 753.6112999951001,
+        "components": {
+          "text_encoder_1": {
+            "calls": 1,
+            "cuda_ms": 10.470399856567383,
+            "per_call_ms": [
+              10.470399856567383
+            ]
+          },
+          "text_encoder_2": {
+            "calls": 1,
+            "cuda_ms": 23.187456130981445,
+            "per_call_ms": [
+              23.187456130981445
+            ]
+          },
+          "vae_encode": {
+            "calls": 1,
+            "cuda_ms": 164.73907470703125,
+            "per_call_ms": [
+              164.73907470703125
+            ]
+          },
+          "unet": {
+            "calls": 2,
+            "cuda_ms": 227.53997039794922,
+            "per_call_ms": [
+              115.8123550415039,
+              111.72761535644531
+            ]
+          },
+          "vae_decode": {
+            "calls": 1,
+            "cuda_ms": 286.5141906738281,
+            "per_call_ms": [
+              286.5141906738281
+            ]
+          }
+        },
+        "component_cuda_sum_ms": 712.4510917663574,
+        "other_wall_ms": 41.160208228742704
+      },
+      "compact": {
+        "text_encoder_1": {
+          "calls": 1,
+          "cuda_ms": 10.47
+        },
+        "text_encoder_2": {
+          "calls": 1,
+          "cuda_ms": 23.19
+        },
+        "vae_encode": {
+          "calls": 1,
+          "cuda_ms": 164.74
+        },
+        "unet": {
+          "calls": 2,
+          "cuda_ms": 227.54
+        },
+        "vae_decode": {
+          "calls": 1,
+          "cuda_ms": 286.51
+        }
+      }
+    },
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "seed": 101,
+      "profile": {
+        "wall_ms": 746.5502000122797,
+        "components": {
+          "text_encoder_1": {
+            "calls": 1,
+            "cuda_ms": 10.258432388305664,
+            "per_call_ms": [
+              10.258432388305664
+            ]
+          },
+          "text_encoder_2": {
+            "calls": 1,
+            "cuda_ms": 22.527999877929688,
+            "per_call_ms": [
+              22.527999877929688
+            ]
+          },
+          "vae_encode": {
+            "calls": 1,
+            "cuda_ms": 163.71405029296875,
+            "per_call_ms": [
+              163.71405029296875
+            ]
+          },
+          "unet": {
+            "calls": 2,
+            "cuda_ms": 236.5665283203125,
+            "per_call_ms": [
+              125.59974670410156,
+              110.96678161621094
+            ]
+          },
+          "vae_decode": {
+            "calls": 1,
+            "cuda_ms": 272.77618408203125,
+            "per_call_ms": [
+              272.77618408203125
+            ]
+          }
+        },
+        "component_cuda_sum_ms": 705.8431949615479,
+        "other_wall_ms": 40.70700505073182
+      },
+      "compact": {
+        "text_encoder_1": {
+          "calls": 1,
+          "cuda_ms": 10.26
+        },
+        "text_encoder_2": {
+          "calls": 1,
+          "cuda_ms": 22.53
+        },
+        "vae_encode": {
+          "calls": 1,
+          "cuda_ms": 163.71
+        },
+        "unet": {
+          "calls": 2,
+          "cuda_ms": 236.57
+        },
+        "vae_decode": {
+          "calls": 1,
+          "cuda_ms": 272.78
+        }
+      }
+    },
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "seed": 102,
+      "profile": {
+        "wall_ms": 734.3704999948386,
+        "components": {
+          "text_encoder_1": {
+            "calls": 1,
+            "cuda_ms": 10.196991920471191,
+            "per_call_ms": [
+              10.196991920471191
+            ]
+          },
+          "text_encoder_2": {
+            "calls": 1,
+            "cuda_ms": 22.647808074951172,
+            "per_call_ms": [
+              22.647808074951172
+            ]
+          },
+          "vae_encode": {
+            "calls": 1,
+            "cuda_ms": 163.9383087158203,
+            "per_call_ms": [
+              163.9383087158203
+            ]
+          },
+          "unet": {
+            "calls": 2,
+            "cuda_ms": 223.6108856201172,
+            "per_call_ms": [
+              112.33177947998047,
+              111.27910614013672
+            ]
+          },
+          "vae_decode": {
+            "calls": 1,
+            "cuda_ms": 272.8212585449219,
+            "per_call_ms": [
+              272.8212585449219
+            ]
+          }
+        },
+        "component_cuda_sum_ms": 693.2152528762817,
+        "other_wall_ms": 41.15524711855687
+      },
+      "compact": {
+        "text_encoder_1": {
+          "calls": 1,
+          "cuda_ms": 10.2
+        },
+        "text_encoder_2": {
+          "calls": 1,
+          "cuda_ms": 22.65
+        },
+        "vae_encode": {
+          "calls": 1,
+          "cuda_ms": 163.94
+        },
+        "unet": {
+          "calls": 2,
+          "cuda_ms": 223.61
+        },
+        "vae_decode": {
+          "calls": 1,
+          "cuda_ms": 272.82
+        }
+      }
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "seed": 100,
+      "profile": {
+        "wall_ms": 746.34949999745,
+        "components": {
+          "text_encoder_1": {
+            "calls": 1,
+            "cuda_ms": 10.479616165161133,
+            "per_call_ms": [
+              10.479616165161133
+            ]
+          },
+          "text_encoder_2": {
+            "calls": 1,
+            "cuda_ms": 23.7076473236084,
+            "per_call_ms": [
+              23.7076473236084
+            ]
+          },
+          "vae_encode": {
+            "calls": 1,
+            "cuda_ms": 163.8041534423828,
+            "per_call_ms": [
+              163.8041534423828
+            ]
+          },
+          "unet": {
+            "calls": 2,
+            "cuda_ms": 234.8779525756836,
+            "per_call_ms": [
+              123.79647827148438,
+              111.08147430419922
+            ]
+          },
+          "vae_decode": {
+            "calls": 1,
+            "cuda_ms": 272.5713806152344,
+            "per_call_ms": [
+              272.5713806152344
+            ]
+          }
+        },
+        "component_cuda_sum_ms": 705.4407501220703,
+        "other_wall_ms": 40.908749875379726
+      },
+      "compact": {
+        "text_encoder_1": {
+          "calls": 1,
+          "cuda_ms": 10.48
+        },
+        "text_encoder_2": {
+          "calls": 1,
+          "cuda_ms": 23.71
+        },
+        "vae_encode": {
+          "calls": 1,
+          "cuda_ms": 163.8
+        },
+        "unet": {
+          "calls": 2,
+          "cuda_ms": 234.88
+        },
+        "vae_decode": {
+          "calls": 1,
+          "cuda_ms": 272.57
+        }
+      }
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "seed": 101,
+      "profile": {
+        "wall_ms": 740.5482000031043,
+        "components": {
+          "text_encoder_1": {
+            "calls": 1,
+            "cuda_ms": 10.21132755279541,
+            "per_call_ms": [
+              10.21132755279541
+            ]
+          },
+          "text_encoder_2": {
+            "calls": 1,
+            "cuda_ms": 22.758399963378906,
+            "per_call_ms": [
+              22.758399963378906
+            ]
+          },
+          "vae_encode": {
+            "calls": 1,
+            "cuda_ms": 163.32595825195312,
+            "per_call_ms": [
+              163.32595825195312
+            ]
+          },
+          "unet": {
+            "calls": 2,
+            "cuda_ms": 230.1696014404297,
+            "per_call_ms": [
+              118.9007339477539,
+              111.26886749267578
+            ]
+          },
+          "vae_decode": {
+            "calls": 1,
+            "cuda_ms": 272.6082458496094,
+            "per_call_ms": [
+              272.6082458496094
+            ]
+          }
+        },
+        "component_cuda_sum_ms": 699.0735330581665,
+        "other_wall_ms": 41.47466694493778
+      },
+      "compact": {
+        "text_encoder_1": {
+          "calls": 1,
+          "cuda_ms": 10.21
+        },
+        "text_encoder_2": {
+          "calls": 1,
+          "cuda_ms": 22.76
+        },
+        "vae_encode": {
+          "calls": 1,
+          "cuda_ms": 163.33
+        },
+        "unet": {
+          "calls": 2,
+          "cuda_ms": 230.17
+        },
+        "vae_decode": {
+          "calls": 1,
+          "cuda_ms": 272.61
+        }
+      }
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "seed": 102,
+      "profile": {
+        "wall_ms": 774.7766000102274,
+        "components": {
+          "text_encoder_1": {
+            "calls": 1,
+            "cuda_ms": 10.276864051818848,
+            "per_call_ms": [
+              10.276864051818848
+            ]
+          },
+          "text_encoder_2": {
+            "calls": 1,
+            "cuda_ms": 23.861248016357422,
+            "per_call_ms": [
+              23.861248016357422
+            ]
+          },
+          "vae_encode": {
+            "calls": 1,
+            "cuda_ms": 176.21299743652344,
+            "per_call_ms": [
+              176.21299743652344
+            ]
+          },
+          "unet": {
+            "calls": 2,
+            "cuda_ms": 250.86156463623047,
+            "per_call_ms": [
+              122.5687026977539,
+              128.29286193847656
+            ]
+          },
+          "vae_decode": {
+            "calls": 1,
+            "cuda_ms": 272.1679382324219,
+            "per_call_ms": [
+              272.1679382324219
+            ]
+          }
+        },
+        "component_cuda_sum_ms": 733.380612373352,
+        "other_wall_ms": 41.39598763687536
+      },
+      "compact": {
+        "text_encoder_1": {
+          "calls": 1,
+          "cuda_ms": 10.28
+        },
+        "text_encoder_2": {
+          "calls": 1,
+          "cuda_ms": 23.86
+        },
+        "vae_encode": {
+          "calls": 1,
+          "cuda_ms": 176.21
+        },
+        "unet": {
+          "calls": 2,
+          "cuda_ms": 250.86
+        },
+        "vae_decode": {
+          "calls": 1,
+          "cuda_ms": 272.17
+        }
+      }
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "seed": 100,
+      "profile": {
+        "wall_ms": 751.3845000066794,
+        "components": {
+          "text_encoder_1": {
+            "calls": 1,
+            "cuda_ms": 10.238975524902344,
+            "per_call_ms": [
+              10.238975524902344
+            ]
+          },
+          "text_encoder_2": {
+            "calls": 1,
+            "cuda_ms": 22.992895126342773,
+            "per_call_ms": [
+              22.992895126342773
+            ]
+          },
+          "vae_encode": {
+            "calls": 1,
+            "cuda_ms": 172.00332641601562,
+            "per_call_ms": [
+              172.00332641601562
+            ]
+          },
+          "unet": {
+            "calls": 2,
+            "cuda_ms": 229.4446029663086,
+            "per_call_ms": [
+              114.56409454345703,
+              114.88050842285156
+            ]
+          },
+          "vae_decode": {
+            "calls": 1,
+            "cuda_ms": 273.5994873046875,
+            "per_call_ms": [
+              273.5994873046875
+            ]
+          }
+        },
+        "component_cuda_sum_ms": 708.2792873382568,
+        "other_wall_ms": 43.10521266842261
+      },
+      "compact": {
+        "text_encoder_1": {
+          "calls": 1,
+          "cuda_ms": 10.24
+        },
+        "text_encoder_2": {
+          "calls": 1,
+          "cuda_ms": 22.99
+        },
+        "vae_encode": {
+          "calls": 1,
+          "cuda_ms": 172.0
+        },
+        "unet": {
+          "calls": 2,
+          "cuda_ms": 229.44
+        },
+        "vae_decode": {
+          "calls": 1,
+          "cuda_ms": 273.6
+        }
+      }
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "seed": 101,
+      "profile": {
+        "wall_ms": 797.474199993303,
+        "components": {
+          "text_encoder_1": {
+            "calls": 1,
+            "cuda_ms": 11.95315170288086,
+            "per_call_ms": [
+              11.95315170288086
+            ]
+          },
+          "text_encoder_2": {
+            "calls": 1,
+            "cuda_ms": 28.518400192260742,
+            "per_call_ms": [
+              28.518400192260742
+            ]
+          },
+          "vae_encode": {
+            "calls": 1,
+            "cuda_ms": 176.25804138183594,
+            "per_call_ms": [
+              176.25804138183594
+            ]
+          },
+          "unet": {
+            "calls": 2,
+            "cuda_ms": 243.35462188720703,
+            "per_call_ms": [
+              125.64070129394531,
+              117.71392059326172
+            ]
+          },
+          "vae_decode": {
+            "calls": 1,
+            "cuda_ms": 289.99066162109375,
+            "per_call_ms": [
+              289.99066162109375
+            ]
+          }
+        },
+        "component_cuda_sum_ms": 750.0748767852783,
+        "other_wall_ms": 47.399323208024725
+      },
+      "compact": {
+        "text_encoder_1": {
+          "calls": 1,
+          "cuda_ms": 11.95
+        },
+        "text_encoder_2": {
+          "calls": 1,
+          "cuda_ms": 28.52
+        },
+        "vae_encode": {
+          "calls": 1,
+          "cuda_ms": 176.26
+        },
+        "unet": {
+          "calls": 2,
+          "cuda_ms": 243.35
+        },
+        "vae_decode": {
+          "calls": 1,
+          "cuda_ms": 289.99
+        }
+      }
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "seed": 102,
+      "profile": {
+        "wall_ms": 822.9285999841522,
+        "components": {
+          "text_encoder_1": {
+            "calls": 1,
+            "cuda_ms": 17.00556755065918,
+            "per_call_ms": [
+              17.00556755065918
+            ]
+          },
+          "text_encoder_2": {
+            "calls": 1,
+            "cuda_ms": 31.857664108276367,
+            "per_call_ms": [
+              31.857664108276367
+            ]
+          },
+          "vae_encode": {
+            "calls": 1,
+            "cuda_ms": 167.2079315185547,
+            "per_call_ms": [
+              167.2079315185547
+            ]
+          },
+          "unet": {
+            "calls": 2,
+            "cuda_ms": 268.8030700683594,
+            "per_call_ms": [
+              147.1979522705078,
+              121.60511779785156
+            ]
+          },
+          "vae_decode": {
+            "calls": 1,
+            "cuda_ms": 284.24395751953125,
+            "per_call_ms": [
+              284.24395751953125
+            ]
+          }
+        },
+        "component_cuda_sum_ms": 769.1181907653809,
+        "other_wall_ms": 53.81040921877138
+      },
+      "compact": {
+        "text_encoder_1": {
+          "calls": 1,
+          "cuda_ms": 17.01
+        },
+        "text_encoder_2": {
+          "calls": 1,
+          "cuda_ms": 31.86
+        },
+        "vae_encode": {
+          "calls": 1,
+          "cuda_ms": 167.21
+        },
+        "unet": {
+          "calls": 2,
+          "cuda_ms": 268.8
+        },
+        "vae_decode": {
+          "calls": 1,
+          "cuda_ms": 284.24
+        }
+      }
+    }
+  ]
+}
