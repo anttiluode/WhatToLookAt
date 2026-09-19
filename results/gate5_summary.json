@@ -1,0 +1,113 @@
+{
+  "training_worlds": 100,
+  "threshold_validation_worlds": 50,
+  "policy_validation_worlds_per_level": 40,
+  "test_worlds_per_level": 80,
+  "signal_dimension": 192,
+  "innovation_support": 8,
+  "validation_min_success_target": 0.95,
+  "guide_row_candidates": [1, 2, 4, 8, 16, 32, 64],
+  "selection_summary": [
+    {
+      "row_support": 1,
+      "feasible": false,
+      "best_tested_guide_rows": 64,
+      "best_min_validation_success": 0.6,
+      "guide_scalar_samples_total": 1024,
+      "guide_coordinate_touches_total": 1024
+    },
+    {
+      "row_support": 2,
+      "feasible": false,
+      "best_tested_guide_rows": 64,
+      "best_min_validation_success": 0.925,
+      "guide_scalar_samples_total": 1024,
+      "guide_coordinate_touches_total": 2048
+    },
+    {
+      "row_support": 4,
+      "feasible": true,
+      "selected_guide_rows": 32,
+      "min_validation_success": 0.95,
+      "validation_balanced_accuracy": 0.995,
+      "guide_scalar_samples_total": 512,
+      "guide_coordinate_touches_total": 2048,
+      "held_out_min_success": 0.975,
+      "four_innovation_success": 1.0,
+      "four_innovation_total_cost_fraction": 0.6666666666666666
+    },
+    {
+      "row_support": 8,
+      "feasible": true,
+      "selected_guide_rows": 32,
+      "min_validation_success": 1.0,
+      "validation_balanced_accuracy": 1.0,
+      "guide_scalar_samples_total": 512,
+      "guide_coordinate_touches_total": 4096,
+      "held_out_min_success": 1.0,
+      "four_innovation_success": 1.0,
+      "four_innovation_total_cost_fraction": 0.6666666666666666
+    },
+    {
+      "row_support": 16,
+      "feasible": true,
+      "selected_guide_rows": 8,
+      "min_validation_success": 0.95,
+      "validation_balanced_accuracy": 1.0,
+      "guide_scalar_samples_total": 128,
+      "guide_coordinate_touches_total": 2048,
+      "held_out_min_success": 0.925,
+      "four_innovation_success": 0.95,
+      "four_innovation_total_cost_fraction": 0.5385416666666667
+    },
+    {
+      "row_support": 32,
+      "feasible": true,
+      "selected_guide_rows": 8,
+      "min_validation_success": 1.0,
+      "validation_balanced_accuracy": 1.0,
+      "guide_scalar_samples_total": 128,
+      "guide_coordinate_touches_total": 4096,
+      "held_out_min_success": 1.0,
+      "four_innovation_success": 1.0,
+      "four_innovation_total_cost_fraction": 0.5416666666666666
+    },
+    {
+      "row_support": 64,
+      "feasible": true,
+      "selected_guide_rows": 4,
+      "min_validation_success": 1.0,
+      "validation_balanced_accuracy": 0.9975,
+      "guide_scalar_samples_total": 64,
+      "guide_coordinate_touches_total": 4096,
+      "held_out_min_success": 0.9875,
+      "four_innovation_success": 1.0,
+      "four_innovation_total_cost_fraction": 0.5208333333333334
+    },
+    {
+      "row_support": 96,
+      "feasible": true,
+      "selected_guide_rows": 4,
+      "min_validation_success": 1.0,
+      "validation_balanced_accuracy": 1.0,
+      "guide_scalar_samples_total": 64,
+      "guide_coordinate_touches_total": 6144,
+      "held_out_min_success": 0.975,
+      "four_innovation_success": 1.0,
+      "four_innovation_total_cost_fraction": 0.5208333333333334
+    },
+    {
+      "row_support": 192,
+      "feasible": true,
+      "selected_guide_rows": 4,
+      "min_validation_success": 0.975,
+      "validation_balanced_accuracy": 0.9975,
+      "guide_scalar_samples_total": 64,
+      "guide_coordinate_touches_total": 12288,
+      "held_out_min_success": 0.975,
+      "four_innovation_success": 0.9875,
+      "four_innovation_total_cost_fraction": 0.5200520833333333
+    }
+  ],
+  "note": "Reference JSON keeps the selected cost/quality frontier compact. Running gate5_price_of_sparse_measurements.py writes the full held-out table for every feasible selected row support."
+}
