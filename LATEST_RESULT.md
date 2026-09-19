@@ -1,3 +1,35 @@
+# Practical diffusion branch — P3 result
+
+P3 kills hard spatial U-Net tiling on the RTX 3060.
+
+Validation seeds 100/101:
+
+```text
+halo 0: edge recovery -27.54%, speedup 0.780x
+halo 4: edge recovery -14.36%, speedup 0.782x
+halo 8: edge recovery  -7.82%, speedup 0.771x
+```
+
+No halo was selected, so the held-out seed-102 panel is not used for model
+selection. The halo-8 result is especially informative: nominal spatial work is
+already 100% of the full frame, yet split execution remains wrong and slower.
+
+The practical boundary is therefore:
+
+```text
+global masked authority works (P2)
+hard spatial U-Net splitting does not (P3)
+```
+
+P4 now tests established DeepCache feature reuse on the same SDXL-Turbo route.
+This is a reproduction/compatibility test of prior work, not a novelty claim.
+If it passes, the next original question is whether cheap evidence can control
+cache refresh aggressiveness.
+
+See `PRACTICAL_ROUTER_P4.md`.
+
+---
+
 # Practical diffusion branch — latest result
 
 P2 is the first **positive causal mechanism** in the real SDXL branch.
