@@ -1,73 +1,67 @@
-# Latest result — Gate 3
+# Latest result — Gate 4
 
-Gate 3 removes Gate 2's synthetic confidence oracle.
+Gate 4 removes Gate 3's exact-within-relation assumption.
 
-Each tracked patch now has a cheap 2×4 grayscale guide image and an expensive
-8×8 RGB content patch.
+A relation now predicts a shared high-resolution base, while individual patches
+carry local residuals. Most residuals are tiny; 0, 2, 4, 6, or 8 of the 16
+patches receive large innovations.
 
-```text
-guide per patch          8 scalar samples
-expensive content      192 scalar samples
-all guides             128 scalar samples
-full high-res scan    3072 scalar samples
-```
+The cheap guide is an 8-scalar linear projection of the current high-resolution
+content and is charged to the sensing budget.
 
-Ambiguous guide images are blended toward a real cross-object look-alike.
-Nearest-template matching therefore produces genuine wrong correspondences.
+The policy uses one high-resolution anchor per relation, then asks whether each
+other member's guide residual is small enough to trust the shared relation or
+large enough to justify buying that patch's own expensive measurement.
 
-Three image-derived confidence diagnostics are calibrated on 80 training worlds
-and selected on 40 separate validation worlds:
+Training / validation:
 
 ```text
-best-vs-second-best margin       0.97593 validation balanced accuracy
-negative best-match error        0.96315
-forward/backward cycle           0.90722
-
-selected cue: margin
-threshold:    0.4285305
+quality target                        PSNR >= 40 dB
+learned guide-residual threshold      0.0239927
+training balanced accuracy            1.000
+validation balanced accuracy          1.000
 ```
 
-On 80 untouched worlds per ambiguity level:
+Held-out reference: 80 worlds per innovation level.
 
 ```text
-ambiguous guide patches          0        2        4        6
-mean wrong correspondences     0.00     1.69     3.35     5.01
+large innovations             0        2        4        6        8
 
-always trust
-  success                      100%      1.25%     0%       0%
-  total sensing cost            29.17%   29.17%   29.17%   29.17%
+fixed one per relation
+  success                   100%       0%       0%       0%       0%
+  total sensing cost         29.17%    29.17%    29.17%    29.17%    29.17%
 
-image-confidence adaptive
-  success                      100%    100%       96.25%   96.25%
-  total sensing cost            29.71%   41.90%   55.18%   67.37%
+residual adaptive
+  success                   100%     100%     100%     100%     100%
+  total sensing cost         29.17%    41.67%    54.24%    66.74%    78.62%
 
-shuffled confidence
-  success                      100%      6.25%     5.0%     0%
-  total sensing cost            29.71%   41.90%   54.79%   66.74%
+equal-cost random extra
+  success                   100%       0%       0%       1.25%     0%
+  total sensing cost         29.17%    41.67%    54.24%    66.74%    78.62%
 
-oracle uncertainty
-  success                      100%    100%      100%     100%
-  total sensing cost            29.17%   39.71%   50.10%   60.49%
+oracle residual
+  success                   100%     100%     100%     100%     100%
+  total sensing cost         29.17%    41.67%    54.24%    66.74%    78.54%
 
-full high-resolution scan
-  success                      100%    100%      100%     100%
-  total sensing cost           100%    100%      100%     100%
+full scan
+  success                   100%     100%     100%     100%     100%
+  total sensing cost        100%     100%     100%     100%     100%
 ```
 
-All cost fractions include the guide channel. The matched-cost shuffled cue is
-the key attacker: nearly the same number of scalar measurements at the wrong
-locations does not rescue reconstruction.
+The equal-cost random attacker is decisive: extra measurements are useful only
+when the cheap residual localizes where the relation stopped predicting well.
 
-The mechanism earned through Gate 3 is therefore:
+Current mechanism:
 
 ```text
-cheap image evidence
-    -> local match confidence
-    -> local relation authority
-    -> expensive sensing only where confidence fails
+learned relation
+    = compression hypothesis
+
+cheap current residual
+    -> trust the hypothesis and omit sensing
+    -> or falsify it locally and buy the missing observation
 ```
 
-The next boundary is exact relation content. Related patches currently share
-identical expensive content. Gate 4 should make the relation only approximately
-predictive and test whether observed residual error can decide when a second
-measurement is worth its cost.
+The next gate should attack the sensing operator itself: make each cheap guide
+measurement sparse, sweep how many signal coordinates it touches, and measure
+the trade-off between compute saved and additional samples required.
