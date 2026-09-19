@@ -1,6 +1,6 @@
 # SDXL VAE engineering closeout
 
-Status: **pre-registered engineering benchmark; ready for CUDA.**
+Status: **run on RTX 3060; fp16-fix PASS on validation and held-out. 512×512 branch closed.**
 
 The stage profiler resolved the remaining 512×512 bottleneck question.
 
@@ -114,3 +114,58 @@ Upload:
 ```text
 results/sdxl_vae_closeout/
 ```
+
+
+## Result — fp16-fix wins the engineering frontier
+
+The result is decisive.
+
+Validation seeds 100/101:
+
+| VAE | mean recovery | min layout PSNR | mean edge corr. | stage | speedup | pass |
+|---|---:|---:|---:|---:|---:|---|
+| **sdxl-vae-fp16-fix** | **99.50%** | **46.69 dB** | **0.959** | **0.540 s** | **1.382×** | **yes** |
+| TAESDXL | 20.67% | 21.51 dB | 0.488 | 0.319 s | 2.336× | no |
+| standard SDXL VAE | reference | reference | reference | 0.746 s | 1.000× | — |
+
+`sdxl-vae-fp16-fix` is therefore selected before looking at seed 102.
+
+Held-out seed 102:
+
+```text
+mean recovery             99.74%
+minimum recovery          99.64%
+mean PSNR                 48.98 dB
+minimum layout PSNR       49.22 dB
+mean edge correlation      0.965
+mean stage                 0.540 s
+baseline stage             0.733 s
+speedup                    1.356×
+faster cases               3 / 3
+PASS
+```
+
+The component profile also shows where the gain comes from:
+
+```text
+standard VAE total        ≈ 445 ms
+fp16-fix VAE total        ≈ 243–245 ms
+UNet time                 ≈ unchanged (~235–237 ms)
+```
+
+TAESDXL demonstrates the opposite corner of the frontier. Its VAE itself costs
+only ~25 ms and the whole stage is ~2.34× faster, but the output is not a
+drop-in approximation to the standard-VAE teacher under this test.
+
+So the final 512×512 engineering conclusion is:
+
+> **Use the fp16-fix full SDXL VAE as the sane low-latency default on this RTX
+> 3060 route. It earns a ~1.36× stage speedup while preserving essentially all
+> of the reference continuation.**
+
+This is not a WhatToLookAt mechanism. It is a conventional systems improvement
+identified by profiling.
+
+The 512×512 speed branch is now closed. The actual WhatToLookAt question moves
+to [HIGHRES_TILE_GATE.md](HIGHRES_TILE_GATE.md), where skipping a region removes
+an entire 512px diffusion invocation from a 2048px tiled-refinement workload.

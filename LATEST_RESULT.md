@@ -1,3 +1,44 @@
+# 512×512 branch closed — fp16-fix VAE passes
+
+The final engineering benchmark selects
+`madebyollin/sdxl-vae-fp16-fix`.
+
+Validation seeds 100/101:
+
+```text
+recovery                 99.50%
+minimum layout PSNR      46.69 dB
+edge correlation          0.959
+stage time                0.540 s
+speedup                   1.382x
+faster cases              6 / 6
+```
+
+Held-out seed 102 independently passes:
+
+```text
+recovery                 99.74%
+minimum layout PSNR      49.22 dB
+edge correlation          0.965
+stage time                0.540 s
+speedup                   1.356x
+faster cases              3 / 3
+```
+
+TAESDXL is much faster (~2.34x on validation) but does not preserve the
+reference output.
+
+So 512×512 SDXL-Turbo speed work is finished. The useful engineering default
+is the fp16-fix full VAE; no routing claim is attached to it.
+
+The next actual WhatToLookAt gate is high-resolution whole-call omission:
+2048×2048 refinement as sixteen independent 512px diffusion tiles, with edge
+energy deciding which full calls can be skipped.
+
+See `HIGHRES_TILE_GATE.md`.
+
+---
+
 # 512×512 profile result — VAE bottleneck confirmed
 
 The ordinary SDXL-Turbo four-step continuation on the RTX 3060 averages

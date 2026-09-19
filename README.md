@@ -839,10 +839,21 @@ This earns one final **engineering** benchmark, not another WhatToLookAt gate:
 `madebyollin/sdxl-vae-fp16-fix` and `madebyollin/taesdxl` under fixed
 prompt/base/noise/UNet conditions.
 
-After that benchmark, the 512×512 Turbo speed branch is closed. The original
-WhatToLookAt mechanism should move to workloads where omitting work deletes an
-entire expensive operation—high-resolution tiled refinement, streaming/video,
-or physical sensing.
+The benchmark has now run and the 512×512 Turbo branch is **closed**.
+
+`madebyollin/sdxl-vae-fp16-fix` passes the fixed frontier on both validation
+and held-out seed 102: ~99.5–99.7% correction recovery, very high layout/edge
+agreement, and **1.36–1.38×** measured full-stage speedup. TAESDXL reaches
+~2.34× but falls far outside the fidelity frontier. The earned engineering
+default is therefore the fp16-friendly full SDXL VAE.
+
+That speedup is not credited to WhatToLookAt.
+
+The original mechanism now moves to
+[HIGHRES_TILE_GATE.md](HIGHRES_TILE_GATE.md): a 2048×2048 workload made from
+sixteen independent 512px refinement calls. There, omitting a tile deletes a
+whole measured diffusion invocation rather than trying to sparsify a small
+global stage.
 
 ## Boundary inherited from SighImageFactorization
 
