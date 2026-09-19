@@ -216,6 +216,8 @@ class MaskedStableDiffusionXLImg2ImgPipeline(StableDiffusionXLImg2ImgPipeline):
             pil_mask = Image.fromarray(mask)
             if pil_mask.mode != "L":
                 pil_mask = pil_mask.convert("L")
+        else:
+            pil_mask = mask.convert("L")
         mask_blur = self.blur_mask(pil_mask, blur)
         mask_compose = self.blur_mask(pil_mask, blur_compose)
         if original_image is None:
