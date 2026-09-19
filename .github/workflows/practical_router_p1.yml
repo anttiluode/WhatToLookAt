@@ -1,0 +1,27 @@
+name: Practical router P1
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install numpy pillow
+      - name: Separate selector from actuator
+        run: python practical_router_p1_actuation.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: practical-router-p1-summary
+          path: results/practical_diffusion_router_p1_summary.json
