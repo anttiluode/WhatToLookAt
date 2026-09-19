@@ -1,0 +1,702 @@
+{
+  "model": "stabilityai/sdxl-turbo",
+  "gpu": "NVIDIA GeForce RTX 3060",
+  "grid": 4,
+  "selected_tiles": 4,
+  "base_steps": 2,
+  "masked_steps": 4,
+  "strength": 0.6,
+  "note": "P2 tests global-state masked actuation only; masked UNet execution is still full-frame and no speedup is claimed.",
+  "aggregate": {
+    "edge": {
+      "cases": 9,
+      "mean_recovery": 0.3086688355805913,
+      "median_recovery": 0.3211666830448864,
+      "mean_capture": 0.39701164299585856,
+      "mean_psnr_to_teacher_db": 23.79271920175167,
+      "min_psnr_to_teacher_db": 21.3019360317354,
+      "mean_stage_seconds": 0.9495316111036421
+    },
+    "random": {
+      "cases": 9,
+      "mean_recovery": 0.17295844177748254,
+      "median_recovery": 0.1743129087782811,
+      "mean_capture": 0.23322479681722946,
+      "mean_psnr_to_teacher_db": 23.0065285443354,
+      "min_psnr_to_teacher_db": 20.8096003679524,
+      "mean_stage_seconds": 0.9467584444468634
+    },
+    "oracle": {
+      "cases": 9,
+      "mean_recovery": 0.4033415862377705,
+      "median_recovery": 0.41915717844328226,
+      "mean_capture": 0.49898596811278384,
+      "mean_psnr_to_teacher_db": 24.437433901565374,
+      "min_psnr_to_teacher_db": 21.504176306899076,
+      "mean_stage_seconds": 0.9411526777710404
+    },
+    "full": {
+      "cases": 9,
+      "mean_recovery": 1.0,
+      "median_recovery": 1.0,
+      "mean_capture": 1.0,
+      "mean_psnr_to_teacher_db": 120.0,
+      "min_psnr_to_teacher_db": 120.0,
+      "mean_stage_seconds": 0.9409189000046657
+    }
+  },
+  "claim_receipt": {
+    "full_mask_mean_psnr_db": 120.0,
+    "full_mask_min_psnr_db": 120.0,
+    "edge_mean_recovery": 0.3086688355805913,
+    "random_mean_recovery": 0.17295844177748254,
+    "edge_minus_random_mean_recovery": 0.1357103938031088,
+    "edge_recovery_case_wins": 9,
+    "required_full_mask_min_psnr_db": 35.0,
+    "required_edge_mean_recovery": 0.2,
+    "required_edge_margin": 0.08,
+    "required_case_wins": 6,
+    "pass": true
+  },
+  "cases": [
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "seed": 100,
+      "draft_seconds": 0.23770060000242665,
+      "base_seconds": 0.7345175999798812,
+      "teacher_stage_seconds": 0.7545566999760922,
+      "base_mse_to_teacher": 0.0071411831513683134,
+      "methods": {
+        "edge": {
+          "tiles": [
+            10,
+            7,
+            6,
+            11
+          ],
+          "stage_seconds": 0.9552523999882396,
+          "recovery": 0.3279123451565057,
+          "psnr_to_teacher_db": 23.188039101528425,
+          "correction_energy_capture": 0.42148148708596267
+        },
+        "random": {
+          "tiles": [
+            0,
+            6,
+            7,
+            1
+          ],
+          "stage_seconds": 0.936535000015283,
+          "recovery": 0.12626155146189832,
+          "psnr_to_teacher_db": 22.048483812432753,
+          "correction_energy_capture": 0.17228754450294567
+        },
+        "oracle": {
+          "tiles": [
+            11,
+            10,
+            14,
+            9
+          ],
+          "stage_seconds": 0.9329770999902394,
+          "recovery": 0.40137537744571283,
+          "psnr_to_teacher_db": 23.690752521252676,
+          "correction_energy_capture": 0.49522144007124874
+        },
+        "full": {
+          "tiles": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "stage_seconds": 0.9387887000048067,
+          "recovery": 1.0,
+          "psnr_to_teacher_db": 120.0,
+          "correction_energy_capture": 1.0
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p2\\p01_s100_contact.png"
+    },
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "seed": 101,
+      "draft_seconds": 0.2332184000115376,
+      "base_seconds": 0.6369416999805253,
+      "teacher_stage_seconds": 0.7541970000020228,
+      "base_mse_to_teacher": 0.00464058729008224,
+      "methods": {
+        "edge": {
+          "tiles": [
+            11,
+            6,
+            15,
+            14
+          ],
+          "stage_seconds": 0.9560071000014432,
+          "recovery": 0.17740983860082948,
+          "psnr_to_teacher_db": 24.182435429574443,
+          "correction_energy_capture": 0.33025404625148247
+        },
+        "random": {
+          "tiles": [
+            12,
+            4,
+            7,
+            0
+          ],
+          "stage_seconds": 0.9385108000133187,
+          "recovery": 0.0899039080456866,
+          "psnr_to_teacher_db": 23.743398043101184,
+          "correction_energy_capture": 0.12545473699602397
+        },
+        "oracle": {
+          "tiles": [
+            13,
+            14,
+            8,
+            6
+          ],
+          "stage_seconds": 0.9319566999911331,
+          "recovery": 0.3343599562005931,
+          "psnr_to_teacher_db": 25.101876132733693,
+          "correction_energy_capture": 0.5149214010500647
+        },
+        "full": {
+          "tiles": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "stage_seconds": 0.9362908999901265,
+          "recovery": 1.0,
+          "psnr_to_teacher_db": 120.0,
+          "correction_energy_capture": 1.0
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p2\\p01_s101_contact.png"
+    },
+    {
+      "prompt": "Oil painting of an ancient stone castle surrounded by stormy ocean waves",
+      "seed": 102,
+      "draft_seconds": 0.22964129998581484,
+      "base_seconds": 0.6296021000016481,
+      "teacher_stage_seconds": 0.7433710999903269,
+      "base_mse_to_teacher": 0.003800397142300037,
+      "methods": {
+        "edge": {
+          "tiles": [
+            14,
+            5,
+            9,
+            15
+          ],
+          "stage_seconds": 0.9326281999819912,
+          "recovery": 0.3142340783796035,
+          "psnr_to_teacher_db": 25.839951176162558,
+          "correction_energy_capture": 0.4619283975437252
+        },
+        "random": {
+          "tiles": [
+            2,
+            6,
+            14,
+            13
+          ],
+          "stage_seconds": 0.9479324999847449,
+          "recovery": 0.1589976787724825,
+          "psnr_to_teacher_db": 24.953738226631916,
+          "correction_energy_capture": 0.2788920932687284
+        },
+        "oracle": {
+          "tiles": [
+            15,
+            9,
+            13,
+            11
+          ],
+          "stage_seconds": 0.9445107000065036,
+          "recovery": 0.41915717844328226,
+          "psnr_to_teacher_db": 26.56112390721833,
+          "correction_energy_capture": 0.5235728733900356
+        },
+        "full": {
+          "tiles": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "stage_seconds": 0.943289899994852,
+          "recovery": 1.0,
+          "psnr_to_teacher_db": 120.0,
+          "correction_energy_capture": 1.0
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p2\\p01_s102_contact.png"
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "seed": 100,
+      "draft_seconds": 0.23249930000747554,
+      "base_seconds": 0.6482010000036098,
+      "teacher_stage_seconds": 0.7427164000109769,
+      "base_mse_to_teacher": 0.005962265622809837,
+      "methods": {
+        "edge": {
+          "tiles": [
+            10,
+            9,
+            0,
+            13
+          ],
+          "stage_seconds": 0.9528384000004735,
+          "recovery": 0.3211666830448864,
+          "psnr_to_teacher_db": 23.928255305467406,
+          "correction_energy_capture": 0.3910833185080982
+        },
+        "random": {
+          "tiles": [
+            0,
+            6,
+            7,
+            1
+          ],
+          "stage_seconds": 0.9637317000015173,
+          "recovery": 0.2389566975899392,
+          "psnr_to_teacher_db": 23.431793114855584,
+          "correction_energy_capture": 0.28037575560732203
+        },
+        "oracle": {
+          "tiles": [
+            1,
+            9,
+            10,
+            5
+          ],
+          "stage_seconds": 0.9672155999869574,
+          "recovery": 0.44111282127814055,
+          "psnr_to_teacher_db": 24.772645330717914,
+          "correction_energy_capture": 0.5059528602324365
+        },
+        "full": {
+          "tiles": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "stage_seconds": 0.9421566000091843,
+          "recovery": 1.0,
+          "psnr_to_teacher_db": 120.0,
+          "correction_energy_capture": 1.0
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p2\\p02_s100_contact.png"
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "seed": 101,
+      "draft_seconds": 0.24332789998152293,
+      "base_seconds": 0.6432632000069134,
+      "teacher_stage_seconds": 0.741718100005528,
+      "base_mse_to_teacher": 0.005778833272196491,
+      "methods": {
+        "edge": {
+          "tiles": [
+            9,
+            10,
+            5,
+            11
+          ],
+          "stage_seconds": 0.9680511999758892,
+          "recovery": 0.3408678415556916,
+          "psnr_to_teacher_db": 24.191873344042385,
+          "correction_energy_capture": 0.41983498124933666
+        },
+        "random": {
+          "tiles": [
+            12,
+            4,
+            7,
+            0
+          ],
+          "stage_seconds": 0.9615317999850959,
+          "recovery": 0.19989281274528448,
+          "psnr_to_teacher_db": 23.350116637490412,
+          "correction_energy_capture": 0.24576560498937727
+        },
+        "oracle": {
+          "tiles": [
+            9,
+            0,
+            10,
+            4
+          ],
+          "stage_seconds": 0.9489807999925688,
+          "recovery": 0.3443736968197083,
+          "psnr_to_teacher_db": 24.21503466604471,
+          "correction_energy_capture": 0.4540363261909205
+        },
+        "full": {
+          "tiles": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "stage_seconds": 0.954325600003358,
+          "recovery": 1.0,
+          "psnr_to_teacher_db": 120.0,
+          "correction_energy_capture": 1.0
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p2\\p02_s101_contact.png"
+    },
+    {
+      "prompt": "A futuristic solar bicycle parked on a Finnish forest gravel road, morning mist",
+      "seed": 102,
+      "draft_seconds": 0.2317990000010468,
+      "base_seconds": 0.6459940999920946,
+      "teacher_stage_seconds": 0.7510932000004686,
+      "base_mse_to_teacher": 0.004750332595842796,
+      "methods": {
+        "edge": {
+          "tiles": [
+            10,
+            11,
+            9,
+            6
+          ],
+          "stage_seconds": 0.9455373999953736,
+          "recovery": 0.4118145155313012,
+          "psnr_to_teacher_db": 25.53761679493029,
+          "correction_energy_capture": 0.4539197280771745
+        },
+        "random": {
+          "tiles": [
+            2,
+            6,
+            14,
+            13
+          ],
+          "stage_seconds": 0.9443068999971729,
+          "recovery": 0.26365560806762944,
+          "psnr_to_teacher_db": 24.5619499852221,
+          "correction_energy_capture": 0.3267656789075747
+        },
+        "oracle": {
+          "tiles": [
+            10,
+            2,
+            6,
+            9
+          ],
+          "stage_seconds": 0.9379682000144385,
+          "recovery": 0.4725225942229837,
+          "psnr_to_teacher_db": 26.01072120475336,
+          "correction_energy_capture": 0.5219036083035247
+        },
+        "full": {
+          "tiles": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "stage_seconds": 0.9363536000018939,
+          "recovery": 1.0,
+          "psnr_to_teacher_db": 120.0,
+          "correction_energy_capture": 1.0
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p2\\p02_s102_contact.png"
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "seed": 100,
+      "draft_seconds": 0.24080300002242438,
+      "base_seconds": 0.6329735000035726,
+      "teacher_stage_seconds": 0.780830200004857,
+      "base_mse_to_teacher": 0.010094323017101295,
+      "methods": {
+        "edge": {
+          "tiles": [
+            10,
+            9,
+            6,
+            15
+          ],
+          "stage_seconds": 0.9561342999804765,
+          "recovery": 0.26594398985849055,
+          "psnr_to_teacher_db": 21.3019360317354,
+          "correction_energy_capture": 0.367302692711055
+        },
+        "random": {
+          "tiles": [
+            0,
+            6,
+            7,
+            1
+          ],
+          "stage_seconds": 0.9357396000123117,
+          "recovery": 0.1778278430423581,
+          "psnr_to_teacher_db": 20.8096003679524,
+          "correction_energy_capture": 0.2802773596233779
+        },
+        "oracle": {
+          "tiles": [
+            9,
+            5,
+            2,
+            10
+          ],
+          "stage_seconds": 0.9360570999851916,
+          "recovery": 0.2993434741840443,
+          "psnr_to_teacher_db": 21.504176306899076,
+          "correction_energy_capture": 0.4129326871306305
+        },
+        "full": {
+          "tiles": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "stage_seconds": 0.9362144000187982,
+          "recovery": 1.0,
+          "psnr_to_teacher_db": 120.0,
+          "correction_energy_capture": 1.0
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p2\\p03_s100_contact.png"
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "seed": 101,
+      "draft_seconds": 0.23369130000355653,
+      "base_seconds": 0.6301377000054345,
+      "teacher_stage_seconds": 0.7403191000048537,
+      "base_mse_to_teacher": 0.007615836892817917,
+      "methods": {
+        "edge": {
+          "tiles": [
+            5,
+            0,
+            1,
+            2
+          ],
+          "stage_seconds": 0.9373352999973577,
+          "recovery": 0.34380113991262184,
+          "psnr_to_teacher_db": 23.012468941225002,
+          "correction_energy_capture": 0.39164461091955094
+        },
+        "random": {
+          "tiles": [
+            12,
+            4,
+            7,
+            0
+          ],
+          "stage_seconds": 0.953084900014801,
+          "recovery": 0.1743129087782811,
+          "psnr_to_teacher_db": 22.014668708443974,
+          "correction_energy_capture": 0.21010832904083634
+        },
+        "oracle": {
+          "tiles": [
+            5,
+            1,
+            6,
+            7
+          ],
+          "stage_seconds": 0.9335540999891236,
+          "recovery": 0.4806398230264849,
+          "psnr_to_teacher_db": 24.028137196073708,
+          "correction_energy_capture": 0.5544006275429448
+        },
+        "full": {
+          "tiles": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "stage_seconds": 0.9396828000026289,
+          "recovery": 1.0,
+          "psnr_to_teacher_db": 120.0,
+          "correction_energy_capture": 1.0
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p2\\p03_s101_contact.png"
+    },
+    {
+      "prompt": "A cyberpunk cat wearing reflective sunglasses in a neon alley, cinematic lighting",
+      "seed": 102,
+      "draft_seconds": 0.23162690000026487,
+      "base_seconds": 0.6238647999998648,
+      "teacher_stage_seconds": 0.7384023999911733,
+      "base_mse_to_teacher": 0.006988659987889023,
+      "methods": {
+        "edge": {
+          "tiles": [
+            2,
+            5,
+            1,
+            4
+          ],
+          "stage_seconds": 0.9420002000115346,
+          "recovery": 0.2748690881853917,
+          "psnr_to_teacher_db": 22.95189669109915,
+          "correction_energy_capture": 0.33565552461634135
+        },
+        "random": {
+          "tiles": [
+            2,
+            6,
+            14,
+            13
+          ],
+          "stage_seconds": 0.9394527999975253,
+          "recovery": 0.12681696749378302,
+          "psnr_to_teacher_db": 22.145008002888247,
+          "correction_energy_capture": 0.17909606841887893
+        },
+        "oracle": {
+          "tiles": [
+            8,
+            0,
+            4,
+            2
+          ],
+          "stage_seconds": 0.9371537999832071,
+          "recovery": 0.4371893545189842,
+          "psnr_to_teacher_db": 24.052437848394923,
+          "correction_energy_capture": 0.5079318891032487
+        },
+        "full": {
+          "tiles": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "stage_seconds": 0.9411676000163425,
+          "recovery": 1.0,
+          "psnr_to_teacher_db": 120.0,
+          "correction_energy_capture": 1.0
+        }
+      },
+      "contact_sheet": "results\\practical_diffusion_router_p2\\p03_s102_contact.png"
+    }
+  ]
+}
