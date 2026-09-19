@@ -773,6 +773,22 @@ how to spend it locally     -> independent crop diffusion does not
 The next GPU mechanism must preserve global denoising state while making its
 spatial computation sparse.
 
+[PRACTICAL_ROUTER_P2.md](PRACTICAL_ROUTER_P2.md) now tests the mechanism-correctness
+half of that requirement. P2 keeps the full 512×512 SDXL denoising trajectory
+coherent and masks which latent regions are allowed to continue changing. It
+includes a full-mask parity control, edge/random matched masks, and an oracle
+mask ceiling. **P2 deliberately makes no speed claim yet** because its UNet
+evaluation is still full-frame.
+
+Run on CUDA:
+
+```bash
+python gpu_diffusion_router_p2.py --local-only
+```
+
+If P2 passes, P3 gets permission to make the same globally coherent update
+spatially sparse for actual compute savings.
+
 ## Boundary inherited from SighImageFactorization
 
 > **Structure may eliminate ambiguity; it may not manufacture an observable
