@@ -65,6 +65,11 @@
   <div class="note"><strong>Gate 6 — design the sparse support before observation.</strong> In the one-coordinate innovation attacker, three 64-wide designed rows deliberately cover all 192 signal coordinates. That is enough for 100% held-out success across 0/2/4/6/8 innovation patches.</div>
   <div class="note"><strong>Pruning is not the same operation.</strong> Post-hoc top-weight pruning needs 12 sparse rows to reach the same held-out frontier: 12,288 guide coordinate touches versus 3,072 for coverage-designed sensing. Dense sensing reaches validation with two rows but pays 6,144 touches and falls to 93.33% at the six-innovation held-out level.</div>
 </div>
+
+<div class="receipt" style="margin-top:26px">
+  <div class="note"><strong>Gate 7 — full coordinate coverage still fails.</strong> The three-row designed sensor touches 192/192 coordinates and is perfect for one-coordinate innovations. With total innovation energy held fixed, its worst held-out success collapses to 44.17% at support 2 and 63.33% at support 4.</div>
+  <div class="note"><strong>The missing object is measurement diversity.</strong> Twelve overlapping sparse rows stay at 100% for the post-hoc sensor and reach 99.17–100% for the random sparse sensor once support is at least 2. Multiple signed changes can cancel inside a coverage-only row, so “touch every coordinate” is weaker than “give every sparse possibility a distinguishable signature.”</div>
+</div>
 </main>
 <script>
 const N=16,B=4,C=[[.10,.20,.90],[.90,.20,.10],[.20,.85,.25],[.90,.80,.10]];
