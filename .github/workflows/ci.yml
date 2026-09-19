@@ -33,3 +33,5 @@ jobs:
         run: python gate3_image_confidence.py --train-worlds 40 --validation-worlds 24 --test-worlds 24 --output /tmp/gate3_ci.json
       - name: Reproduce Gate 4 CI receipt
         run: python gate4_relation_residual_budget.py --train-worlds 50 --validation-worlds 25 --test-worlds 24 --output /tmp/gate4_ci.json
+      - name: Reproduce Gate 5 CI receipt
+        run: python gate5_price_of_sparse_measurements.py --train-worlds 50 --threshold-validation-worlds 25 --policy-validation-worlds 20 --test-worlds 24 --output /tmp/gate5_ci.json

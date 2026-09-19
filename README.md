@@ -336,6 +336,104 @@ compressed-sensing paper's "price of sparsity" question becomes directly
 relevant: how sparse may the *measurement operator itself* become before the
 computational saving is eaten by additional samples?
 
+
+## Gate 5 — the price of a sparse measurement operator
+
+Gate 4's cheap guide still used dense random projections: every guide row mixed
+all 192 high-resolution coordinates. Gate 5 makes the measurement matrix itself
+sparse.
+
+The attacked world is deliberately support-recovery-like. A local relation
+failure changes only **8 of 192** high-resolution coordinates. A sparse guide
+row touches only (d) coordinates. If none of its touched coordinates overlap
+the innovation support, that row literally contains no evidence of the change.
+
+For each row support
+
+```text
+d = 1, 2, 4, 8, 16, 32, 64, 96, 192
+```
+
+the gate sweeps guide-row counts
+
+```text
+m = 1, 2, 4, 8, 16, 32, 64
+```
+
+and learns a residual threshold on 100 training worlds. A first validation set
+checks the detector. A second, completely separate validation panel runs the
+**end-to-end adaptive reconstruction** and chooses the smallest (m) whose
+worst innovation level reaches at least 95% success. The chosen pair is then
+frozen for 80 untouched worlds per innovation level.
+
+Two currencies are kept separate:
+
+```text
+guide scalar samples       = 16 m
+guide coordinate touches   = 16 m d
+```
+
+The second is the rough mixing / multiply-add / physical fan-in cost.
+
+The selected validation frontier:
+
+| row support d | smallest passing m | guide scalar samples | coordinate touches | min validation success |
+|---:|---:|---:|---:|---:|
+| 1 | none through 64 | 1024 at m=64 | 1024 | 60.0% |
+| 2 | none through 64 | 1024 at m=64 | 2048 | 92.5% |
+| 4 | 32 | 512 | 2048 | 95.0% |
+| 8 | 32 | 512 | 4096 | 100% |
+| 16 | 8 | 128 | 2048 | 95.0% |
+| 32 | 8 | 128 | 4096 | 100% |
+| **64** | **4** | **64** | **4096** | **100%** |
+| 96 | 4 | 64 | 6144 | 100% |
+| 192 | 4 | 64 | 12288 | 97.5% |
+
+So measurement sparsity really does have a price. At (d=1), even 64 guide
+measurements per patch are insufficient for the end-to-end target because sparse
+innovations are often simply missed. As (d) rises, far fewer rows are needed.
+
+But the other side is just as important. The selected (d=64,m=4) guide uses
+the **same 64 guide scalar samples** as the selected dense (d=192,m=4)
+guide, while touching only 4096 signal coordinates across the scene instead of
+12288 — a **3× reduction in guide mixing work**.
+
+Held-out behavior for (d=64,m=4):
+
+```text
+innovation patches        0       2       4       6       8
+success                 100%    100%    100%    98.75%  100%
+total sensing cost      27.08%  39.58%  52.08%  64.51%  77.08%
+```
+
+The dense selected guide reaches similar scalar sensing cost, but pays three
+times the coordinate-touch cost.
+
+This is the first gate where the recent compressed-sensing paper connects
+almost literally to the experiment:
+
+```text
+sparser measurement rows
+    -> cheaper individual measurements
+    -> greater risk of missing sparse signal support
+    -> more rows required
+```
+
+The useful object is therefore not "sparse is better." It is the **cost-quality
+frontier**.
+
+### Gate 5 scope fence
+
+The sparse innovations and random linear measurements are synthetic, so this is
+not an empirical validation of an asymptotic compressed-sensing theorem. It is
+an executable analogue of the same trade-off.
+
+The next clean attacker is the paper's second setting: **designed sparse sensing
+versus post-hoc sparsification**. Start with a dense guide that observed the
+world, delete most of its measurement interactions afterward, and ask whether
+the same relation-failure decision can be preserved. That separates "build a
+cheap sparse sensor" from "compress an already dense sensor/computation."
+
 ## Boundary inherited from SighImageFactorization
 
 > **Structure may eliminate ambiguity; it may not manufacture an observable
@@ -347,21 +445,21 @@ score calibration/uncertainty separately from image prettiness.
 
 ## Next gates
 
-Gate 4 now shows that a learned relation can be treated as a **compression
-hypothesis** and audited with a cheap current residual measurement. The next
-attacker is the hardware/statistical one:
+Gate 5 now measures the hardware/statistical trade-off directly. Extreme row
+sparsity saves mixing work but needs many more measurements and can still miss
+sparse innovations; moderate sparsity preserves the sensing budget while
+cutting coordinate-touch cost.
 
-- replace dense guide projections with measurements that each touch only a
-  small number of high-resolution inputs;
-- sweep measurement-row sparsity against total sample count and reconstruction
-  quality;
-- compare dense random guides, sparse guides, and post-hoc sparsified guides at
-  matched multiply/add cost;
-- ask where the computational saving stops paying because too many extra
-  measurements are required.
+The next attacker separates two ideas that Gate 5 still conflates:
 
-That is the direct bridge into the modern "price of measurement sparsity"
-compressed-sensing literature.
+- **designed sparse sensing:** build the sparse measurement operator before the
+  observation;
+- **post-hoc sparsification:** observe with a dense operator, then zero most of
+  its interactions and try to preserve the downstream relation-failure
+  decision.
+
+That is the second setting in the recent "price of sparsity" paper and a useful
+bridge to pruning / sparse computation as well as sensing.
 
 After that, the Gate-19/20 lesson from SighImageFactorization can enter directly:
 when the meaning of a predictor changes, sensing budget should rise, stale
