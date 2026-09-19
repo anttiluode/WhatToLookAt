@@ -1,67 +1,63 @@
-# Latest result — Gate 4
+# Latest result — Gate 5
 
-Gate 4 removes Gate 3's exact-within-relation assumption.
+Gate 5 makes the cheap sensing operator itself sparse.
 
-A relation now predicts a shared high-resolution base, while individual patches
-carry local residuals. Most residuals are tiny; 0, 2, 4, 6, or 8 of the 16
-patches receive large innovations.
+A relation failure changes only **8 of 192** high-resolution coordinates. A
+guide measurement touches only (d) coordinates, so very sparse rows can
+literally miss the changed support.
 
-The cheap guide is an 8-scalar linear projection of the current high-resolution
-content and is charged to the sensing budget.
+For every row support (d), guide-row count (m) is swept over
+`1,2,4,8,16,32,64`. Thresholds are trained on 100 worlds. A separate detector
+validation set is followed by a second end-to-end policy validation panel.
+The smallest (m) whose *worst* validation innovation level reaches 95%
+reconstruction success is frozen before the 80-world-per-level test.
 
-The policy uses one high-resolution anchor per relation, then asks whether each
-other member's guide residual is small enough to trust the shared relation or
-large enough to justify buying that patch's own expensive measurement.
-
-Training / validation:
-
-```text
-quality target                        PSNR >= 40 dB
-learned guide-residual threshold      0.0239927
-training balanced accuracy            1.000
-validation balanced accuracy          1.000
-```
-
-Held-out reference: 80 worlds per innovation level.
+Selected frontier:
 
 ```text
-large innovations             0        2        4        6        8
-
-fixed one per relation
-  success                   100%       0%       0%       0%       0%
-  total sensing cost         29.17%    29.17%    29.17%    29.17%    29.17%
-
-residual adaptive
-  success                   100%     100%     100%     100%     100%
-  total sensing cost         29.17%    41.67%    54.24%    66.74%    78.62%
-
-equal-cost random extra
-  success                   100%       0%       0%       1.25%     0%
-  total sensing cost         29.17%    41.67%    54.24%    66.74%    78.62%
-
-oracle residual
-  success                   100%     100%     100%     100%     100%
-  total sensing cost         29.17%    41.67%    54.24%    66.74%    78.54%
-
-full scan
-  success                   100%     100%     100%     100%     100%
-  total sensing cost        100%     100%     100%     100%     100%
+row support d      selected m     guide samples     coordinate touches
+1                  none <=64      1024 @ m=64       1024
+2                  none <=64      1024 @ m=64       2048
+4                  32             512               2048
+8                  32             512               4096
+16                  8             128               2048
+32                  8             128               4096
+64                  4              64               4096
+96                  4              64               6144
+192                 4              64              12288
 ```
 
-The equal-cost random attacker is decisive: extra measurements are useful only
-when the cheap residual localizes where the relation stopped predicting well.
-
-Current mechanism:
+The extreme sparse cases expose the price directly:
 
 ```text
-learned relation
-    = compression hypothesis
-
-cheap current residual
-    -> trust the hypothesis and omit sensing
-    -> or falsify it locally and buy the missing observation
+d=1, m=64   best minimum validation success   60.0%
+d=2, m=64   best minimum validation success   92.5%
 ```
 
-The next gate should attack the sensing operator itself: make each cheap guide
-measurement sparse, sweep how many signal coordinates it touches, and measure
-the trade-off between compute saved and additional samples required.
+They save per-row work, but too many sparse innovations fall outside the
+measurement support.
+
+A useful middle regime appears at **d=64, m=4**. It uses the same 64 guide
+scalar measurements as the selected dense **d=192, m=4** guide, but only
+4096 coordinate touches across the scene instead of 12288.
+
+Held-out d=64,m=4:
+
+```text
+innovation patches        0       2       4       6       8
+success                 100%    100%    100%    98.75%  100%
+total sensing cost      27.08%  39.58%  52.08%  64.51%  77.08%
+```
+
+So the gate earns a real cost curve rather than a slogan:
+
+```text
+measurement sparsity
+    saves fan-in / mixing work
+    but increases the chance that sparse signal support is never touched
+    and therefore increases required sample count.
+```
+
+The next gate should compare **designed sparse sensing** with **post-hoc
+sparsification of a dense measurement operator** at matched downstream quality
+and compute cost.
