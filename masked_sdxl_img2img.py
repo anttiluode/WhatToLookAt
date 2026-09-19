@@ -509,6 +509,13 @@ class MaskedStableDiffusionXLImg2ImgPipeline(StableDiffusionXLImg2ImgPipeline):
                 # interpolate with latent mask
                 latents = torch.lerp(non_paint_latents, latents, latent_mask)
 
+            # The VAE may have been upcast to float32 while the denoising
+            # latents remain float16. Current diffusers handles this dtype
+            # handoff internally; the vendored community pipeline did not.
+            # Match the decoder input to the actual VAE parameter dtype before
+            # post_quant_conv to avoid Half-vs-float convolution failures.
+            vae_dtype = next(iter(self.vae.post_quant_conv.parameters())).dtype
+            latents = latents.to(dtype=vae_dtype)
             latents = self.denormalize(latents)
             image = self.vae.decode(latents, return_dict=False)[0]
             m = mask_compose.permute(2, 0, 1).unsqueeze(0).to(image)
