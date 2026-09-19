@@ -45,6 +45,11 @@
   <div class="note"><strong>Gate 2 — uncertainty buys observation.</strong> Wrong correspondences make blind four-measurement trust collapse to 0% success. A learned local confidence threshold instead grows the average budget from 4.00 → 5.99 → 7.95 → 9.95 measurements as 0 → 2 → 4 → 6 matches become wrong, while held-out success stays 100% → 96.25% → 95% → 95%.</div>
   <div class="note"><strong>Not just “measure more.”</strong> Global caution is perfect but always costs 16 measurements. Shuffling the same confidence values keeps almost the same adaptive budget but drops success to 1.25%, 0%, and 1.25% in the ambiguous worlds. The extra observations have to be spent where the relation is actually uncertain.</div>
 </div>
+
+<div class="receipt" style="margin-top:26px">
+  <div class="note"><strong>Gate 3 — the confidence signal is now an image measurement.</strong> Every patch pays for an 8-scalar 2×4 guide thumbnail; an expensive 8×8 RGB patch costs 192 scalars. Validation selects best-vs-second-best template margin (0.9759 balanced accuracy) over match error and cycle consistency. The guide cost is included in every adaptive budget.</div>
+  <div class="note"><strong>The budget still localizes.</strong> With 4 ambiguous guide patches (3.35 wrong matches on average), blind trust succeeds 0% at 29.17% of a full scan. Image-confidence adaptive sensing succeeds 96.25% at 55.18%. Shuffling the same confidence values costs 54.79% but succeeds only 5%. At 6 ambiguous guides, adaptive sensing still succeeds 96.25% at 67.37% of full sensing.</div>
+</div>
 </main>
 <script>
 const N=16,B=4,C=[[.10,.20,.90],[.90,.20,.10],[.20,.85,.25],[.90,.80,.10]];
