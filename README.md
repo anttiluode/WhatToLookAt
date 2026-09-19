@@ -850,10 +850,17 @@ default is therefore the fp16-friendly full SDXL VAE.
 That speedup is not credited to WhatToLookAt.
 
 The original mechanism now moves to
-[HIGHRES_TILE_GATE.md](HIGHRES_TILE_GATE.md): a 2048×2048 workload made from
-sixteen independent 512px refinement calls. There, omitting a tile deletes a
-whole measured diffusion invocation rather than trying to sparsify a small
-global stage.
+[HIGHRES_TILE_GATE.md](HIGHRES_TILE_GATE.md), but the first hard-paste H0 design
+was **invalidated before scoring**: its all-tile reference itself had visible
+512px block seams.
+
+H0b fixes that with a 5×5 grid of overlapping 512px calls (128px overlap) and
+cosine feather blending. The all-25 teacher is smooth; a selective route starts
+from the smooth base and adds only selected feathered corrections. Skipping a
+tile still deletes one complete diffusion invocation, but no hard rectangle is
+ever pasted into the image.
+
+This seam failure is now an explicit validity control in the gate.
 
 ## Boundary inherited from SighImageFactorization
 
